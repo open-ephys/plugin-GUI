@@ -140,14 +140,19 @@ void GraphViewer::updateNodes (GenericProcessor* processor_, Array<GenericProces
 
     for (auto processor : rootProcessors)
     {
-        int horzShift = -1;
+        int horzShift = X_BORDER_SIZE; // Start at left border
         level = jmax (rootProcessors.indexOf (processor), level + 1);
 
         while ((processor != nullptr) || (splitters.size() > 0))
         {
             if (processor != nullptr)
             {
-                horzShift++;
+                // Calculate horzShift from the right edge of the previous node at this level
+                if (nodesByLevel[level].size() > 0)
+                {
+                    GraphNode* prevNode = nodesByLevel[level].getLast();
+                    horzShift = prevNode->getRight() + X_BORDER_SIZE;
+                }
 
                 if (processor->isMerger())
                 {
@@ -158,17 +163,17 @@ void GraphViewer::updateNodes (GenericProcessor* processor_, Array<GenericProces
                         if (nodeA != nullptr)
                         {
                             level = nodeA->getLevel();
-                            int horzShiftA = nodeA->getHorzShift();
-                            int horzShiftB = 0;
+                            int nodeRightA = nodeA->getHorzShift() + nodeA->getWidth();
+                            int nodeRightB = 0;
 
                             if (merger->getSourceNode (1) != nullptr)
                             {
                                 GraphNode* nodeB = getNodeForEditor (merger->getSourceNode (1)->getEditor());
                                 if (nodeB != nullptr)
-                                    horzShiftB = nodeB->getHorzShift();
+                                    nodeRightB = nodeB->getHorzShift() + nodeB->getWidth();
                             }
 
-                            horzShift = jmax (horzShiftA, horzShiftB) + 1;
+                            horzShift = jmax (nodeRightA, nodeRightB) + X_BORDER_SIZE;
                         }
                     }
                     else if (merger->getSourceNode (0) == nullptr && merger->getSourceNode (1) != nullptr)
@@ -184,10 +189,11 @@ void GraphViewer::updateNodes (GenericProcessor* processor_, Array<GenericProces
                 {
                     addNode (processor->getEditor(), level, horzShift);
                 }
-                else // Node exists, updated necessary info
+                else
                 {
                     GraphNode* node = getNodeForEditor (processor->getEditor());
                     node->stillNeeded = true;
+                    node->updateWidth();
                     node->setLevel (level);
                     node->setHorzShift (horzShift);
                     node->updateStreamInfo();
@@ -213,7 +219,7 @@ void GraphViewer::updateNodes (GenericProcessor* processor_, Array<GenericProces
                 processor = splitter->getDestNode (1); // then come back to chain 1
 
                 GraphNode* gn = getNodeForEditor (splitter->getEditor());
-                horzShift = gn->getHorzShift();
+                horzShift = gn->getRight() + X_BORDER_SIZE;
 
                 auto destA = splitter->getDestNode (0);
                 bool hasDownstreamSplitter = false;
@@ -260,16 +266,8 @@ void GraphViewer::addNode (GenericEditor* editor, int level, int offset)
     addAndMakeVisible (gn, 0);
     availableNodes.add (gn);
 
-    int thisNodeWidth = NODE_WIDTH;
-
-    if (gn->getName().length() > 18)
-    {
-        thisNodeWidth += (gn->getName().length() - 18) * 10;
-    }
-
     gn->setLevel (level);
     gn->setHorzShift (offset);
-    gn->setWidth (thisNodeWidth);
     gn->updateBoundaries();
 }
 
@@ -549,7 +547,7 @@ DataStreamInfo::DataStreamInfo (DataStream* stream_, GenericEditor* editor, Grap
 
         addAndMakeVisible (parameterPanel.get());
         parameterPanel->addMouseListener (this, true);
-        parameterPanel->setBounds (0, 60, NODE_WIDTH, 20);
+        parameterPanel->setBounds (0, 60, node->getWidth(), 20);
 
         heightInPixels += 20;
     }
@@ -603,7 +601,7 @@ void DataStreamInfo::buttonClicked (Button* button)
         heightInPixels = editorHeight + 80;
         node->updateBoundaries();
         node->setDataStreamPanelSize (this, heightInPixels);
-        parameterPanel->setSize (NODE_WIDTH, editorHeight + 20);
+        parameterPanel->setSize (node->getWidth(), editorHeight + 20);
         parameterPanel->expandPanelFully (streamParameterEditorComponent.get(), false);
     }
     else
@@ -611,7 +609,7 @@ void DataStreamInfo::buttonClicked (Button* button)
         heightInPixels = 80;
         node->updateBoundaries();
         node->setDataStreamPanelSize (this, heightInPixels);
-        parameterPanel->setSize (NODE_WIDTH, 20);
+        parameterPanel->setSize (node->getWidth(), 20);
         parameterPanel->setPanelSize (streamParameterEditorComponent.get(), 0, false);
     }
 
@@ -636,21 +634,33 @@ void DataStreamInfo::restorePanels()
 {
     headerButton->setToggleState (node->streamInfoVisible[stream->getKey()], dontSendNotification);
 
-    if (parameterButton != nullptr && node->streamParamsVisible[stream->getKey()])
+    if (parameterButton != nullptr)
     {
-        parameterButton->setToggleState (node->streamParamsVisible[stream->getKey()], sendNotification);
-    }
-    else
-    {
-        node->updateBoundaries();
+        bool paramsVisible = node->streamParamsVisible[stream->getKey()];
+        parameterButton->setToggleState (paramsVisible, dontSendNotification);
 
-        if (node->streamInfoVisible[stream->getKey()])
-            node->setDataStreamPanelSize (this, heightInPixels);
+        if (paramsVisible)
+        {
+            heightInPixels = editorHeight + 80;
+            parameterPanel->setSize (node->getWidth(), editorHeight + 20);
+            parameterPanel->expandPanelFully (streamParameterEditorComponent.get(), false);
+        }
         else
-            node->setDataStreamPanelSize (this, 0);
-
-        node->updateGraphView();
+        {
+            heightInPixels = 80;
+            parameterPanel->setSize (node->getWidth(), 20);
+            parameterPanel->setPanelSize (streamParameterEditorComponent.get(), 0, false);
+        }
     }
+
+    node->updateBoundaries();
+
+    if (headerButton->getToggleState())
+        node->setDataStreamPanelSize (this, heightInPixels);
+    else
+        node->setDataStreamPanelSize (this, 0);
+
+    node->updateGraphView();
 }
 
 ProcessorParameterComponent::ProcessorParameterComponent (GenericProcessor* p)
@@ -763,6 +773,13 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
     vertShift = 0;
     processorInfoVisible = false;
 
+    updateWidth();
+
+    setBounds (getHorzShift(),
+               Y_BORDER_SIZE + getLevel() * NODE_HEIGHT,
+               nodeWidth,
+               40);
+
     infoPanel = std::make_unique<ConcertinaPanel>();
 
     if (! processor->isMerger() && ! processor->isSplitter() && ! processor->isEmpty())
@@ -801,11 +818,6 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
         infoPanel->addMouseListener (this, true);
     }
 
-    setBounds (X_BORDER_SIZE + getHorzShift() * NODE_WIDTH,
-               Y_BORDER_SIZE + getLevel() * NODE_HEIGHT,
-               nodeWidth,
-               40);
-
     previousHeight = 0;
     verticalOffset = 0;
 
@@ -842,9 +854,14 @@ void GraphNode::setHorzShift (int shift)
     horzShift = shift;
 }
 
-void GraphNode::setWidth (int width)
+void GraphNode::updateWidth()
 {
-    nodeWidth = width;
+    nodeWidth = NODE_WIDTH;
+
+    if (getName().length() > 18)
+    {
+        nodeWidth += (getName().length() - 18) * 10;
+    }
 }
 
 void GraphNode::mouseEnter (const MouseEvent& m)
@@ -1026,16 +1043,16 @@ void GraphNode::updateBoundaries()
             panelHeight += 20;
     }
 
-    infoPanel->setBounds (0, 0, NODE_WIDTH, panelHeight);
+    infoPanel->setBounds (0, 0, nodeWidth, panelHeight);
 
     int nodeY = gv->getLevelStartY (getLevel());
     if (nodeY == 0)
-        setBounds (X_BORDER_SIZE + getHorzShift() * (NODE_WIDTH + X_BORDER_SIZE),
+        setBounds (getHorzShift(), // Use pixel x position directly
                    Y_BORDER_SIZE + getLevel() * (NODE_HEIGHT + 35),
                    nodeWidth,
                    panelHeight);
     else
-        setBounds (X_BORDER_SIZE + getHorzShift() * (NODE_WIDTH + X_BORDER_SIZE),
+        setBounds (getHorzShift(),
                    nodeY,
                    nodeWidth,
                    panelHeight);
@@ -1212,9 +1229,9 @@ void GraphNode::paint (Graphics& g)
         if (processorInfoVisible)
             g.fillRect (0, 19, getWidth(), 1);
 
-        g.setColour (findColour (ThemeColours::defaultText)); 
+        g.setColour (findColour (ThemeColours::defaultText));
         g.drawText (String (nodeId), 1, 1, 23, 20, Justification::centred, true);
-        g.setColour (Colours::white); 
+        g.setColour (Colours::white);
         g.setFont (FontOptions ("CP Mono", "Plain", 15.0f));
         g.drawText (getName().toUpperCase(), 30, 1, getWidth() - 30, 20, Justification::left, true);
     }

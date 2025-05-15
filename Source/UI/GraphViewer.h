@@ -227,7 +227,7 @@ public:
     void setLevel (int newLevel);
 
     /** Sets the width of node in graph display */
-    void setWidth (int newWidth);
+    void updateWidth();
 
     /** Sets the horizontal shift (x-position of node in graph display) */
     void setHorzShift (int newHorizontalShift);
