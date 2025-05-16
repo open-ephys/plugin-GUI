@@ -106,6 +106,10 @@ UIComponent::UIComponent (MainWindow* mainWindow_,
     addConsoleTab();
 
     popupManager = std::make_unique<PopupManager>();
+
+    bubbleMsgComponent = std::make_unique<BubbleMessageComponent>();
+    bubbleMsgComponent->setAllowedPlacement (BubbleComponent::above | BubbleComponent::below);
+    addChildComponent (bubbleMsgComponent.get());
 }
 
 UIComponent::~UIComponent()
@@ -470,6 +474,18 @@ void UIComponent::setUIBusy (bool busy)
 {
     isBusy = busy;
     repaint();
+}
+
+void UIComponent::showBubbleMessage (Component *component, const String& message)
+{
+    AttributedString s;
+    s.setText (message);
+    s.setColour (findColour (ThemeColours::defaultText));
+    s.setJustification (Justification::left);
+    s.setWordWrap (AttributedString::WordWrap::byWord);
+    s.setFont (FontOptions("Inter", "Regular", 16.0f));
+
+    bubbleMsgComponent->showAt (component, s, 4000);
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -868,7 +884,7 @@ bool UIComponent::perform (const InvocationInfo& info)
             {
                 FileChooser fc ("Choose the file name...",
                                 CoreServices::getDefaultUserSaveDirectory(),
-                                "*",
+                                ".xml",
                                 true);
 
                 if (fc.browseForFileToSave (true))

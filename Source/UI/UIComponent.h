@@ -194,6 +194,9 @@ public:
     /** Notifies the UI component when the console viewer window is closed */
     void windowClosed (const String& windowName) override;
 
+    /** Shows a message bubble above/below the specified child component */
+    void showBubbleMessage (Component *component, const String& message);
+
     /** Finds a child component based on a unique component ID */
     Component* findComponentByIDRecursive (Component* parent, const String& id);
 
@@ -232,6 +235,8 @@ private:
     std::unique_ptr<MessageWindow> messageWindow;
 
     std::unique_ptr<PopupManager> popupManager;
+
+    std::unique_ptr<BubbleMessageComponent> bubbleMsgComponent;
 
     Viewport processorListViewport;
 
