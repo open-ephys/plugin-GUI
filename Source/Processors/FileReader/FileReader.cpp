@@ -166,6 +166,14 @@ void FileReader::handleLinkedParameterChange (Parameter* param, var newValue)
 
         // Linked action
         SelectFile* action = new SelectFile (this, pathParam, newValue, activeStream, startTime, endTime);
+
+        // Check if selected file is a valid file by checking if it exists and size > 0
+        if (! File(newValue).exists() || File(newValue).getSize() == 0)
+        {
+            CoreServices::sendStatusMessage ("Invalid file: File doesn't exist or is empty");
+            return;
+        }
+
         CoreServices::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
         CoreServices::getUndoManager()->perform ((UndoableAction*) action);
     }
