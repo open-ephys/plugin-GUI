@@ -1592,6 +1592,8 @@ bool ProcessorGraph::isReady()
 {
     LOGD ("ProcessorGraph checking for all valid parameters...");
 
+    auto* controlPanel = AccessClass::getControlPanel();
+
     //Iterate through all the active nodes in the signal chain
     for (int i = 0; i < getNumNodes(); i++)
     {
@@ -1606,7 +1608,7 @@ bool ProcessorGraph::isReady()
                 if (! param->isValid())
                 {
                     CoreServices::sendStatusMessage ("Parameter " + param->getKey() + " is not valid.");
-                    AccessClass::getControlPanel()->disableCallbacks();
+                    controlPanel->disableCallbacks();
                     return false;
                 }
             }
@@ -1619,14 +1621,24 @@ bool ProcessorGraph::isReady()
 
     if (getNumNodes() < 4)
     {
-        LOGD ("Not enough processors in signal chain to acquire data");
-        AccessClass::getControlPanel()->disableCallbacks();
+        if (! isConsoleApp)
+        {
+            AccessClass::getUIComponent()->getLookAndFeel().playAlertSound();
+
+            AccessClass::getUIComponent()->showBubbleMessage (controlPanel->getPlayButton(),
+                                                              "Add a source processor to the signal chain"
+                                                              " before starting acquisition");
+        }
+        CoreServices::sendStatusMessage ("Not enough processors in signal chain to acquire data.");
+        controlPanel->disableCallbacks();
         return false;
     }
 
     LOGD ("Checking that all processors are enabled...");
 
     int NWBCounter = 0;
+
+    StringArray disabledProcessors;
 
     for (int i = 0; i < getNumNodes(); i++)
     {
@@ -1652,11 +1664,15 @@ bool ProcessorGraph::isReady()
 
         if (NWBCounter > 1)
         {
-            AccessClass::getControlPanel()->disableCallbacks();
+            controlPanel->disableCallbacks();
+            if (! isConsoleApp)
+            {
+                AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+                                                  "WARNING",
+                                                  "Open Ephys currently does not support multiple processors using NWB format. Please modify the signal chain accordingly to proceed with acquisition.");
+            }
 
-            AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                              "WARNING",
-                                              "Open Ephys currently does not support multiple processors using NWB format. Please modify the signal chain accordingly to proceed with acquisition.");
+            LOGC ("Multiple processors using NWB format is not supported. Please modify the signal chain accordingly to proceed with acquisition.");
 
             return false;
         }
@@ -1666,20 +1682,44 @@ bool ProcessorGraph::isReady()
         {
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
 
+            const String nameAndId = p->getName() + " (" + String (p->getNodeId()) + ")";
+
             if (! p->isEnabled)
             {
-                LOGD (" ", p->getName(), " is not ready to start acquisition.");
-                AccessClass::getControlPanel()->disableCallbacks();
-                return false;
+                disabledProcessors.add (nameAndId);
+                LOGC (nameAndId, " is disabled and blocking acquisition.");
             }
 
             if (! p->isReady())
             {
-                CoreServices::sendStatusMessage (p->getName() + " is not ready to start acquisition!");
-                AccessClass::getControlPanel()->disableCallbacks();
+                if (! isConsoleApp)
+                {
+                    AccessClass::getUIComponent()->showBubbleMessage (controlPanel->getPlayButton(),
+                                                                      nameAndId + " is not ready and blocking acquisition");
+                }
+                CoreServices::sendStatusMessage (nameAndId + " is not ready and blocking acquisition");
+                controlPanel->disableCallbacks();
                 return false;
             }
         }
+    }
+
+    if (disabledProcessors.size() > 0)
+    {
+        if (! isConsoleApp)
+        {
+            String disabledProcessorList = disabledProcessors.joinIntoString ("\n");
+
+            AccessClass::getUIComponent()->getLookAndFeel().playAlertSound();
+
+            String msg = "The following processors are disabled and blocking acquisition:\n\n"
+                         + disabledProcessorList;
+
+            AccessClass::getUIComponent()->showBubbleMessage (controlPanel->getPlayButton(), msg);
+        }
+
+        controlPanel->disableCallbacks();
+        return false;
     }
 
     return true;

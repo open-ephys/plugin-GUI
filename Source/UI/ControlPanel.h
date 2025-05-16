@@ -475,6 +475,12 @@ public:
     /** Updates button colours when colour theme changes */
     void colourChanged() override;
 
+    /** Returns the play button component */
+    Component* getPlayButton() { return playButton.get(); }
+
+    /** Returns the record button component */
+    Component* getRecordButton() { return recordButton.get(); }
+
     /** Pointers to owned components */
     std::unique_ptr<FilenameEditorButton> filenameText;
     std::unique_ptr<FilenameConfigWindow> filenameConfigWindow;

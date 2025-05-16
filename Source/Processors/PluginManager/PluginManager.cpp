@@ -72,8 +72,8 @@ static void errorMsg (const char* file, int line, const char* msg)
             NULL);
 
         LOGE (msg, " Error code ", dw, ": ", (LPTSTR) lpMsgBuf);
+        LocalFree (lpMsgBuf);
     }
-    LocalFree (lpMsgBuf);
 
 #elif defined(__APPLE__)
     // Any additional error messages are logged directly by the system
