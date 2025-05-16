@@ -59,7 +59,7 @@ GenericEditor::GenericEditor (GenericProcessor* owner) : AudioProcessorEditor (o
 
     nodeId = owner->getNodeId();
 
-    titleFont = FontOptions ("CP Mono", "Plain", 14);
+    titleFont = FontOptions ("CP Mono", "Plain", 16);
 
     drawerButton = std::make_unique<DrawerButton> (getNameAndId() + " Drawer Button");
     drawerButton->addListener (&drawerButtonListener);
@@ -556,15 +556,20 @@ void GenericEditor::paint (Graphics& g)
         g.setColour (isEnabled ? Colours::white : findColour (ThemeColours::defaultText).withAlpha (0.5f));
         g.setFont (FontOptions ("Fira Mono", "Plain", 13));
         g.drawText (String (nodeId), 8, 5, 30, 15, Justification::left, false);
-        g.setFont (FontOptions ("CP Mono", "Plain", 16));
-        g.drawText (displayName.toUpperCase(), 35, 4, 500, 15, Justification::left, false);
+        g.setFont (titleFont);
+
+        int titleWidth = getWidth() - 38;
+        if (isVisualizerEditor())
+            titleWidth = getWidth() - 78;
+
+        g.drawText (displayName.toUpperCase(), 35, 4, titleWidth, 15, Justification::left, true);
     }
     else
     {
         g.addTransform (AffineTransform::rotation (-M_PI / 2.0));
         g.setColour (isEnabled ? Colours::white : findColour (ThemeColours::defaultText).withAlpha (0.5f));
         g.setFont (FontOptions ("CP Mono", "Plain", 14));
-        g.drawText (displayName.toUpperCase(), -getHeight() + 6, 5, 500, 15, Justification::left, false);
+        g.drawText (displayName.toUpperCase(), -getHeight() + 6, 5, getHeight() - 8, 15, Justification::left, true);
         g.addTransform (AffineTransform::rotation (M_PI / 2.0));
     }
 
