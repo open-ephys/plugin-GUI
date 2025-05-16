@@ -58,7 +58,6 @@ private:
     std::unique_ptr<Drawable> newDirectoryIcon;
 };
 
-
 /**
 
     Locks the new directory button to force new directories for each recording.
@@ -76,7 +75,6 @@ public:
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 
 private:
-
     std::unique_ptr<Drawable> forceNewDirectoryIcon;
 };
 
@@ -120,7 +118,7 @@ public:
     ~PlayButton() {}
 
     /** Re-makes images with new colours */
-    void updateImages(bool acquisitionIsActive);
+    void updateImages (bool acquisitionIsActive);
 };
 
 /**
@@ -148,7 +146,7 @@ public:
     ~RecordButton() {}
 
     /** Re-makes images with new colours */
-    void updateImages(bool recordingIsActive);
+    void updateImages (bool recordingIsActive);
 };
 
 /**
@@ -167,7 +165,8 @@ public:
 
 */
 
-class CPUMeter : public Label
+class CPUMeter : public Component,
+                 public SettableTooltipClient
 {
 public:
     /** Constructor*/
@@ -186,6 +185,8 @@ public:
 private:
     FontOptions font;
     float cpu;
+
+    void mouseUp (const MouseEvent& e) override;
 };
 
 /**
@@ -220,8 +221,9 @@ public:
 
 private:
     FontOptions font;
-
     float diskFree;
+
+    void mouseUp (const MouseEvent& e) override;
 };
 
 /**

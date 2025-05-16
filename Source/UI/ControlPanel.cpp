@@ -193,7 +193,7 @@ void RecordButton::updateImages (bool recordingIsActive)
     setImages (&normal, &over, &down);
 }
 
-CPUMeter::CPUMeter() : Label ("CPU Meter", "0.0"),
+CPUMeter::CPUMeter() : Component ("CPU Meter"),
                        cpu (0.0f)
 {
     font = FontOptions ("Silkscreen", "Regular", 14);
@@ -223,7 +223,18 @@ void CPUMeter::paint (Graphics& g)
     g.drawSingleLineText ("CPU", 65, 12);
 }
 
-DiskSpaceMeter::DiskSpaceMeter()
+void CPUMeter::mouseUp (const MouseEvent& e)
+{
+    if (e.mods.isLeftButtonDown())
+    {
+        AccessClass::getUIComponent()->showBubbleMessage (this,
+                                                          "Displays the fraction of available time that the"
+                                                          " signal chain takes to complete one processing cycle");
+    }
+}
+
+DiskSpaceMeter::DiskSpaceMeter() : Component ("Disk Space Meter"),
+                                   diskFree (0.0f)
 
 {
     font = FontOptions ("Silkscreen", "Regular", 14);
@@ -256,6 +267,16 @@ void DiskSpaceMeter::paint (Graphics& g)
     g.setColour (findColour (ThemeColours::defaultText));
     g.setFont (font);
     g.drawSingleLineText ("DF", 75, 12);
+}
+
+void DiskSpaceMeter::mouseUp (const MouseEvent& e)
+{
+    if (e.mods.isLeftButtonDown())
+    {
+        AccessClass::getUIComponent()->showBubbleMessage (this,
+                                                          "Displays the fraction of available disk space"
+                                                          " used by the default recording directory");
+    }
 }
 
 Clock::Clock()
