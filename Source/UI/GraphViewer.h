@@ -289,6 +289,8 @@ private:
     int previousHeight;
 
     int verticalOffset;
+
+    FontOptions nodeNameFont;
 };
 
 /**

@@ -773,6 +773,8 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
     vertShift = 0;
     processorInfoVisible = false;
 
+    nodeNameFont = FontOptions ("CP Mono", "Plain", 15.0f);
+
     updateWidth();
 
     setBounds (getHorzShift(),
@@ -858,10 +860,11 @@ void GraphNode::updateWidth()
 {
     nodeWidth = NODE_WIDTH;
 
-    if (getName().length() > 18)
-    {
-        nodeWidth += (getName().length() - 18) * 10;
-    }
+    // Width of node = name string width + 5 + width of node id string
+    int newWidth = GlyphArrangement::getStringWidthInt (Font (nodeNameFont), getName()) + 5 + 30;
+
+    if (newWidth > nodeWidth)
+        nodeWidth = newWidth;
 }
 
 void GraphNode::mouseEnter (const MouseEvent& m)
@@ -1232,7 +1235,7 @@ void GraphNode::paint (Graphics& g)
         g.setColour (findColour (ThemeColours::defaultText));
         g.drawText (String (nodeId), 1, 1, 23, 20, Justification::centred, true);
         g.setColour (Colours::white);
-        g.setFont (FontOptions ("CP Mono", "Plain", 15.0f));
+        g.setFont (nodeNameFont);
         g.drawText (getName().toUpperCase(), 30, 1, getWidth() - 30, 20, Justification::left, true);
     }
 }
