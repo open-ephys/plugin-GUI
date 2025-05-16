@@ -107,7 +107,7 @@ UIComponent::UIComponent (MainWindow* mainWindow_,
 
     popupManager = std::make_unique<PopupManager>();
 
-    bubbleMsgComponent = std::make_unique<BubbleMessageComponent>();
+    bubbleMsgComponent = std::make_unique<BubbleMessageComponent> (500);
     bubbleMsgComponent->setAllowedPlacement (BubbleComponent::above | BubbleComponent::below);
     addChildComponent (bubbleMsgComponent.get());
 }
@@ -476,16 +476,16 @@ void UIComponent::setUIBusy (bool busy)
     repaint();
 }
 
-void UIComponent::showBubbleMessage (Component *component, const String& message)
+void UIComponent::showBubbleMessage (Component* component, const String& message)
 {
     AttributedString s;
     s.setText (message);
     s.setColour (findColour (ThemeColours::defaultText));
     s.setJustification (Justification::left);
     s.setWordWrap (AttributedString::WordWrap::byWord);
-    s.setFont (FontOptions("Inter", "Regular", 16.0f));
+    s.setFont (FontOptions ("Inter", "Regular", 16.0f));
 
-    bubbleMsgComponent->showAt (component, s, 4000);
+    bubbleMsgComponent->showAt (component, s, 3000);
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
