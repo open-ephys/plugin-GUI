@@ -1132,6 +1132,12 @@ void ControlPanel::buttonClicked (Button* button)
         {
             if (! graph->hasRecordNode())
             {
+                if (! isConsoleApp)
+                {
+                    getLookAndFeel().playAlertSound();
+                    AccessClass::getUIComponent()->showBubbleMessage (getRecordButton(),
+                                                                      "Insert at least one Record Node to start recording");
+                }
                 CoreServices::sendStatusMessage ("Insert at least one Record Node to start recording.");
                 recordButton->setToggleState (false, dontSendNotification);
                 return;
