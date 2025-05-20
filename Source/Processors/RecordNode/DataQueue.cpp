@@ -73,7 +73,7 @@ void DataQueue::setChannelCount (int nChans)
     {
         m_fifos.add (new AbstractFifo (m_maxSize));
         m_readSamples.push_back (0);
-        m_sampleNumbers.add (new std::vector<int>());
+        m_sampleNumbers.add (new std::vector<int64>());
 
         for (int j = 0; j < m_numBlocks; j++)
         {
@@ -114,12 +114,12 @@ void DataQueue::resize (int nBlocks)
     m_FTSBuffer.setSize (m_numFTSChans, size);
 }
 
-void DataQueue::fillSampleNumbers (int channel, int index, int size, int sampleNumber)
+void DataQueue::fillSampleNumbers (int channel, int index, int size, int64 sampleNumber)
 {
     //Search for the next block start.
     int blockMod = index % m_blockSize;
     int blockIdx = index / m_blockSize;
-    uint64 startSampleNumber;
+    int64 startSampleNumber;
     int blockStartPos;
 
     if (blockMod == 0) //block starts here
@@ -135,7 +135,7 @@ void DataQueue::fillSampleNumbers (int channel, int index, int size, int sampleN
     }
 
     //check that the block is in range
-    uint64 latestSampleNumber;
+    int64 latestSampleNumber;
 
     for (int i = 0; i < size; i += m_blockSize)
     {
@@ -180,7 +180,7 @@ float DataQueue::writeChannel (const AudioBuffer<float>& buffer,
                                int srcChannel,
                                int destChannel,
                                int nSamples,
-                               int sampleNumber)
+                               int64 sampleNumber)
 {
     int index1, size1, index2, size2;
     m_fifos[destChannel]->prepareToWrite (nSamples, index1, size1, index2, size2);
@@ -233,7 +233,7 @@ const SynchronizedTimestampBuffer& DataQueue::getTimestampBufferReference() cons
 
 bool DataQueue::startRead (std::vector<CircularBufferIndexes>& dataBufferIdxs,
                            std::vector<CircularBufferIndexes>& timestampBufferIdxs,
-                           Array<int>& sampleNumbers,
+                           Array<int64>& sampleNumbers,
                            int nMax)
 {
     //This should never happen, but it never hurts to be on the safe side.
@@ -257,7 +257,7 @@ bool DataQueue::startRead (std::vector<CircularBufferIndexes>& dataBufferIdxs,
         int blockDiff = (blockMod == 0) ? 0 : (m_blockSize - blockMod);
 
         //If the next sample number block is within the data we're reading, include the translated sample number in the output
-        int sampleNum;
+        int64 sampleNum;
 
         if (blockDiff < (idx.size1 + idx.size2))
         {
@@ -307,7 +307,7 @@ void DataQueue::stopRead()
     m_readInProgress = false;
 }
 
-void DataQueue::getSampleNumbersForBlock (int idx, Array<int>& sampleNumbers) const
+void DataQueue::getSampleNumbersForBlock (int idx, Array<int64>& sampleNumbers) const
 {
     sampleNumbers.clear();
     for (int chan = 0; chan < m_numChans; ++chan)

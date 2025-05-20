@@ -62,12 +62,12 @@ public:
     void resize (int nBlocks);
 
     /** Returns an array of sample numbers for a given block*/
-    void getSampleNumbersForBlock (int idx, Array<int>& sampleNumbers) const;
+    void getSampleNumbersForBlock (int idx, Array<int64>& sampleNumbers) const;
 
     /// -----------  THREAD SAFE  -------------- //
 
     /** Writes an array of data for one channel */
-    float writeChannel (const AudioBuffer<float>& buffer, int srcChannel, int destChannel, int nSamples, int sampleNumbers);
+    float writeChannel (const AudioBuffer<float>& buffer, int srcChannel, int destChannel, int nSamples, int64 sampleNumber);
 
     /** Writes an array of timestamps for one stream */
     float writeSynchronizedTimestamps (double start, double step, int destChannel, int nSamples);
@@ -75,7 +75,7 @@ public:
     /** Start reading data for one channel */
     bool startRead (std::vector<CircularBufferIndexes>& dataBufferIdxs,
                     std::vector<CircularBufferIndexes>& timestampBufferIdxs,
-                    Array<int>& sampleNumbers,
+                    Array<int64>& sampleNumbers,
                     int nMax);
 
     /** Called when data read is finished */
@@ -92,7 +92,7 @@ public:
 
 private:
     /** Fills the sample number buffer for a given channel */
-    void fillSampleNumbers (int channel, int index, int size, int sampleNumbers);
+    void fillSampleNumbers (int channel, int index, int size, int64 sampleNumber);
 
     int lastIdx;
 
@@ -104,8 +104,8 @@ private:
 
     std::vector<int> m_readSamples;
     std::vector<int> m_readFTSSamples;
-    OwnedArray<std::vector<int>> m_sampleNumbers;
-    std::vector<int> m_lastReadSampleNumbers;
+    OwnedArray<std::vector<int64>> m_sampleNumbers;
+    std::vector<int64> m_lastReadSampleNumbers;
 
     int m_numChans;
     int m_numFTSChans;

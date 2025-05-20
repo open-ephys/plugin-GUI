@@ -132,7 +132,7 @@ public:
     void setChannelMap (const Array<int>& globalChannels, const Array<int>& localChannels);
 
     /** Called at the start of every write block */
-    void updateLatestSampleNumbers (const Array<int>& sampleNumbers, int channel = -1);
+    void updateLatestSampleNumbers (const Array<int64>& sampleNumbers, int channel = -1);
 
 protected:
     // ------------------------------------------------------------
@@ -170,7 +170,7 @@ protected:
     String generateDateString() const;
 
     /** Gets the current block's first timestamp for a given recorded channel */
-    int getLatestSampleNumber (int channel) const;
+    int64 getLatestSampleNumber (int channel) const;
 
     /** Gets the a channel's global index from a recorded channel index */
     int getGlobalIndex (int channel) const;
@@ -179,7 +179,7 @@ protected:
     int getLocalIndex (int channel) const;
 
 private:
-    Array<int> sampleNumbers;
+    Array<int64> sampleNumbers;
     Array<int> globalChannelMap;
     Array<int> localChannelMap;
 

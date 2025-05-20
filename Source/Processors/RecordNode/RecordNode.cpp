@@ -934,7 +934,7 @@ void RecordNode::process (AudioBuffer<float>& buffer)
                                                                channelMap[channelIndex],
                                                                channelIndex,
                                                                numSamples,
-                                                               int (sampleNumber));
+                                                               sampleNumber);
                 }
             }
 

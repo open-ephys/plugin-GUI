@@ -115,7 +115,7 @@ void RecordThread::run()
     //1-Open Files
     m_cleanExit = false;
     closeEarly = false;
-    Array<int> sampleNumbers;
+    Array<int64> sampleNumbers;
 
     m_engine->openFiles (m_rootFolder, m_experimentNumber, m_recordingNumber);
 

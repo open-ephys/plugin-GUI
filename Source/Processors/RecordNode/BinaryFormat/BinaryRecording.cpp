@@ -561,7 +561,7 @@ void BinaryRecording::writeContinuousData (int writeChannel,
     /* If is first channel in subprocessor */
     if (m_channelIndexes[writeChannel] == 0)
     {
-        int baseSampleNumber = getLatestSampleNumber (writeChannel);
+        int64 baseSampleNumber = getLatestSampleNumber (writeChannel);
 
         uint32 streamId = getContinuousChannel (realChannel)->getStreamId();
 

@@ -98,7 +98,7 @@ private:
     std::atomic<bool> m_receivedFirstBlock;
     std::atomic<bool> m_cleanExit;
 
-    Array<int> sampleNumbers;
+    Array<int64> sampleNumbers;
     std::vector<CircularBufferIndexes> dataBufferIdxs;
     std::vector<CircularBufferIndexes> timestampBufferIdxs;
 
