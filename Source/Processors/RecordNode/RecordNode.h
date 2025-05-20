@@ -92,7 +92,6 @@ public:
 */
 class TESTABLE RecordNode : public GenericProcessor,
                             public SynchronizingProcessor,
-                            public FilenameComponentListener,
                             public Timer
 {
 public:
@@ -150,9 +149,6 @@ public:
     /* Creates a new recording directory*/
     void createNewDirectory (bool resetCounters = false);
 
-    /* Callback for responding to changes in data-directory-related settings*/
-    void filenameComponentChanged (FilenameComponent*);
-
     /* Generates a date string to be used in the directory name*/
     String generateDateString() const;
 
@@ -182,6 +178,9 @@ public:
 
     /** Sets the parent directory for this Record Node (can be different from default directory) */
     void setDataDirectory (File);
+
+    /** Sets the root folder for this Record Node (can be different from default directory) */
+    void setDefaultRecordingDirectory (File);
 
     /** Returns the parent directory for this Record Node (can be different from default directory) */
     File getDataDirectory();
@@ -280,6 +279,7 @@ private:
     bool settingsNeeded;
     bool shouldRecord;
 
+    File defaultRecordDirectory; // Default directory for saving data (set by the ControlPanel)
     File dataDirectory;
     File rootFolder;
 

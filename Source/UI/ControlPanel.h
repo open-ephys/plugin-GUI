@@ -342,7 +342,8 @@ class TESTABLE ControlPanel : public Component,
                               public Timer,
                               public Label::Listener,
                               public ComboBox::Listener,
-                              public ComponentListener
+                              public ComponentListener,
+                              public FilenameComponentListener
 
 {
 public:
@@ -499,22 +500,25 @@ private:
     String generateFilenameFromFields (bool usePlaceholderText);
 
     /* Called by popup window for editing recording filename fields */
-    void componentBeingDeleted (Component& component);
+    void componentBeingDeleted (Component& component) override;
 
     /** Draws the control panel background */
-    void paint (Graphics& g);
+    void paint (Graphics& g) override;
 
     /** Sets sub-component bounds */
-    void resized();
+    void resized() override;
 
     /** Respond to button clicks */
-    void buttonClicked (Button* button);
+    void buttonClicked (Button* button) override;
 
     /** Respond to ComboBox changes */
-    void comboBoxChanged (ComboBox* combo);
+    void comboBoxChanged (ComboBox* combo) override;
+
+    /** Respond to changes in the FilenameComponent */
+    void filenameComponentChanged (FilenameComponent*) override;
 
     /** Controls timing of meter animations */
-    void timerCallback();
+    void timerCallback() override;
 
     /** Updates the values displayed by the CPUMeter and DiskSpaceMeter.*/
     void refreshMeters();

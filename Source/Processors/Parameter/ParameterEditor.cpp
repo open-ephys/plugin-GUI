@@ -127,17 +127,25 @@ TextBoxParameterEditor::TextBoxParameterEditor (Parameter* param, int rowHeightP
     label->setFont (labelFont);
     addAndMakeVisible (label.get());
 
-    if (param->getType() == Parameter::FLOAT_PARAM) {
-        if (((FloatParameter*) param)->getMinValue() < 0) {
+    if (param->getType() == Parameter::FLOAT_PARAM)
+    {
+        if (((FloatParameter*) param)->getMinValue() < 0)
+        {
             valueTextBox = std::make_unique<CustomTextBox> (param->getKey(), String (float (param->getValue())), "-0123456789.");
-        } else {
+        }
+        else
+        {
             valueTextBox = std::make_unique<CustomTextBox> (param->getKey(), String (float (param->getValue())), "0123456789.");
         }
     }
-    else if (param->getType() == Parameter::INT_PARAM) {
-        if (((IntParameter*) param)->getMinValue() < 0) {
+    else if (param->getType() == Parameter::INT_PARAM)
+    {
+        if (((IntParameter*) param)->getMinValue() < 0)
+        {
             valueTextBox = std::make_unique<CustomTextBox> (param->getKey(), String (int (param->getValue())), "-0123456789");
-        } else {
+        }
+        else
+        {
             valueTextBox = std::make_unique<CustomTextBox> (param->getKey(), String (int (param->getValue())), "0123456789");
         }
     }
@@ -1102,7 +1110,8 @@ void PathParameterEditor::updateView()
 
     if (param)
     {
-        button->setButtonText (param->getValueAsString());
+        String value = param->getValueAsString();
+        button->setButtonText (value);
         if (! ((PathParameter*) param)->isValid())
         {
             button->setColour (TextButton::textColourOnId, Colours::red);
@@ -1116,7 +1125,24 @@ void PathParameterEditor::updateView()
         }
         //Alternatively:
         //button->setButtonText(File(param->getValueAsString()).getFileName());
-        button->setTooltip (param->getValueAsString());
+        if (value == "None")
+        {
+            String defaultValue = param->getDefaultValue().toString();
+            if (defaultValue == "None" || defaultValue.isEmpty())
+            {
+                button->setButtonText ("None");
+                button->setTooltip (param->getDescription());
+            }
+            else
+            {
+                button->setButtonText ("default");
+                button->setTooltip ("Override default path");
+            }
+        }
+        else
+        {
+            button->setTooltip (value);
+        }
     }
 }
 

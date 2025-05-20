@@ -325,17 +325,15 @@ RecordToggleButton::~RecordToggleButton() {}
 
 void RecordToggleButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    g.setColour (Colour (0, 0, 0));
-    g.fillRoundedRectangle (0, 0, getWidth(), getHeight(), 0.2 * getWidth());
-
     if (! getToggleState())
         g.setColour (findColour (ThemeColours::widgetBackground));
     else
         g.setColour (Colour (255, 0, 0));
 
-    g.fillRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
+    g.fillRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 2, 3.0f);
 
     g.setColour (Colour (0, 0, 0));
+    g.drawRoundedRectangle (1.0f, 1.0f, (float) getWidth() - 2.0f, (float) getHeight() - 2.0f, 3.0f, 1.0f);
     g.fillEllipse (0.35 * getWidth(), 0.35 * getHeight(), 0.3 * getWidth(), 0.3 * getHeight());
 }
 
@@ -376,6 +374,161 @@ void RecordToggleParameterEditor::resized()
 {
 }
 
+void ClearButton::paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown)
+{
+    g.fillAll (findColour (ThemeColours::widgetBackground).contrasting (0.05f));
+
+    int xoffset = (getWidth() - 14) / 2;
+    int yoffset = (getHeight() - 14) / 2;
+
+    if (isMouseOverButton)
+    {
+        g.setColour (findColour (ThemeColours::defaultFill).withAlpha (0.5f));
+        g.fillRoundedRectangle (xoffset, yoffset, 14, 14, 4.0f);
+    }
+
+    g.setColour (findColour (ThemeColours::defaultText));
+
+    Path path;
+    path.addLineSegment (Line<float> (2, 2, 8, 8), 0.0f);
+    path.addLineSegment (Line<float> (2, 8, 8, 2), 0.0f);
+
+    path.applyTransform (AffineTransform::translation (xoffset + 2, yoffset + 2));
+
+    g.strokePath (path, PathStrokeType (1.0f));
+}
+
+RecordPathParameterEditor::RecordPathParameterEditor (Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor (param)
+{
+    jassert (param->getType() == Parameter::PATH_PARAM);
+
+    setBounds (0, 0, rowWidthPixels, rowHeightPixels);
+
+    button = std::make_unique<TextButton> ("Browse");
+    button->setName (param->getKey());
+    button->addListener (this);
+    button->setClickingTogglesState (false);
+    button->setTooltip (param->getValueAsString());
+    button->addMouseListener (this, true);
+    addAndMakeVisible (button.get());
+
+    label = std::make_unique<Label> ("Parameter name", param->getDisplayName()); // == "" ? param->getName().replace("_", " ") : param->getDisplayName());
+    Font labelFont = FontOptions ("Inter", "Regular", int (0.75 * rowHeightPixels));
+    label->setFont (labelFont);
+    label->setJustificationType (Justification::left);
+    addAndMakeVisible (label.get());
+
+    clearButton = std::make_unique<ClearButton>();
+    clearButton->addListener (this);
+    clearButton->addMouseListener (this, true);
+    clearButton->setTooltip ("Set to default");
+    addChildComponent (clearButton.get());
+
+    int width = rowWidthPixels;
+
+    label->setBounds (width / 2 + 4, 0, width / 2, rowHeightPixels);
+    button->setBounds (0, 0, width / 2, rowHeightPixels);
+    clearButton->setBounds ((width) / 2 - rowHeightPixels - 1, 1, rowHeightPixels - 2, rowHeightPixels - 2);
+
+    editor = (Component*) button.get();
+}
+
+void RecordPathParameterEditor::buttonClicked (Button* button_)
+{
+    if (button_ == button.get())
+    {
+        bool isDirectory = ((PathParameter*) param)->getIsDirectory();
+        String dialogBoxTitle;
+        String validFilePatterns;
+
+        if (param->getDescription().isEmpty())
+            dialogBoxTitle = "Select a " + String (isDirectory ? "directory" : "file");
+        else
+            dialogBoxTitle = param->getDescription();
+
+        if (! isDirectory)
+            validFilePatterns = "*." + ((PathParameter*) param)->getValidFilePatterns().joinIntoString (";*.");
+
+        FileChooser chooser (dialogBoxTitle, File(), validFilePatterns);
+
+        bool success = isDirectory ? chooser.browseForDirectory() : chooser.browseForFileToOpen();
+        if (success)
+        {
+            File file = chooser.getResult();
+            param->setNextValue (file.getFullPathName());
+            updateView();
+        }
+    }
+    else if (button_ == clearButton.get())
+    {
+        param->setNextValue ("None");
+        clearButton->setVisible (false);
+        updateView();
+    }
+}
+
+void RecordPathParameterEditor::updateView()
+{
+    if (param == nullptr)
+        button->setEnabled (false);
+    else
+        button->setEnabled (true);
+
+    if (param)
+    {
+        String value = param->getValueAsString();
+        button->setButtonText (value);
+        if (! ((PathParameter*) param)->isValid())
+        {
+            button->setColour (TextButton::textColourOnId, Colours::red);
+            button->setColour (TextButton::textColourOffId, Colours::red);
+        }
+        else
+        {
+            // Remove the red colour if it was previously set
+            button->removeColour (TextButton::textColourOnId);
+            button->removeColour (TextButton::textColourOffId);
+        }
+        //Alternatively:
+        //button->setButtonText(File(param->getValueAsString()).getFileName());
+        if (value == "None")
+        {
+            button->setButtonText ("default");
+            button->setTooltip ("Override default path");
+        }
+        else
+        {
+            button->setTooltip (value);
+        }
+    }
+}
+
+void RecordPathParameterEditor::resized()
+{
+    updateBounds();
+
+    if (button != nullptr)
+    {
+        clearButton->setBounds (button->getRight() - button->getHeight(),
+                                button->getY() + 1,
+                                button->getHeight() - 2,
+                                button->getHeight() - 2);
+    }
+}
+
+void RecordPathParameterEditor::mouseEnter (const MouseEvent& event)
+{
+    if (param->getValueAsString() != "None" && button->isEnabled())
+    {
+        clearButton->setVisible (true);
+    }
+}
+
+void RecordPathParameterEditor::mouseExit (const MouseEvent& event)
+{
+    clearButton->setVisible (false);
+}
+
 RecordNodeEditor::RecordNodeEditor (RecordNode* parentNode)
     : GenericEditor (parentNode)
 {
@@ -392,7 +545,7 @@ RecordNodeEditor::RecordNodeEditor (RecordNode* parentNode)
     diskMonitor->setBounds (18, 33, 15, 92);
     addAndMakeVisible (diskMonitor.get());
 
-    addPathParameterEditor (Parameter::PROCESSOR_SCOPE, "directory", 42, 32);
+    addCustomParameterEditor (new RecordPathParameterEditor (parentNode->getParameter ("directory")), 42, 32);
     addComboBoxParameterEditor (Parameter::PROCESSOR_SCOPE, "engine", 42, 57);
 
     for (auto& p : { "directory", "engine" })

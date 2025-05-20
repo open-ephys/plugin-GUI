@@ -105,8 +105,8 @@ RecordNode::~RecordNode()
 
 void RecordNode::registerParameters()
 {
-    String defaultRecordDirectory = CoreServices::getRecordingParentDirectory().getFullPathName();
-    addPathParameter (Parameter::PROCESSOR_SCOPE, "directory", "Directory", "Select a directory to write data to", defaultRecordDirectory, {}, true, true);
+    defaultRecordDirectory = CoreServices::getRecordingParentDirectory().getFullPathName();
+    addPathParameter (Parameter::PROCESSOR_SCOPE, "directory", "Directory", "Select a directory to write data to", defaultRecordDirectory, {}, true, false);
 
     Array<String> recordEngines;
     std::vector<RecordEngineManager*> engines = getAvailableRecordEngines();
@@ -135,9 +135,10 @@ void RecordNode::parameterValueChanged (Parameter* p)
     if (p->getName() == "directory")
     {
         String newPath = static_cast<PathParameter*> (p)->getValue();
-        if (newPath == "default")
-            newPath = CoreServices::getRecordingParentDirectory().getFullPathName();
-        setDataDirectory (File (newPath));
+        if (newPath == "None")
+            setDataDirectory (defaultRecordDirectory);
+        else
+            setDataDirectory (newPath);
     }
     else if (p->getName() == "engine")
     {
@@ -426,6 +427,18 @@ void RecordNode::setDataDirectory (File directory)
     createNewDirectory();
 
     checkDiskSpace();
+}
+
+void RecordNode::setDefaultRecordingDirectory (File directory)
+{
+    defaultRecordDirectory = directory;
+    
+    Parameter* p = getParameter ("directory");
+
+    if (p->getValueAsString() == "None")
+    {
+        setDataDirectory (directory);
+    }
 }
 
 void RecordNode::createNewDirectory (bool resetCounters)
@@ -983,13 +996,6 @@ void RecordNode::writeSpike (const Spike* spike, const SpikeChannel* spikeElectr
 
     if (electrodeIndex >= 0)
         spikeQueue->addEvent (*spike, spike->getSampleNumber(), electrodeIndex);
-}
-
-// FileNameComponent listener
-void RecordNode::filenameComponentChanged (FilenameComponent* fnc)
-{
-    dataDirectory = fnc->getCurrentFile();
-    newDirectoryNeeded = true;
 }
 
 void RecordNode::timerCallback()
