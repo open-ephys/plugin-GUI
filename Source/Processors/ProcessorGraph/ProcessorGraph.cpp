@@ -1607,6 +1607,15 @@ bool ProcessorGraph::isReady()
             {
                 if (! param->isValid())
                 {
+                    if (! isConsoleApp)
+                    {
+                        AccessClass::getUIComponent()->getLookAndFeel().playAlertSound();
+
+                        String msg = p->getName() + " (" + String (p->getNodeId()) + ") - "
+                                     + param->getDisplayName() + " is invalid and blocking acquisition.";
+
+                        AccessClass::getUIComponent()->showBubbleMessage (controlPanel->getPlayButton(), msg);
+                    }
                     CoreServices::sendStatusMessage ("Parameter " + param->getKey() + " is not valid.");
                     controlPanel->disableCallbacks();
                     return false;
