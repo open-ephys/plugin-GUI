@@ -1148,10 +1148,12 @@ bool UIComponent::perform (const InvocationInfo& info)
 
         case openPluginInstaller:
         {
-            if (pluginInstaller == nullptr)
+            if (pluginInstaller != nullptr)
             {
-                pluginInstaller = new PluginInstaller();
+                delete pluginInstaller;
             }
+            
+            pluginInstaller = new PluginInstaller();
             pluginInstaller->setVisible (true);
             pluginInstaller->toFront (true);
             break;
