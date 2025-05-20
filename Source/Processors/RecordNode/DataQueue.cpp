@@ -142,7 +142,7 @@ void DataQueue::fillSampleNumbers (int channel, int index, int size, int64 sampl
         if ((blockStartPos + i) < (index + size))
         {
             latestSampleNumber = startSampleNumber + (i * m_blockSize);
-            m_sampleNumbers[channel]->at (blockIdx) = int (latestSampleNumber);
+            m_sampleNumbers[channel]->at (blockIdx) = latestSampleNumber;
         }
     }
 }
