@@ -1615,6 +1615,37 @@ const String EditorViewport::loadState (File fileToLoad)
         return "Not a valid file.";
     }
 
+    if (auto* element = xml->getChildByName ("INFO"))
+    {
+        for (auto* child : element->getChildIterator())
+        {
+            if (child->hasTagName ("VERSION"))
+            {
+                String savedVersion = child->getAllSubText();
+                String minimumVersion = "1.0.0";
+
+                if (savedVersion.compareNatural (minimumVersion) < 0)
+                {
+                    bool userResponse = AlertWindow::showOkCancelBox (AlertWindow::WarningIcon,
+                                                                      "Incompatible Configuration File",
+                                                                      "This configuration file was created using a version of Open Ephys GUI older than 1.0.0. "
+                                                                      "Some settings and parmeters may not load correctly.\n\n"
+                                                                      "Would you like to proceed with loading the configuration file?",
+                                                                      "Yes",
+                                                                      "No");
+
+                    if (! userResponse)
+                    {
+                        LOGC ("Cancelled loading configuration file.");
+                        return "Cancelled loading configuration file.";
+                    }
+                }
+
+                break;
+            }
+        }
+    }
+
     AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction ("Disabled during acquisition");
 
     LoadSignalChain* action = new LoadSignalChain (xml);
