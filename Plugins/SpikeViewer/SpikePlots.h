@@ -110,10 +110,10 @@ public:
     void setId (std::string id);
 
     /** Draws outline and electrode name*/
-    void paint (Graphics& g);
+    void paint (Graphics& g) override;
 
     /** Sets bounds of sub-axes*/
-    void resized();
+    void resized() override;
 
     /** Plots latest spikes in buffer*/
     void refresh();
@@ -296,7 +296,10 @@ public:
     bool checkThreshold (const Spike* spike);
 
     /** Draws the component (calls plotSpike)*/
-    void paint (Graphics& g);
+    void paint (Graphics& g) override;
+    
+    /** Sets the position for label */
+    void resized() override;
 
     /** Draws a single spike */
     void plotSpike (const Spike* s, Graphics& g, bool latestSpike = true);
@@ -394,7 +397,7 @@ public:
     bool updateSpikeData (const Spike* s);
 
     /** Displays the projection image*/
-    void paint (Graphics& g);
+    void paint (Graphics& g) override;
 
     /** Removes the projection image*/
     void clear();

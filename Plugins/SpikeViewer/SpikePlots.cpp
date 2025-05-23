@@ -32,14 +32,13 @@ SpikePlot::SpikePlot (SpikeDisplayCanvas* sdc,
                       int p,
                       String name_,
                       Array<String> continuousChannelNames_,
-                      std::string identifier_) : 
-     canvas (sdc),
-     electrodeNumber (elecNum),
-     plotType (p),
-     limitsChanged (true),
-     name (name_),
-     continuousChannelNames(continuousChannelNames_),
-     identifier (identifier_)
+                      std::string identifier_) : canvas (sdc),
+                                                 electrodeNumber (elecNum),
+                                                 plotType (p),
+                                                 limitsChanged (true),
+                                                 name (name_),
+                                                 continuousChannelNames (continuousChannelNames_),
+                                                 identifier (identifier_)
 {
     font = FontOptions ("Inter", "Medium", 16.0f);
 
@@ -96,7 +95,6 @@ SpikePlot::SpikePlot (SpikeDisplayCanvas* sdc,
     channelNameLabel = std::make_unique<Label>();
     channelNameLabel->setText (name, dontSendNotification);
     channelNameLabel->setFont (font);
-    channelNameLabel->setColour (Label::textColourId, findColour (ThemeColours::defaultText));
     channelNameLabel->setBounds (10, 0, 200, 20);
     addAndMakeVisible (channelNameLabel.get());
 
@@ -204,7 +202,7 @@ void SpikePlot::initAxes()
             channelComparison = continuousChannelNames[1] + " vs " + continuousChannelNames[3];
         else if (i == 5)
             channelComparison = continuousChannelNames[2] + " vs " + continuousChannelNames[3];
-        
+
         ProjectionAxes* pAx = new ProjectionAxes (canvas, proj, channelComparison);
         projectionAxes.add (pAx);
         addAndMakeVisible (pAx);
@@ -484,11 +482,10 @@ void SpikePlot::invertSpikes (bool shouldInvert)
 
 GenericAxes::GenericAxes (SpikeDisplayCanvas* canvas,
                           SpikePlotType type_,
-                          String channelName_) :
-    canvas (canvas),
-    type (type_),
-    channelName(channelName_),
-    gotFirstSpike (false)
+                          String channelName_) : canvas (canvas),
+                                                 type (type_),
+                                                 channelName (channelName_),
+                                                 gotFirstSpike (false)
 {
     ylims[0] = 0;
     ylims[1] = 1;
@@ -576,26 +573,25 @@ double GenericAxes::ad16ToUv (int x, int gain)
     return result;
 }
 
-WaveAxes::WaveAxes (SpikeDisplayCanvas* canvas, 
+WaveAxes::WaveAxes (SpikeDisplayCanvas* canvas,
                     int electrodeIndex,
                     int channel_,
                     String channelName,
-                    std::string identifier_) : 
- GenericAxes (canvas, WAVE_AXES, channelName),
- electrodeIndex (electrodeIndex),
- drawGrid (true),
- displayThresholdLevel (0.0f),
- detectorThresholdLevel (0.0f),
- spikesReceivedSinceLastRedraw (0),
- spikeIndex (0),
- bufferSize (5),
- range (250.0f),
- isOverThresholdSlider (false),
- isDraggingThresholdSlider (false),
- thresholdCoordinator (nullptr),
- spikesInverted (false),
- channel (channel_),
- identifier (identifier_)
+                    std::string identifier_) : GenericAxes (canvas, WAVE_AXES, channelName),
+                                               electrodeIndex (electrodeIndex),
+                                               drawGrid (true),
+                                               displayThresholdLevel (0.0f),
+                                               detectorThresholdLevel (0.0f),
+                                               spikesReceivedSinceLastRedraw (0),
+                                               spikeIndex (0),
+                                               bufferSize (5),
+                                               range (250.0f),
+                                               isOverThresholdSlider (false),
+                                               isDraggingThresholdSlider (false),
+                                               thresholdCoordinator (nullptr),
+                                               spikesInverted (false),
+                                               channel (channel_),
+                                               identifier (identifier_)
 {
     addMouseListener (this, true);
 
@@ -609,18 +605,17 @@ WaveAxes::WaveAxes (SpikeDisplayCanvas* canvas,
     }
 
     thresholdLabel = std::make_unique<Label>();
-    thresholdLabel->setFont(font);
-    thresholdLabel->setJustificationType(Justification::right);
-    thresholdLabel->setColour(Label::textColourId, thresholdColour);
-    addAndMakeVisible(thresholdLabel.get());
+    thresholdLabel->setFont (font);
+    thresholdLabel->setJustificationType (Justification::right);
+    thresholdLabel->setColour (Label::textColourId, thresholdColour);
+    addAndMakeVisible (thresholdLabel.get());
 
     channelNameLabel = std::make_unique<Label>();
-    channelNameLabel->setFont(font);
-    channelNameLabel->setJustificationType(Justification::left);
-    channelNameLabel->setColour(Label::textColourId, Colours::white);
-    channelNameLabel->setText(channelName, dontSendNotification);
-    channelNameLabel->setBounds(getWidth()-44, 5, 40, 13);
-    addAndMakeVisible(channelNameLabel.get());
+    channelNameLabel->setFont (font);
+    channelNameLabel->setJustificationType (Justification::left);
+    channelNameLabel->setColour (Label::textColourId, Colours::white.withAlpha (0.5f));
+    channelNameLabel->setText (channelName, dontSendNotification);
+    addAndMakeVisible (channelNameLabel.get());
 }
 
 void WaveAxes::setRange (float r)
@@ -648,7 +643,7 @@ void WaveAxes::paint (Graphics& g)
 
     // draw the threshold line and labels
     drawThresholdSlider (g);
-    
+
     // if no spikes have been received then don't plot anything
     if (! gotFirstSpike)
     {
@@ -666,7 +661,6 @@ void WaveAxes::paint (Graphics& g)
     plotSpike (spikeBuffer[spikeIndex], g);
 
     spikesReceivedSinceLastRedraw = 0;
-
 }
 
 void WaveAxes::plotSpike (const Spike* s, Graphics& g, bool latestSpike)
@@ -692,9 +686,8 @@ void WaveAxes::plotSpike (const Spike* s, Graphics& g, bool latestSpike)
         if (latestSpike)
             g.setColour (Colours::white);
         else
-            g.setColour(Colours::white.withAlpha(0.4f));
+            g.setColour (Colours::white.withAlpha (0.4f));
     }
-        
 
     // type corresponds to channel so we need to calculate the starting
     // sample based upon which channel is getting plotted
@@ -760,15 +753,14 @@ void WaveAxes::drawThresholdSlider (Graphics& g)
 
     if (isOverThresholdSlider)
     {
-        thresholdLabel->setText(String(int(displayThresholdLevel)), dontSendNotification);
-        thresholdLabel->setBounds(getWidth() - 25, h + 4, 22, 12);
-        thresholdLabel->setVisible(true);
+        thresholdLabel->setText (String (int (displayThresholdLevel)), dontSendNotification);
+        thresholdLabel->setBounds (getWidth() - 25, h + 4, 22, 12);
+        thresholdLabel->setVisible (true);
     }
     else
     {
-        thresholdLabel->setVisible(false);
+        thresholdLabel->setVisible (false);
     }
-    
 
     // draw detector threshold (not editable)
     if (! spikesInverted)
@@ -800,7 +792,7 @@ void WaveAxes::drawWaveformGrid (Graphics& g)
         tick = 250.0f;
 
     g.setColour (Colours::darkgrey);
-    g.setFont (10);
+    g.setFont (FontOptions (10.0f));
 
     for (float y = -range / 2; y < range / 2; y += tick)
     {
@@ -814,8 +806,13 @@ void WaveAxes::drawWaveformGrid (Graphics& g)
                 g.fillRect (0.0f, yy, w, 1.0f);
         }
 
-        //g.drawText (String (y, 0), Rectangle<float> (0, yy + 3, 40, 10), Justification::centredLeft);
+        g.drawText (String (y, 0), Rectangle<float> (0, yy + 3, 40, 10), Justification::centredLeft);
     }
+}
+
+void WaveAxes::resized()
+{
+    channelNameLabel->setBounds (getWidth() - 44, 5, 40, 13);
 }
 
 bool WaveAxes::updateSpikeData (const Spike* s)
@@ -973,15 +970,14 @@ void WaveAxes::setDisplayThreshold (float threshold)
 
 // --------------------------------------------------
 
-ProjectionAxes::ProjectionAxes (SpikeDisplayCanvas* canvas, 
+ProjectionAxes::ProjectionAxes (SpikeDisplayCanvas* canvas,
                                 Projection proj_,
-                                String channelNames) :
-    GenericAxes (canvas, PROJECTION_AXES, channelNames),
-    imageDim (500),
-    rangeX (250),
-    rangeY (250),
-    spikesReceivedSinceLastRedraw (0),
-    proj (proj_)
+                                String channelNames) : GenericAxes (canvas, PROJECTION_AXES, channelNames),
+                                                       imageDim (500),
+                                                       rangeX (250),
+                                                       rangeY (250),
+                                                       spikesReceivedSinceLastRedraw (0),
+                                                       proj (proj_)
 {
     projectionImage = Image (Image::RGB, imageDim, imageDim, true, SoftwareImageType());
 
@@ -990,12 +986,12 @@ ProjectionAxes::ProjectionAxes (SpikeDisplayCanvas* canvas,
     n2ProjIdx (proj, &ampDim1, &ampDim2);
 
     channelNameLabel = std::make_unique<Label>();
-    channelNameLabel->setFont(13);
-    channelNameLabel->setJustificationType(Justification::left);
-    channelNameLabel->setColour(Label::textColourId, Colours::white.withAlpha(0.3f));
-    channelNameLabel->setText(channelName, dontSendNotification);
-    channelNameLabel->setBounds(4, 5, 100, 13);
-    addAndMakeVisible(channelNameLabel.get());
+    channelNameLabel->setFont (13);
+    channelNameLabel->setJustificationType (Justification::left);
+    channelNameLabel->setColour (Label::textColourId, Colours::white.withAlpha (0.4f));
+    channelNameLabel->setText (channelName, dontSendNotification);
+    channelNameLabel->setBounds (4, 5, 100, 13);
+    addAndMakeVisible (channelNameLabel.get());
 }
 
 void ProjectionAxes::setRange (float x, float y)
@@ -1017,7 +1013,7 @@ void ProjectionAxes::paint (Graphics& g)
                  imageDim - rangeY,
                  rangeX,
                  rangeY);
-    }
+}
 
 bool ProjectionAxes::updateSpikeData (const Spike* s)
 {
