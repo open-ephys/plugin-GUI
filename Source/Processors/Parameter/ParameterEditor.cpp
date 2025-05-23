@@ -833,8 +833,8 @@ void SyncControlButton::timerCallback()
 
 void SyncControlButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    g.setColour (Colours::grey);
-    g.fillRoundedRectangle (0, 0, getWidth(), getHeight(), 4);
+    g.setColour (findColour (ThemeColours::componentParentBackground));
+    g.fillRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 2, 3);
 
     switch (node->synchronizer.getStatus (streamKey))
     {
@@ -843,12 +843,12 @@ void SyncControlButton::paintButton (Graphics& g, bool isMouseOver, bool isButto
             if (isMouseOver)
             {
                 //LIGHT GREY
-                g.setColour (Colour (150, 150, 150));
+                g.setColour (findColour (ThemeColours::defaultFill).contrasting (0.2f));
             }
             else
             {
                 //DARK GREY
-                g.setColour (Colour (110, 110, 110));
+                g.setColour (findColour (ThemeColours::defaultFill));
             }
             break;
         }
@@ -882,7 +882,7 @@ void SyncControlButton::paintButton (Graphics& g, bool isMouseOver, bool isButto
         }
     }
 
-    g.fillRoundedRectangle (2, 2, getWidth() - 4, getHeight() - 4, 2);
+    g.fillRoundedRectangle (2, 2, getWidth() - 4, getHeight() - 4, 3);
 
     if (node->isMainDataStream (streamKey))
     {
@@ -917,10 +917,10 @@ TtlLineParameterEditor::TtlLineParameterEditor (Parameter* param,
                                                                  ttlParam->getMaxAvailableLines());
 
         syncControlButton->addListener (this);
-        syncControlButton->setBounds (0, 0, 15, 15);
+        syncControlButton->setBounds (0, 0, 16, 16);
         addAndMakeVisible (syncControlButton.get());
 
-        setBounds (0, 0, 15, 15);
+        setBounds (0, 0, 16, 16);
         editor = (Component*) syncControlButton.get();
     }
     else
