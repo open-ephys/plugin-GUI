@@ -341,7 +341,11 @@ std::unique_ptr<GenericProcessor> createProcessor (Plugin::Description descripti
                 if (description.name.equalsIgnoreCase (info.name))
                 {
                     int libIndex = pm->getLibraryIndexFromPlugin (Plugin::DATA_THREAD, i);
-                    if (description.libName.equalsIgnoreCase (pm->getLibraryName (libIndex)))
+
+                    /* Special case for Acquisition Board.
+                        ** Skips library name match to allow loading configs from v0.6.x. */
+                    if (description.libName.equalsIgnoreCase (pm->getLibraryName (libIndex))
+                        || description.name.equalsIgnoreCase ("Acquisition Board"))
                     {
                         proc = new SourceNode (info.name, info.creator);
                         proc->setPluginData (Plugin::DATA_THREAD, i);

@@ -2017,6 +2017,15 @@ void ProcessorGraph::loadFromXml (XmlElement* xml)
                 {
                     String pName = processor->getStringAttribute ("pluginName");
 
+                    /* Special case for OE FPGA Acquisition Board.
+                    ** Overrides plugin and library names to allow loading configs from v0.6.x. */
+                    if (pName.equalsIgnoreCase ("OE FPGA Acquisition Board"))
+                    {
+                        pName = "Acquisition Board";
+                        processor->setAttribute ("pluginName", pName);
+                        processor->setAttribute ("libraryName", pName);
+                    }
+
                     if (! isConsoleApp)
                     {
                         auto loadedPlugins = AccessClass::getProcessorList()->getItemList();
