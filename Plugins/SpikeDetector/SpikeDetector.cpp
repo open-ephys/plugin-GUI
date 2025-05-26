@@ -238,7 +238,7 @@ void SpikeDetector::parameterValueChanged (Parameter* p)
     {
         ((SpikeChannel*) p->getOwner())->setName (p->getValueAsString());
 
-        CoreServices::updateSignalChain (getEditor());
+        CoreServices::updateSignalChain (this);
     }
 
     else if (p->getName().equalsIgnoreCase ("local_channels"))
@@ -247,7 +247,7 @@ void SpikeDetector::parameterValueChanged (Parameter* p)
 
         ((SpikeChannel*) p->getOwner())->localChannelIndexes = param->getArrayValue();
 
-        CoreServices::updateSignalChain (getEditor());
+        CoreServices::updateSignalChain (this);
     }
     else if (p->getName().equalsIgnoreCase ("waveform_type"))
     {
@@ -260,7 +260,7 @@ void SpikeDetector::parameterValueChanged (Parameter* p)
         else
             spikeChannel->sendFullWaveform = false;
 
-        CoreServices::updateSignalChain (getEditor());
+        CoreServices::updateSignalChain (this);
     }
     else if (p->getName().contains ("threshold"))
     {
