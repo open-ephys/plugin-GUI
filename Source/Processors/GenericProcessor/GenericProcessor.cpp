@@ -1060,6 +1060,12 @@ void GenericProcessor::update()
                 {
                     TtlLineParameter* p = (TtlLineParameter*) param;
                     stream->addParameter (new TtlLineParameter (*p));
+
+                    // If the stream is hardware synchronized, default the sync line to None
+                    if (p->syncModeEnabled() && stream->generatesTimestamps())
+                    {
+                        stream->getParameter (p->getName())->currentValue = -1;
+                    }
                 }
             }
         }

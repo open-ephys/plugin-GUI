@@ -432,7 +432,7 @@ void RecordNode::setDataDirectory (File directory)
 void RecordNode::setDefaultRecordingDirectory (File directory)
 {
     defaultRecordDirectory = directory;
-    
+
     Parameter* p = getParameter ("directory");
 
     if (p->getValueAsString() == "None")
@@ -552,7 +552,7 @@ void RecordNode::updateSettings()
         activeStreamIds.add (streamId);
 
         LOGD ("Record Node found stream: (", streamId, ") ", stream->getName(), " with sample rate ", stream->getSampleRate());
-        synchronizer.addDataStream (stream->getKey(), stream->getSampleRate());
+        synchronizer.addDataStream (stream->getKey(), stream->getSampleRate(), stream->generatesTimestamps());
 
         fifoUsage[streamId] = 0.0f;
 
@@ -591,7 +591,7 @@ bool RecordNode::isSynchronized()
     {
         SyncStatus status = synchronizer.getStatus (stream->getKey());
 
-        if (status != SYNCED)
+        if (status != SYNCED && status != HARDWARE_SYNCED)
             return false;
     }
 
@@ -920,7 +920,7 @@ void RecordNode::process (AudioBuffer<float>& buffer)
 
             if (numSamples > 0)
             {
-                if (!stream->generatesTimestamps())
+                if (! stream->generatesTimestamps())
                 {
                     first = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber);
                     second = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber + 1);

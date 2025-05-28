@@ -888,6 +888,18 @@ void SyncControlButton::paintButton (Graphics& g, bool isMouseOver, bool isButto
             }
             break;
         }
+        case SyncStatus::HARDWARE_SYNCED:
+        {
+            if (isMouseOver)
+            {
+                g.setColour (Colours::deepskyblue.contrasting (0.1f));
+            }
+            else
+            {
+                g.setColour (Colours::deepskyblue);
+            }
+            break;
+        }
     }
 
     g.fillRoundedRectangle (2, 2, getWidth() - 4, getHeight() - 4, 3);
@@ -1009,7 +1021,8 @@ void TtlLineParameterEditor::buttonClicked (Button* button_)
                                                    this,
                                                    p->getMaxAvailableLines(),
                                                    p->getSelectedLine(),
-                                                   paramStream->getKey() == syncParam->getValueAsString());
+                                                   paramStream->getKey() == syncParam->getValueAsString(),
+                                                   paramStream->generatesTimestamps());
 
         CoreServices::getPopupManager()->showPopup (std::unique_ptr<Component> (syncSelector), editor);
     }

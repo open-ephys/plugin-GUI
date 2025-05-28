@@ -23,11 +23,14 @@
 
 #include "Synchronizer.h"
 
-SyncStream::SyncStream (String streamKey_, float expectedSampleRate_, Synchronizer* synchronizer_)
+SyncStream::SyncStream (String streamKey_, float expectedSampleRate_, Synchronizer* synchronizer_, bool generatesTimestamps_)
     : streamKey (streamKey_), synchronizer(synchronizer_),
       expectedSampleRate (expectedSampleRate_),
       actualSampleRate (-1.0f),
-      isActive (true)
+      isActive (true),
+      generatesTimestamps (generatesTimestamps_),
+      syncLine (0),
+      isSynchronized (false)
 {
     LOGD ("Created sync stream ", streamKey, " with sample rate ", expectedSampleRate);
 }
@@ -49,12 +52,14 @@ void SyncStream::reset (String mainStreamKey)
         actualSampleRate = expectedSampleRate;
         globalStartTime = 0.0;
         isSynchronized = true;
+        overrideHardwareTimestamps = false; // do not override hardware timestamps for the main stream
     }
     else
     {
         actualSampleRate = -1.0;
         globalStartTime = -1.0;
-        isSynchronized = false;
+        overrideHardwareTimestamps = syncLine > -1; // override hardware timestamps for other streams if sync line is set
+        isSynchronized = generatesTimestamps && !overrideHardwareTimestamps; // if the stream generates its own timestamps, it is synchronized unless it overrides hardware timestamps
     }
 }
 
@@ -360,7 +365,7 @@ void Synchronizer::finishedUpdate()
 {
 }
 
-void Synchronizer::addDataStream (String streamKey, float expectedSampleRate)
+void Synchronizer::addDataStream (String streamKey, float expectedSampleRate, bool generatesTimestamps)
 {
     LOGD ("Synchronizer adding ", streamKey, " with sample rate ", expectedSampleRate);
     // if this is the first stream, make it the main one
@@ -378,9 +383,9 @@ void Synchronizer::addDataStream (String streamKey, float expectedSampleRate)
     if (streams.count (streamKey) == 0)
     {
         //std::cout << "Creating new Stream object" << std::endl;
-        dataStreamObjects.add (new SyncStream (streamKey, expectedSampleRate, this));
+        dataStreamObjects.add (new SyncStream (streamKey, expectedSampleRate, this, generatesTimestamps));
         streams[streamKey] = dataStreamObjects.getLast();
-        setSyncLine (streamKey, 0);
+        setSyncLine (streamKey, generatesTimestamps ? -1 : 0); // if the stream generates its own timestamps, set sync line to -1 (no sync line), otherwise set it to 0
     }
     else
     {
@@ -509,10 +514,18 @@ bool Synchronizer::isStreamSynced (String streamKey)
     return streams[streamKey]->isSynchronized;
 }
 
+bool Synchronizer::streamGeneratesTimestamps (String streamKey)
+{
+    return streams[streamKey]->generatesTimestamps && ! streams[streamKey]->overrideHardwareTimestamps;
+}
+
 SyncStatus Synchronizer::getStatus (String streamKey)
 {
     if (! streamKey.length() || ! acquisitionIsActive)
         return SyncStatus::OFF;
+
+    if (streamGeneratesTimestamps (streamKey))
+        return SyncStatus::HARDWARE_SYNCED;
 
     if (isStreamSynced (streamKey))
         return SyncStatus::SYNCED;

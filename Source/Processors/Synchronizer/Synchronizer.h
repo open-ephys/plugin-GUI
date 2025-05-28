@@ -79,7 +79,7 @@ class SyncStream
 {
 public:
     /** Constructor */
-    SyncStream (String streamKey, float expectedSampleRate, Synchronizer* synchronizer);
+    SyncStream (String streamKey, float expectedSampleRate, Synchronizer* synchronizer, bool generatesTimestamps = false);
 
     /** Resets stream parameters before acquisition */
     void reset (String mainStreamKey);
@@ -122,6 +122,12 @@ public:
 
     /** true if the stream is in active use */
     bool isActive;
+
+    /** true if the stream generates its own timestamps */
+    bool generatesTimestamps = false;
+
+    /** true if the synchronizer overrides hardware timestamps */
+    bool overrideHardwareTimestamps = false;
 
     /** The sync pulses for this stream 
     
@@ -167,7 +173,8 @@ enum PLUGIN_API SyncStatus
 {
     OFF, //Synchronizer is not running
     SYNCING, //Synchronizer is attempting to sync
-    SYNCED //Signal has been synchronized
+    SYNCED, //Signal has been synchronized
+    HARDWARE_SYNCED //Signal has been synchronized by hardware
 };
 
 /**
@@ -219,7 +226,7 @@ public:
 
     /** Adds a new data stream with an expected sample rate
      *  If the stream already exists, */
-    void addDataStream (String streamKey, float expectedSampleRate);
+    void addDataStream (String streamKey, float expectedSampleRate, bool generatesTimestamps = false);
 
     /** Checks if there is only one stream */
     void finishedUpdate();
@@ -235,6 +242,9 @@ public:
 
     /** Returns true if a stream is synchronized */
     bool isStreamSynced (String streamKey);
+
+    /** Returns true if the stream genrates its own timestamps and overriding hardware timestamps is disabled */
+    bool streamGeneratesTimestamps (String streamKey);
 
     /** Returns the status (OFF / SYNCING / SYNCED) of a given stream*/
     SyncStatus getStatus (String streamKey);
