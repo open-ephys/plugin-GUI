@@ -464,6 +464,11 @@ void FileReader::setPlaybackStop (int64 stopSample)
     this->stopSample = stopSample;
 }
 
+int64 FileReader::getPlayheadPosition()
+{
+    return playbackSamplePos.get();
+}
+
 String FileReader::getFile() const
 {
     if (input)

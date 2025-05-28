@@ -476,7 +476,7 @@ void ScrubberInterface::updateTimeLabels()
 
     // Get current playhead time from currentSample
     float sampleRate = fileReader->getCurrentSampleRate();
-    int64 currentSample = fileReader->getCurrentSample();
+    int64 currentSample = fileReader->getPlayheadPosition();
     float currentTime = currentSample / sampleRate * 1000.0f;
     TimeParameter::TimeValue currentTimeValue = TimeParameter::TimeValue (currentTime);
     fullMiddleTimeLabel->setText (currentTimeValue.toString(), juce::sendNotificationAsync);

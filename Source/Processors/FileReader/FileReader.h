@@ -152,6 +152,9 @@ public:
     /** Sets the sample number to stop playback */
     void setPlaybackStop (int64 stopSampleNumber);
 
+    /** Gets the current playhead position */
+    int64 getPlayheadPosition();
+
     /** Returns the sample number where playback stops */
     int64 getPlaybackStop();
 
