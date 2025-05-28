@@ -40,7 +40,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     scrubDrawerButton->setBounds (4, 40, 10, 78);
     scrubDrawerButton->setToggleState (false, dontSendNotification);
     scrubDrawerButton->addListener (this);
-    scrubDrawerButton->setEnabled (false);
+    scrubDrawerButton->setEnabled (true);
     addAndMakeVisible (scrubDrawerButton.get());
 
     addPathParameterEditor (Parameter::PROCESSOR_SCOPE, "selected_file", 24, 29);

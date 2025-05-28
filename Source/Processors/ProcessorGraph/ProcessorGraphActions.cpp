@@ -502,7 +502,7 @@ bool LoadPluginSettings::perform()
         LOGDD ("Loading parameters");
         processor->loadFromXml();
 
-        CoreServices::updateSignalChain (processor->getEditor());
+        CoreServices::updateSignalChain (processor);
 
         return true;
     }

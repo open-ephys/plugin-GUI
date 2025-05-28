@@ -117,7 +117,7 @@ void SourceNode::registerParameters()
 
 void SourceNode::requestSignalChainUpdate()
 {
-    CoreServices::updateSignalChain (getEditor());
+    CoreServices::updateSignalChain (this);
 }
 
 void SourceNode::updateSettings()
@@ -211,7 +211,7 @@ bool SourceNode::tryEnablingEditor()
 
     LOGD (getName(), " -- input source found!");
 
-    CoreServices::updateSignalChain (getEditor());
+    CoreServices::updateSignalChain (this);
 
     return true;
 }
@@ -223,7 +223,7 @@ void SourceNode::timerCallback()
         LOGD ("Input source lost.");
         isEnabled = false;
 
-        CoreServices::updateSignalChain (getEditor());
+        CoreServices::updateSignalChain (this);
     }
 }
 
@@ -270,7 +270,7 @@ void SourceNode::connectionLost()
 
     CoreServices::sendStatusMessage ("Data acquisition stopped by " + getName());
 
-    CoreServices::updateSignalChain (getEditor());
+    CoreServices::updateSignalChain (this);
 
     startTimer (sourceCheckInterval); // timer to check for re-established connection
 }
