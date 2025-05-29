@@ -375,9 +375,11 @@ void Synchronizer::finishedUpdate()
             }
         }
     }
+    
+    reset();
 }
 
-void Synchronizer::addDataStream (String streamKey, float expectedSampleRate, bool generatesTimestamps)
+void Synchronizer::addDataStream (String streamKey, float expectedSampleRate, int syncLine, bool generatesTimestamps)
 {
     LOGD ("Synchronizer adding ", streamKey, " with sample rate ", expectedSampleRate);
 
@@ -391,14 +393,14 @@ void Synchronizer::addDataStream (String streamKey, float expectedSampleRate, bo
     //std::cout << "Creating new Stream object" << std::endl;
     dataStreamObjects.add (new SyncStream (streamKey, expectedSampleRate, this, generatesTimestamps));
     streams[streamKey] = dataStreamObjects.getLast();
-    setSyncLine (streamKey, generatesTimestamps ? -1 : 0); // if the stream generates its own timestamps, set sync line to -1 (no sync line), otherwise set it to 0
+    streams[streamKey]->syncLine = syncLine;
 
     streamCount++;
 }
 
 void Synchronizer::setMainDataStream (String streamKey)
 {
-    if (streams.count (streamKey) == 0)
+    if (streamKey.isNotEmpty() && streams.count (streamKey) == 0)
     {
         LOGD ("Cannot set ", streamKey, " as main data stream. Stream not found.");
         return;

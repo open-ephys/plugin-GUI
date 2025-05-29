@@ -224,9 +224,8 @@ public:
     /** Sets main stream ID to 0 and stream count to 0*/
     void prepareForUpdate();
 
-    /** Adds a new data stream with an expected sample rate
-     *  If the stream already exists, */
-    void addDataStream (String streamKey, float expectedSampleRate, bool generatesTimestamps = false);
+    /** Adds a new data stream with an expected sample rate, a synchronization line, and a flag indicating whether it generates its own timestamps */
+    void addDataStream (String streamKey, float expectedSampleRate, int synLine = 0, bool generatesTimestamps = false);
 
     /** Checks if there is only one stream */
     void finishedUpdate();

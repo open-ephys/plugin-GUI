@@ -161,20 +161,62 @@ void RecordNode::parameterValueChanged (Parameter* p)
     else if (p->getName() == "sync_line")
     {
         LOGD ("Parameter changed: sync_line");
-        synchronizer.setSyncLine (getDataStream (p->getStreamId())->getKey(), ((TtlLineParameter*) p)->getSelectedLine());
+        int selectedLine = ((TtlLineParameter*) p)->getSelectedLine();
+        synchronizer.setSyncLine (getDataStream (p->getStreamId())->getKey(), selectedLine);
+
+        if (selectedLine == -1 && synchronizer.mainStreamKey == getDataStream (p->getStreamId())->getKey())
+        {
+            int streamIndex = 0;
+            for (auto stream : dataStreams)
+            {
+                if (stream->getStreamId() != p->getStreamId()
+                    && ! synchronizer.streamGeneratesTimestamps (stream->getKey()))
+                {
+                    getParameter ("main_sync")->setNextValue (streamIndex, false);
+                    return;
+                }
+                streamIndex++;
+            }
+
+            getParameter ("main_sync")->setNextValue (-1, false);
+        }
+        else if (selectedLine >= 0 && synchronizer.mainStreamKey.isEmpty())
+        {
+            // If the sync line is set, but no main stream is set, we need to set the main stream to the one with the sync line
+            int streamIndex = 0;
+            for (auto stream : dataStreams)
+            {
+                if (stream->getKey() == getDataStream (p->getStreamId())->getKey())
+                {
+                    getParameter ("main_sync")->setNextValue (streamIndex, false);
+                    return;
+                }
+                streamIndex++;
+            }
+        }
     }
     else if (p->getName() == "main_sync")
     {
         LOGD ("Parameter changed: main_sync");
-        Array<String> streamNames = ((SelectedStreamParameter*) p)->getStreamNames();
-        for (auto stream : dataStreams)
+        int streamIndex = ((SelectedStreamParameter*) p)->getSelectedIndex();
+
+        if (streamIndex == -1)
         {
-            String key = stream->getKey();
-            if (key == streamNames[((SelectedStreamParameter*) p)->getSelectedIndex()]
-                && ! synchronizer.streamGeneratesTimestamps (key))
+            synchronizer.setMainDataStream ("");
+            return;
+        }
+        else
+        {
+            Array<String> streamNames = ((SelectedStreamParameter*) p)->getStreamNames();
+            for (auto stream : dataStreams)
             {
-                synchronizer.setMainDataStream (stream->getKey());
-                break;
+                String key = stream->getKey();
+                if (key == streamNames[streamIndex]
+                    && ! synchronizer.streamGeneratesTimestamps (key))
+                {
+                    synchronizer.setMainDataStream (stream->getKey());
+                    break;
+                }
             }
         }
     }
@@ -549,11 +591,13 @@ void RecordNode::updateSettings()
 
     for (auto stream : dataStreams)
     {
+        TtlLineParameter* syncLineParam = static_cast<TtlLineParameter*> (stream->getParameter ("sync_line"));
         const uint16 streamId = stream->getStreamId();
         activeStreamIds.add (streamId);
 
         LOGD ("Record Node found stream: (", streamId, ") ", stream->getName(), " with sample rate ", stream->getSampleRate());
-        synchronizer.addDataStream (stream->getKey(), stream->getSampleRate(), stream->generatesTimestamps());
+        int syncLine = syncLineParam->getSelectedLine();
+        synchronizer.addDataStream (stream->getKey(), stream->getSampleRate(), syncLine, stream->generatesTimestamps());
 
         fifoUsage[streamId] = 0.0f;
 
@@ -567,7 +611,6 @@ void RecordNode::updateSettings()
             numLines = 1;
 
         // Update the number of available lines in the sync line parameter
-        TtlLineParameter* syncLineParam = static_cast<TtlLineParameter*> (stream->getParameter ("sync_line"));
         syncLineParam->setMaxAvailableLines (numLines);
     }
 
