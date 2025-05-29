@@ -800,9 +800,20 @@ void RecordNode::handleTTLEvent (TTLEventPtr event)
     if (recordEvents && isRecording)
     {
         size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
+        uint16 streamId = event->getStreamId();
+
+        double ts = -1.0;
+        if (synchronizer.streamGeneratesTimestamps (streamKey))
+        {
+            ts = getFirstTimestampForBlock (streamId) + (sampleNumber - getFirstSampleNumberForBlock (streamId)) / getDataStream (streamId)->getSampleRate();
+        }
+        else
+        {
+            ts = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber);
+        }
 
         HeapBlock<char> buffer (size);
-        event->setTimestampInSeconds (synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber));
+        event->setTimestampInSeconds (ts);
         event->serialize (buffer, size);
 
         eventQueue->addEvent (EventPacket (buffer, int (size)), sampleNumber);
@@ -835,8 +846,20 @@ void RecordNode::handleSpike (SpikePtr spike)
     if (recordSpikes && isRecording)
     {
         String streamKey = getDataStream (spike->getStreamId())->getKey();
-        spike->setTimestampInSeconds (synchronizer.convertSampleNumberToTimestamp (streamKey,
-                                                                                   spike->getSampleNumber()));
+        uint16 streamId = spike->getStreamId();
+        int64 sampleNumber = spike->getSampleNumber();
+
+        double ts = -1.0;
+        if (synchronizer.streamGeneratesTimestamps (streamKey))
+        {
+            ts = getFirstTimestampForBlock (streamId) + (sampleNumber - getFirstSampleNumberForBlock (streamId)) / getDataStream (streamId)->getSampleRate();
+        }
+        else
+        {
+            ts = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber);
+        }
+
+        spike->setTimestampInSeconds (ts);
         writeSpike (spike, spike->getChannelInfo());
         eventMonitor->bufferedSpikes++;
     }
@@ -920,7 +943,7 @@ void RecordNode::process (AudioBuffer<float>& buffer)
 
             if (numSamples > 0)
             {
-                if (! stream->generatesTimestamps())
+                if (! synchronizer.streamGeneratesTimestamps (streamKey))
                 {
                     first = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber);
                     second = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber + 1);
