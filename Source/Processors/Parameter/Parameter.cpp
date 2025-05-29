@@ -1296,7 +1296,11 @@ void PathParameter::toXml (XmlElement* xml)
 
 void PathParameter::fromXml (XmlElement* xml)
 {
-    currentValue = xml->getStringAttribute (getName(), defaultValue);
+    String savedValue = xml->getStringAttribute (getName(), defaultValue);
+    if (savedValue.equalsIgnoreCase ("default"))
+        savedValue = "None";
+
+    currentValue = savedValue;
 }
 
 String PathParameter::getChangeDescription()
