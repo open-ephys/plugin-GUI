@@ -547,6 +547,9 @@ public:
     /** Sets parameter's stream as primary */
     void primaryStreamChanged() override;
 
+    /**  Returns true if this is the primary stream */
+    bool isPrimaryStream() override;
+
     /** Sets sub-component locations */
     virtual void resized() override;
 

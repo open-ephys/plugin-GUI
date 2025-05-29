@@ -205,7 +205,7 @@ void SyncLineSelector::buttonClicked (Button* button)
         }
 
         listener->selectedLineChanged (selectedLine);
-        repaint();
+        updatePopup();
     }
 
     detectedChange = true;
@@ -220,5 +220,31 @@ void SyncLineSelector::updatePopup()
             buttons[i]->setToggleState (true, NotificationType::dontSendNotification);
         else
             buttons[i]->setToggleState (false, NotificationType::dontSendNotification);
+    }
+
+    if (listener->isPrimaryStream() && setPrimaryStreamButton != nullptr)
+    {
+        setPrimaryStreamButton->setVisible (false);
+        isPrimary = true;
+        setSize (width, buttonSize * nRows);
+        height = buttonSize * (nRows);
+    }
+    else if (! listener->isPrimaryStream())
+    {
+        height = buttonSize * (nRows);
+        if (setPrimaryStreamButton == nullptr)
+        {
+            setPrimaryStreamButton = new SetPrimaryButton ("Set as main clock");
+            setPrimaryStreamButton->setBounds (0, height, 0.5 * width, buttonSize);
+            setPrimaryStreamButton->addListener (this);
+            addChildAndSetID (setPrimaryStreamButton, "SETPRIMARY");
+        }
+
+        setPrimaryStreamButton->setVisible (true);
+        setSize (width, height + buttonSize);
+        isPrimary = false;
+
+        if (canSelectNone && selectedLine == -1)
+            setPrimaryStreamButton->setEnabled (false);
     }
 }

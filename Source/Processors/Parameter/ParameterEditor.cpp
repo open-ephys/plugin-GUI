@@ -1006,6 +1006,15 @@ void TtlLineParameterEditor::primaryStreamChanged()
         syncParam->setNextValue (streamIndex);
 }
 
+bool TtlLineParameterEditor::isPrimaryStream()
+{
+    if (syncParam == nullptr || syncParam->getType() != Parameter::SELECTED_STREAM_PARAM)
+        return true;
+
+    DataStream* paramStream = (DataStream*) param->getOwner();
+    return ((SelectedStreamParameter*) syncParam)->getValueAsString() == paramStream->getKey();
+}
+
 void TtlLineParameterEditor::buttonClicked (Button* button_)
 {
     if (param == nullptr)
