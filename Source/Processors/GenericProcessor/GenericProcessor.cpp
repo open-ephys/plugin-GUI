@@ -644,6 +644,7 @@ void GenericProcessor::clearSettings()
     configurationObjects.addArray (configurationObjectsToKeep);
 
     Array<DataStream*> dataStreamsToDelete;
+    savedDataStreamParameters.clear();
 
     for (auto obj : dataStreams)
     {
