@@ -170,7 +170,8 @@ void RecordNode::parameterValueChanged (Parameter* p)
         for (auto stream : dataStreams)
         {
             String key = stream->getKey();
-            if (key == streamNames[((SelectedStreamParameter*) p)->getSelectedIndex()])
+            if (key == streamNames[((SelectedStreamParameter*) p)->getSelectedIndex()]
+                && ! synchronizer.streamGeneratesTimestamps (key))
             {
                 synchronizer.setMainDataStream (stream->getKey());
                 break;
@@ -579,6 +580,28 @@ void RecordNode::updateSettings()
             it = recordContinuousChannels.erase (it);
         else
             ++it;
+    }
+
+    // Set the main sync stream from the synchronizer
+    auto param = getParameter ("main_sync");
+    Array<String> streamNames = ((SelectedStreamParameter*) param)->getStreamNames();
+    String mainStreamKey = synchronizer.mainStreamKey;
+    if (mainStreamKey.isEmpty())
+    {
+        param->setNextValue (-1, false); // no main stream selected
+    }
+    else
+    {
+        int mainStreamIndex = -1;
+        for (int i = 0; i < streamNames.size(); i++)
+        {
+            if (streamNames[i] == mainStreamKey)
+            {
+                mainStreamIndex = i;
+                break;
+            }
+        }
+        param->setNextValue (mainStreamIndex, false); // set main stream index
     }
 }
 

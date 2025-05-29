@@ -892,11 +892,11 @@ void SyncControlButton::paintButton (Graphics& g, bool isMouseOver, bool isButto
         {
             if (isMouseOver)
             {
-                g.setColour (Colours::deepskyblue.contrasting (0.1f));
+                g.setColour (Colour (30, 112, 255).contrasting (0.1f));
             }
             else
             {
-                g.setColour (Colours::deepskyblue);
+                g.setColour (Colour (30, 112, 255));
             }
             break;
         }

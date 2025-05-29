@@ -1060,12 +1060,25 @@ void GenericProcessor::update()
                 else if (param->getType() == Parameter::TTL_LINE_PARAM)
                 {
                     TtlLineParameter* p = (TtlLineParameter*) param;
-                    stream->addParameter (new TtlLineParameter (*p));
 
                     // If the stream is hardware synchronized, default the sync line to None
                     if (p->syncModeEnabled() && stream->generatesTimestamps())
                     {
-                        stream->getParameter (p->getName())->currentValue = -1;
+                        TtlLineParameter* p2 = new TtlLineParameter (nullptr,
+                                                                     p->getScope(),
+                                                                     p->getName(),
+                                                                     p->getDisplayName(),
+                                                                     p->getDescription(),
+                                                                     p->getMaxAvailableLines(),
+                                                                     true,
+                                                                     true,
+                                                                     p->shouldDeactivateDuringAcquisition());
+                        p2->currentValue = -1;
+                        stream->addParameter (p2);
+                    }
+                    else
+                    {
+                        stream->addParameter (new TtlLineParameter (*p));
                     }
                 }
             }
@@ -1135,8 +1148,8 @@ void GenericProcessor::update()
 
     if (! isMerger() && ! isSource())
         updateSettings(); // allow processors to change custom settings,
-            // including creation of streams / channels and
-            // setting isEnabled variable
+    // including creation of streams / channels and
+    // setting isEnabled variable
 
     LOGG ("    Updated custom settings in ", MS_FROM_START, " milliseconds");
 

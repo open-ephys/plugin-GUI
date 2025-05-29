@@ -1123,10 +1123,6 @@ TtlLineParameter::TtlLineParameter (ParameterOwner* owner,
 {
     jassert ((lineCount >= 0 && lineCount < 256));
     jassert (scope == ParameterScope::STREAM_SCOPE);
-
-    // Can't have both sync mode and select none
-    if (syncMode && selectNone)
-        jassertfalse;
 }
 
 void TtlLineParameter::setNextValue (var newValue_, bool undoable)
@@ -1135,7 +1131,7 @@ void TtlLineParameter::setNextValue (var newValue_, bool undoable)
         return;
 
     if (((int) newValue_ < lineCount && (int) newValue_ >= 0)
-        || (! syncMode && (int) newValue_ == -1)) // -1 is a valid value for non-sync mode
+        || (selectNone && (int) newValue_ == -1)) // -1 is a valid value for non-sync mode
     {
         newValue = newValue_;
 
@@ -1339,7 +1335,7 @@ void SelectedStreamParameter::setNextValue (var newValue_, bool undoable)
         return;
 
     if (newValue_.isInt()
-        && (int) newValue_ >= 0
+        && (int) newValue_ >= -1
         && (int) newValue_ < streamNames.size())
     {
         newValue = newValue_;
@@ -1395,7 +1391,7 @@ int SelectedStreamParameter::getSelectedIndex()
 String SelectedStreamParameter::getValueAsString()
 {
     if ((int) currentValue == -1 || streamNames.size() == 0)
-        return String();
+        return "None";
     else
         return streamNames[(int) currentValue];
 }
@@ -1413,7 +1409,7 @@ void SelectedStreamParameter::fromXml (XmlElement* xml)
 
 String SelectedStreamParameter::getChangeDescription()
 {
-    return streamNames[(int) currentValue];
+    return getValueAsString();
 }
 
 TimeParameter::TimeParameter (ParameterOwner* owner,
