@@ -25,6 +25,7 @@
 
 #include "../Editors/GenericEditor.h"
 #include "../GenericProcessor/GenericProcessor.h"
+#include "../RecordNode/RecordNode.h"
 
 void ParameterEditor::setLayout (Layout newLayout)
 {
@@ -980,6 +981,27 @@ TtlLineParameterEditor::TtlLineParameterEditor (Parameter* param,
 
 void TtlLineParameterEditor::selectedLineChanged (int newLine)
 {
+    int prevLine = getSelectedLine();
+    // If a sync line is assigned, show a warning if the stream generates hardware timestamps
+    if (syncParam != nullptr)
+    {
+        DataStream* paramStream = ((DataStream*) param->getOwner());
+        if (! RecordNode::overrideTimestampWarningShown
+            && paramStream->generatesTimestamps()
+            && newLine >= 0
+            && prevLine == -1)
+        {
+            AlertWindow::showMessageBox (AlertWindow::WarningIcon,
+                                         "Hardware Timestamps Will Be Overridden",
+                                         "The \"" + paramStream->getKey() + "\" stream is synchronized using hardware-generated timestamps, but a sync line has been assigned. "
+                                         "As a result, the hardware timestamps will be replaced with software-generated ones from the Synchronizer, using the main stream's clock and sync events.\n\n"
+                                         "To continue using hardware-generated timestamps, please remove the sync line by clicking it again",
+                                         "OK");
+
+            RecordNode::overrideTimestampWarningShown = true;
+        }
+    }
+
     param->setNextValue (newLine);
     updateView();
 }

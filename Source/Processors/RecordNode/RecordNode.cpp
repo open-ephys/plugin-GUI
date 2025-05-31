@@ -39,6 +39,8 @@ using namespace std::chrono;
 #define CONTINUOUS_CHANNELS_ON_BY_DEFAULT true
 #define RECEIVED_SOFTWARE_TIME (event.getVelocity() == 136)
 
+bool RecordNode::overrideTimestampWarningShown = false;
+
 EventMonitor::EventMonitor()
     : receivedEvents (0),
       receivedSpikes (0),
@@ -162,9 +164,20 @@ void RecordNode::parameterValueChanged (Parameter* p)
     {
         LOGD ("Parameter changed: sync_line");
         int selectedLine = ((TtlLineParameter*) p)->getSelectedLine();
-        synchronizer.setSyncLine (getDataStream (p->getStreamId())->getKey(), selectedLine);
+        const String streamKey = getDataStream (p->getStreamId())->getKey();
 
-        if (selectedLine == -1 && synchronizer.mainStreamKey == getDataStream (p->getStreamId())->getKey())
+        synchronizer.setSyncLine (streamKey, selectedLine);
+
+        // Assume overrideTimestampWarningShown is already true if a sync line is set for any hardware-synced stream
+        if (getDataStream (streamKey)->generatesTimestamps() 
+            && selectedLine >= 0 
+            && !overrideTimestampWarningShown)
+        {
+            overrideTimestampWarningShown = true;
+        }
+
+        // If sync line is set to none and this is the main stream, we need to find another main stream
+        if (selectedLine == -1 && synchronizer.mainStreamKey == streamKey)
         {
             int streamIndex = 0;
             for (auto stream : dataStreams)
@@ -186,7 +199,7 @@ void RecordNode::parameterValueChanged (Parameter* p)
             int streamIndex = 0;
             for (auto stream : dataStreams)
             {
-                if (stream->getKey() == getDataStream (p->getStreamId())->getKey())
+                if (stream->getKey() == streamKey)
                 {
                     getParameter ("main_sync")->setNextValue (streamIndex, false);
                     return;

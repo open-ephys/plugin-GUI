@@ -257,6 +257,10 @@ public:
     /** Actual sync monitor update -- can be called independently of timer*/
     void updateSyncMonitors();
 
+    /** Static flag to ensure override timestamps warning 
+     * for hardware-synced streams is shown only once per run */
+    static bool overrideTimestampWarningShown;
+
 private:
     /** Handles other types of events (text, sync texts, etc.) */
     void handleEvent (const EventChannel* channel, const EventPacket& eventPacket);
