@@ -848,15 +848,24 @@ void SyncControlButton::paintButton (Graphics& g, bool isMouseOver, bool isButto
     {
         case SyncStatus::OFF:
         {
+            Colour offColour;
+
+            // If the stream generates timestamps, use a transparent blue colour
+            if (node->synchronizer.streamGeneratesTimestamps (streamKey))
+                offColour = Colour (30, 112, 255).withAlpha (0.4f);
+            else
+                // If the stream does not generate timestamps, use the default fill colour
+                offColour = findColour (ThemeColours::defaultFill);
+
             if (isMouseOver)
             {
                 //LIGHT GREY
-                g.setColour (findColour (ThemeColours::defaultFill).contrasting (0.2f));
+                g.setColour (offColour.contrasting (0.2f));
             }
             else
             {
                 //DARK GREY
-                g.setColour (findColour (ThemeColours::defaultFill));
+                g.setColour (offColour);
             }
             break;
         }
@@ -892,10 +901,12 @@ void SyncControlButton::paintButton (Graphics& g, bool isMouseOver, bool isButto
         {
             if (isMouseOver)
             {
+                // SPECIAL BLUE - slightly contrasting
                 g.setColour (Colour (30, 112, 255).contrasting (0.1f));
             }
             else
             {
+                // SPECIAL BLUE
                 g.setColour (Colour (30, 112, 255));
             }
             break;
