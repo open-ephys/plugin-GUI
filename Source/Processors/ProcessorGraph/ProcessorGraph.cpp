@@ -1083,7 +1083,7 @@ void ProcessorGraph::updateUndoableActions (int nodeId)
     for (auto action : getUndoableActions (nodeId))
     {
         GenericProcessor* p = getProcessorWithNodeId (nodeId);
-        p->update();
+        //p->update();
         action->restoreOwner (p);
     }
 }
