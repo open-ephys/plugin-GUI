@@ -985,8 +985,10 @@ void TtlLineParameterEditor::selectedLineChanged (int newLine)
     // If a sync line is assigned, show a warning if the stream generates hardware timestamps
     if (syncParam != nullptr)
     {
+        GenericProcessor* syncProcessor = ((GenericProcessor*) syncParam->getOwner());
         DataStream* paramStream = ((DataStream*) param->getOwner());
-        if (! RecordNode::overrideTimestampWarningShown
+        if (syncProcessor->isRecordNode()
+            && ! RecordNode::overrideTimestampWarningShown
             && paramStream->generatesTimestamps()
             && newLine >= 0
             && prevLine == -1)
