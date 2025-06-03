@@ -784,7 +784,6 @@ public:
 
         svr_->Get ("/api/processors/clear", [this] (const httplib::Request&, httplib::Response& res)
                    {
-
             String return_msg;
 
             if (!CoreServices::getAcquisitionStatus())
@@ -792,14 +791,24 @@ public:
                 std::promise<void> signalChainCleared;
                 std::future<void> signalChainClearedFuture = signalChainCleared.get_future();
 
-                MessageManager::callAsync([this, &signalChainCleared] {
-                    graph_->clearSignalChain();
-                    signalChainCleared.set_value(); // Signal that loadSignalChain is finished
-                });
+                try {
+                    MessageManager::callAsync([this, &signalChainCleared] {
+                        try {
+                            graph_->clearSignalChain();
+                            signalChainCleared.set_value();
+                        } catch (const std::exception& e) {
+                            LOGE("Error clearing signal chain: ", e.what());
+                            signalChainCleared.set_value();
+                        }
+                    });
 
-                // Wait for loadSignalChain to finish
-                signalChainClearedFuture.wait();
-                return_msg = "Signal chain cleared successfully.";
+                    // Wait for loadSignalChain to finish
+                    signalChainClearedFuture.wait();
+                    return_msg = "Signal chain cleared successfully.";
+                } catch (const std::exception& e) {
+                    LOGE("Error in clear signal chain async call: ", e.what());
+                    return_msg = "Error clearing signal chain: " + String(e.what());
+                }
             } else {
                 return_msg = "Cannot clear signal chain while acquisition is active!";
             }

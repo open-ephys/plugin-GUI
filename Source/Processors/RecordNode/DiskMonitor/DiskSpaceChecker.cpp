@@ -124,7 +124,13 @@ void DiskSpaceChecker::update (float dataRate, int64 bytesFree, float timeLeft)
         if (listener != nullptr)
         {
             juce::MessageManager::callAsync ([listener, dataRate, bytesFree, timeLeft]()
-                                             { listener->update (dataRate, bytesFree, timeLeft); });
+            {
+                try {
+                    listener->update (dataRate, bytesFree, timeLeft);
+                } catch (const std::exception& e) {
+                    LOGE("Error updating disk space listener: ", e.what());
+                }
+            });
         }
     }
 }
@@ -137,7 +143,13 @@ void DiskSpaceChecker::notifyDiskSpaceRemaining (float percentage)
         if (listener != nullptr)
         {
             juce::MessageManager::callAsync ([listener, percentage]()
-                                             { listener->updateDiskSpace (percentage); });
+            {
+                try {
+                    listener->updateDiskSpace (percentage);
+                } catch (const std::exception& e) {
+                    LOGE("Error updating disk space percentage: ", e.what());
+                }
+            });
         }
     }
 }
@@ -150,7 +162,13 @@ void DiskSpaceChecker::notifyDirectoryInvalid()
         if (listener != nullptr)
         {
             juce::MessageManager::callAsync ([listener]()
-                                             { listener->directoryInvalid(); });
+            {
+                try {
+                    listener->directoryInvalid();
+                } catch (const std::exception& e) {
+                    LOGE("Error notifying directory invalid: ", e.what());
+                }
+            });
         }
     }
 }
@@ -163,7 +181,13 @@ void DiskSpaceChecker::notifyLowDiskSpace()
         if (listener != nullptr)
         {
             juce::MessageManager::callAsync ([listener]()
-                                             { listener->lowDiskSpace(); });
+            {
+                try {
+                    listener->lowDiskSpace();
+                } catch (const std::exception& e) {
+                    LOGE("Error notifying low disk space: ", e.what());
+                }
+            });
         }
     }
 }
