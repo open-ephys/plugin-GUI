@@ -57,7 +57,7 @@ void SyncStream::reset (String mainStreamKey)
     else
     {
         actualSampleRate = -1.0;
-        globalStartTime = -1.0;
+        globalStartTime = 0.0;
         overrideHardwareTimestamps = syncLine > -1; // override hardware timestamps for other streams if sync line is set
         isSynchronized = generatesTimestamps && !overrideHardwareTimestamps; // if the stream generates its own timestamps, it is synchronized unless it overrides hardware timestamps
     }
