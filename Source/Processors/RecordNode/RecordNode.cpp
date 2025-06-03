@@ -146,7 +146,8 @@ void RecordNode::parameterValueChanged (Parameter* p)
     {
         int selectedIdx = ((CategoricalParameter*) p)->getSelectedIndex();
         setEngine (getAvailableRecordEngines()[selectedIdx]->getID());
-        createNewDirectory();
+        // NOTE: Any record engine change will create a new directory for all record nodes to prevent data loss in edge cases
+        CoreServices::createNewRecordingDirectory();
     }
     else if (p->getName() == "events")
     {
