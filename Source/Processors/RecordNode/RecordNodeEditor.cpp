@@ -325,17 +325,30 @@ RecordToggleButton::~RecordToggleButton() {}
 
 void RecordToggleButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    g.setColour (Colour (0, 0, 0));
-    g.fillRoundedRectangle (0, 0, getWidth(), getHeight(), 0.2 * getWidth());
+    
+    float alpha = 1.0f;
+    
+    if (!isEnabled())
+    {
+        alpha = 0.5f;
+    }
+    
+    g.setColour (Colour (0, 0, 0).withAlpha(alpha));
+    g.fillRoundedRectangle (0, 0, getWidth(), getHeight(), 4);
 
     if (! getToggleState())
-        g.setColour (findColour (ThemeColours::widgetBackground));
+    {
+        g.setColour (findColour (ThemeColours::widgetBackground).withAlpha(alpha));
+    }
     else
-        g.setColour (Colour (255, 0, 0));
+    {
+        g.setColour (Colour (255, 0, 0).withAlpha(alpha));
+    }
+        
 
-    g.fillRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
+    g.fillRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 2, 3);
 
-    g.setColour (Colour (0, 0, 0));
+    g.setColour (Colour (0, 0, 0).withAlpha(alpha));
     g.fillEllipse (0.35 * getWidth(), 0.35 * getHeight(), 0.3 * getWidth(), 0.3 * getHeight());
 }
 

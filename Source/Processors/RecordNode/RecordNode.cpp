@@ -114,8 +114,8 @@ void RecordNode::registerParameters()
         recordEngines.add (engines[i]->getName());
     addCategoricalParameter (Parameter::PROCESSOR_SCOPE, "engine", "Engine", "Recording data format", recordEngines, engineIndex, true);
 
-    addBooleanParameter (Parameter::PROCESSOR_SCOPE, "events", "Record Events", "Toggle saving events coming into this node", true);
-    addBooleanParameter (Parameter::PROCESSOR_SCOPE, "spikes", "Record Spikes", "Toggle saving spikes coming into this node", true);
+    addBooleanParameter (Parameter::PROCESSOR_SCOPE, "events", "Record Events", "Toggle saving events coming into this node", true, true);
+    addBooleanParameter (Parameter::PROCESSOR_SCOPE, "spikes", "Record Spikes", "Toggle saving spikes coming into this node", true, true);
 
     addMaskChannelsParameter (Parameter::STREAM_SCOPE, "channels", "Channels", "Channels to record from", true);
     addTtlLineParameter (Parameter::STREAM_SCOPE, "sync_line", "Sync Line", "Event line to use for sync signal", 8, true, false, true);
