@@ -39,6 +39,8 @@ using namespace std::chrono;
 #define CONTINUOUS_CHANNELS_ON_BY_DEFAULT true
 #define RECEIVED_SOFTWARE_TIME (event.getVelocity() == 136)
 
+bool RecordNode::overrideTimestampWarningShown = false;
+
 EventMonitor::EventMonitor()
     : receivedEvents (0),
       receivedSpikes (0),
@@ -105,8 +107,8 @@ RecordNode::~RecordNode()
 
 void RecordNode::registerParameters()
 {
-    String defaultRecordDirectory = CoreServices::getRecordingParentDirectory().getFullPathName();
-    addPathParameter (Parameter::PROCESSOR_SCOPE, "directory", "Directory", "Select a directory to write data to", defaultRecordDirectory, {}, true, true);
+    defaultRecordDirectory = CoreServices::getRecordingParentDirectory().getFullPathName();
+    addPathParameter (Parameter::PROCESSOR_SCOPE, "directory", "Directory", "Select a directory to write data to", defaultRecordDirectory, {}, true, false);
 
     Array<String> recordEngines;
     std::vector<RecordEngineManager*> engines = getAvailableRecordEngines();
@@ -135,9 +137,10 @@ void RecordNode::parameterValueChanged (Parameter* p)
     if (p->getName() == "directory")
     {
         String newPath = static_cast<PathParameter*> (p)->getValue();
-        if (newPath == "default")
-            newPath = CoreServices::getRecordingParentDirectory().getFullPathName();
-        setDataDirectory (File (newPath));
+        if (newPath == "None")
+            setDataDirectory (defaultRecordDirectory);
+        else
+            setDataDirectory (newPath);
     }
     else if (p->getName() == "engine")
     {
@@ -160,19 +163,73 @@ void RecordNode::parameterValueChanged (Parameter* p)
     else if (p->getName() == "sync_line")
     {
         LOGD ("Parameter changed: sync_line");
-        synchronizer.setSyncLine (getDataStream (p->getStreamId())->getKey(), ((TtlLineParameter*) p)->getSelectedLine());
+        int selectedLine = ((TtlLineParameter*) p)->getSelectedLine();
+        const String streamKey = getDataStream (p->getStreamId())->getKey();
+
+        synchronizer.setSyncLine (streamKey, selectedLine);
+
+        // Assume overrideTimestampWarningShown is already true if a sync line is set for any hardware-synced stream
+        if (getDataStream (streamKey)->generatesTimestamps() 
+            && selectedLine >= 0 
+            && !overrideTimestampWarningShown)
+        {
+            overrideTimestampWarningShown = true;
+        }
+
+        // If sync line is set to none and this is the main stream, we need to find another main stream
+        if (selectedLine == -1 && synchronizer.mainStreamKey == streamKey)
+        {
+            int streamIndex = 0;
+            for (auto stream : dataStreams)
+            {
+                if (stream->getStreamId() != p->getStreamId()
+                    && ! synchronizer.streamGeneratesTimestamps (stream->getKey()))
+                {
+                    getParameter ("main_sync")->setNextValue (streamIndex, false);
+                    return;
+                }
+                streamIndex++;
+            }
+
+            getParameter ("main_sync")->setNextValue (-1, false);
+        }
+        else if (selectedLine >= 0 && synchronizer.mainStreamKey.isEmpty())
+        {
+            // If the sync line is set, but no main stream is set, we need to set the main stream to the one with the sync line
+            int streamIndex = 0;
+            for (auto stream : dataStreams)
+            {
+                if (stream->getKey() == streamKey)
+                {
+                    getParameter ("main_sync")->setNextValue (streamIndex, false);
+                    return;
+                }
+                streamIndex++;
+            }
+        }
     }
     else if (p->getName() == "main_sync")
     {
         LOGD ("Parameter changed: main_sync");
-        Array<String> streamNames = ((SelectedStreamParameter*) p)->getStreamNames();
-        for (auto stream : dataStreams)
+        int streamIndex = ((SelectedStreamParameter*) p)->getSelectedIndex();
+
+        if (streamIndex == -1)
         {
-            String key = stream->getKey();
-            if (key == streamNames[((SelectedStreamParameter*) p)->getSelectedIndex()])
+            synchronizer.setMainDataStream ("");
+            return;
+        }
+        else
+        {
+            Array<String> streamNames = ((SelectedStreamParameter*) p)->getStreamNames();
+            for (auto stream : dataStreams)
             {
-                synchronizer.setMainDataStream (stream->getKey());
-                break;
+                String key = stream->getKey();
+                if (key == streamNames[streamIndex]
+                    && ! synchronizer.streamGeneratesTimestamps (key))
+                {
+                    synchronizer.setMainDataStream (stream->getKey());
+                    break;
+                }
             }
         }
     }
@@ -428,6 +485,18 @@ void RecordNode::setDataDirectory (File directory)
     checkDiskSpace();
 }
 
+void RecordNode::setDefaultRecordingDirectory (File directory)
+{
+    defaultRecordDirectory = directory;
+
+    Parameter* p = getParameter ("directory");
+
+    if (p->getValueAsString() == "None")
+    {
+        setDataDirectory (directory);
+    }
+}
+
 void RecordNode::createNewDirectory (bool resetCounters)
 {
     LOGD ("CREATE NEW DIRECTORY");
@@ -535,11 +604,13 @@ void RecordNode::updateSettings()
 
     for (auto stream : dataStreams)
     {
+        TtlLineParameter* syncLineParam = static_cast<TtlLineParameter*> (stream->getParameter ("sync_line"));
         const uint16 streamId = stream->getStreamId();
         activeStreamIds.add (streamId);
 
         LOGD ("Record Node found stream: (", streamId, ") ", stream->getName(), " with sample rate ", stream->getSampleRate());
-        synchronizer.addDataStream (stream->getKey(), stream->getSampleRate());
+        int syncLine = syncLineParam->getSelectedLine();
+        synchronizer.addDataStream (stream->getKey(), stream->getSampleRate(), syncLine, stream->generatesTimestamps());
 
         fifoUsage[streamId] = 0.0f;
 
@@ -553,7 +624,6 @@ void RecordNode::updateSettings()
             numLines = 1;
 
         // Update the number of available lines in the sync line parameter
-        TtlLineParameter* syncLineParam = static_cast<TtlLineParameter*> (stream->getParameter ("sync_line"));
         syncLineParam->setMaxAvailableLines (numLines);
     }
 
@@ -567,6 +637,28 @@ void RecordNode::updateSettings()
         else
             ++it;
     }
+
+    // Set the main sync stream from the synchronizer
+    auto param = getParameter ("main_sync");
+    Array<String> streamNames = ((SelectedStreamParameter*) param)->getStreamNames();
+    String mainStreamKey = synchronizer.mainStreamKey;
+    if (mainStreamKey.isEmpty())
+    {
+        param->setNextValue (-1, false); // no main stream selected
+    }
+    else
+    {
+        int mainStreamIndex = -1;
+        for (int i = 0; i < streamNames.size(); i++)
+        {
+            if (streamNames[i] == mainStreamKey)
+            {
+                mainStreamIndex = i;
+                break;
+            }
+        }
+        param->setNextValue (mainStreamIndex, false); // set main stream index
+    }
 }
 
 bool RecordNode::isSynchronized()
@@ -578,7 +670,7 @@ bool RecordNode::isSynchronized()
     {
         SyncStatus status = synchronizer.getStatus (stream->getKey());
 
-        if (status != SYNCED)
+        if (status != SYNCED && status != HARDWARE_SYNCED)
             return false;
     }
 
@@ -787,9 +879,20 @@ void RecordNode::handleTTLEvent (TTLEventPtr event)
     if (recordEvents && isRecording)
     {
         size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
+        uint16 streamId = event->getStreamId();
+
+        double ts = -1.0;
+        if (synchronizer.streamGeneratesTimestamps (streamKey))
+        {
+            ts = getFirstTimestampForBlock (streamId) + (sampleNumber - getFirstSampleNumberForBlock (streamId)) / getDataStream (streamId)->getSampleRate();
+        }
+        else
+        {
+            ts = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber);
+        }
 
         HeapBlock<char> buffer (size);
-        event->setTimestampInSeconds (synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber));
+        event->setTimestampInSeconds (ts);
         event->serialize (buffer, size);
 
         eventQueue->addEvent (EventPacket (buffer, int (size)), sampleNumber);
@@ -822,8 +925,20 @@ void RecordNode::handleSpike (SpikePtr spike)
     if (recordSpikes && isRecording)
     {
         String streamKey = getDataStream (spike->getStreamId())->getKey();
-        spike->setTimestampInSeconds (synchronizer.convertSampleNumberToTimestamp (streamKey,
-                                                                                   spike->getSampleNumber()));
+        uint16 streamId = spike->getStreamId();
+        int64 sampleNumber = spike->getSampleNumber();
+
+        double ts = -1.0;
+        if (synchronizer.streamGeneratesTimestamps (streamKey))
+        {
+            ts = getFirstTimestampForBlock (streamId) + (sampleNumber - getFirstSampleNumberForBlock (streamId)) / getDataStream (streamId)->getSampleRate();
+        }
+        else
+        {
+            ts = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber);
+        }
+
+        spike->setTimestampInSeconds (ts);
         writeSpike (spike, spike->getChannelInfo());
         eventMonitor->bufferedSpikes++;
     }
@@ -907,7 +1022,7 @@ void RecordNode::process (AudioBuffer<float>& buffer)
 
             if (numSamples > 0)
             {
-                if (!stream->generatesTimestamps())
+                if (! synchronizer.streamGeneratesTimestamps (streamKey))
                 {
                     first = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber);
                     second = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber + 1);
@@ -983,13 +1098,6 @@ void RecordNode::writeSpike (const Spike* spike, const SpikeChannel* spikeElectr
 
     if (electrodeIndex >= 0)
         spikeQueue->addEvent (*spike, spike->getSampleNumber(), electrodeIndex);
-}
-
-// FileNameComponent listener
-void RecordNode::filenameComponentChanged (FilenameComponent* fnc)
-{
-    dataDirectory = fnc->getCurrentFile();
-    newDirectoryNeeded = true;
 }
 
 void RecordNode::timerCallback()

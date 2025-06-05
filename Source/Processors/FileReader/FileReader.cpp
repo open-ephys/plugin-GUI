@@ -211,7 +211,7 @@ void FileReader::initialize (bool signalChainIsLoading)
 
 bool FileReader::setFile (String fullpath, bool shouldUpdateSignalChain)
 {
-    if (fullpath.equalsIgnoreCase ("default"))
+    if (fullpath.equalsIgnoreCase ("default") || fullpath.equalsIgnoreCase ("None"))
     {
         File executable = File::getSpecialLocation (File::currentApplicationFile);
 

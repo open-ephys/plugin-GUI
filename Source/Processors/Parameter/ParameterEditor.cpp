@@ -25,6 +25,7 @@
 
 #include "../Editors/GenericEditor.h"
 #include "../GenericProcessor/GenericProcessor.h"
+#include "../RecordNode/RecordNode.h"
 
 void ParameterEditor::setLayout (Layout newLayout)
 {
@@ -127,17 +128,25 @@ TextBoxParameterEditor::TextBoxParameterEditor (Parameter* param, int rowHeightP
     label->setFont (labelFont);
     addAndMakeVisible (label.get());
 
-    if (param->getType() == Parameter::FLOAT_PARAM) {
-        if (((FloatParameter*) param)->getMinValue() < 0) {
+    if (param->getType() == Parameter::FLOAT_PARAM)
+    {
+        if (((FloatParameter*) param)->getMinValue() < 0)
+        {
             valueTextBox = std::make_unique<CustomTextBox> (param->getKey(), String (float (param->getValue())), "-0123456789.");
-        } else {
+        }
+        else
+        {
             valueTextBox = std::make_unique<CustomTextBox> (param->getKey(), String (float (param->getValue())), "0123456789.");
         }
     }
-    else if (param->getType() == Parameter::INT_PARAM) {
-        if (((IntParameter*) param)->getMinValue() < 0) {
+    else if (param->getType() == Parameter::INT_PARAM)
+    {
+        if (((IntParameter*) param)->getMinValue() < 0)
+        {
             valueTextBox = std::make_unique<CustomTextBox> (param->getKey(), String (int (param->getValue())), "-0123456789");
-        } else {
+        }
+        else
+        {
             valueTextBox = std::make_unique<CustomTextBox> (param->getKey(), String (int (param->getValue())), "0123456789");
         }
     }
@@ -840,15 +849,24 @@ void SyncControlButton::paintButton (Graphics& g, bool isMouseOver, bool isButto
     {
         case SyncStatus::OFF:
         {
+            Colour offColour;
+
+            // If the stream generates timestamps, use a transparent blue colour
+            if (node->synchronizer.streamGeneratesTimestamps (streamKey))
+                offColour = Colour (30, 112, 255).withAlpha (0.4f);
+            else
+                // If the stream does not generate timestamps, use the default fill colour
+                offColour = findColour (ThemeColours::defaultFill);
+
             if (isMouseOver)
             {
                 //LIGHT GREY
-                g.setColour (findColour (ThemeColours::defaultFill).contrasting (0.2f));
+                g.setColour (offColour.contrasting (0.2f));
             }
             else
             {
                 //DARK GREY
-                g.setColour (findColour (ThemeColours::defaultFill));
+                g.setColour (offColour);
             }
             break;
         }
@@ -877,6 +895,20 @@ void SyncControlButton::paintButton (Graphics& g, bool isMouseOver, bool isButto
             {
                 //DARK GREEN
                 g.setColour (Colour (25, 255, 25).darker (0.5f));
+            }
+            break;
+        }
+        case SyncStatus::HARDWARE_SYNCED:
+        {
+            if (isMouseOver)
+            {
+                // SPECIAL BLUE - slightly contrasting
+                g.setColour (Colour (30, 112, 255).contrasting (0.1f));
+            }
+            else
+            {
+                // SPECIAL BLUE
+                g.setColour (Colour (30, 112, 255));
             }
             break;
         }
@@ -949,6 +981,29 @@ TtlLineParameterEditor::TtlLineParameterEditor (Parameter* param,
 
 void TtlLineParameterEditor::selectedLineChanged (int newLine)
 {
+    int prevLine = getSelectedLine();
+    // If a sync line is assigned, show a warning if the stream generates hardware timestamps
+    if (syncParam != nullptr)
+    {
+        GenericProcessor* syncProcessor = ((GenericProcessor*) syncParam->getOwner());
+        DataStream* paramStream = ((DataStream*) param->getOwner());
+        if (syncProcessor->isRecordNode()
+            && ! RecordNode::overrideTimestampWarningShown
+            && paramStream->generatesTimestamps()
+            && newLine >= 0
+            && prevLine == -1)
+        {
+            AlertWindow::showMessageBox (AlertWindow::WarningIcon,
+                                         "Hardware Timestamps Will Be Overridden",
+                                         "The \"" + paramStream->getKey() + "\" stream is synchronized using hardware-generated timestamps, but a sync line has been assigned. "
+                                         "As a result, the hardware timestamps will be replaced with software-generated ones from the Synchronizer, using the main stream's clock and sync events.\n\n"
+                                         "To continue using hardware-generated timestamps, please remove the sync line by clicking it again",
+                                         "OK");
+
+            RecordNode::overrideTimestampWarningShown = true;
+        }
+    }
+
     param->setNextValue (newLine);
     updateView();
 }
@@ -986,6 +1041,15 @@ void TtlLineParameterEditor::primaryStreamChanged()
         syncParam->setNextValue (streamIndex);
 }
 
+bool TtlLineParameterEditor::isPrimaryStream()
+{
+    if (syncParam == nullptr || syncParam->getType() != Parameter::SELECTED_STREAM_PARAM)
+        return true;
+
+    DataStream* paramStream = (DataStream*) param->getOwner();
+    return ((SelectedStreamParameter*) syncParam)->getValueAsString() == paramStream->getKey();
+}
+
 void TtlLineParameterEditor::buttonClicked (Button* button_)
 {
     if (param == nullptr)
@@ -1001,7 +1065,8 @@ void TtlLineParameterEditor::buttonClicked (Button* button_)
                                                    this,
                                                    p->getMaxAvailableLines(),
                                                    p->getSelectedLine(),
-                                                   paramStream->getKey() == syncParam->getValueAsString());
+                                                   paramStream->getKey() == syncParam->getValueAsString(),
+                                                   paramStream->generatesTimestamps());
 
         CoreServices::getPopupManager()->showPopup (std::unique_ptr<Component> (syncSelector), editor);
     }
@@ -1102,7 +1167,8 @@ void PathParameterEditor::updateView()
 
     if (param)
     {
-        button->setButtonText (param->getValueAsString());
+        String value = param->getValueAsString();
+        button->setButtonText (value);
         if (! ((PathParameter*) param)->isValid())
         {
             button->setColour (TextButton::textColourOnId, Colours::red);
@@ -1116,7 +1182,24 @@ void PathParameterEditor::updateView()
         }
         //Alternatively:
         //button->setButtonText(File(param->getValueAsString()).getFileName());
-        button->setTooltip (param->getValueAsString());
+        if (value == "None")
+        {
+            String defaultValue = param->getDefaultValue().toString();
+            if (defaultValue == "None" || defaultValue.isEmpty())
+            {
+                button->setButtonText ("None");
+                button->setTooltip (param->getDescription());
+            }
+            else
+            {
+                button->setButtonText ("default");
+                button->setTooltip ("Override default path");
+            }
+        }
+        else
+        {
+            button->setTooltip (value);
+        }
     }
 }
 

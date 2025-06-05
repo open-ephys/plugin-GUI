@@ -23,11 +23,14 @@
 
 #include "Synchronizer.h"
 
-SyncStream::SyncStream (String streamKey_, float expectedSampleRate_, Synchronizer* synchronizer_)
+SyncStream::SyncStream (String streamKey_, float expectedSampleRate_, Synchronizer* synchronizer_, bool generatesTimestamps_)
     : streamKey (streamKey_), synchronizer(synchronizer_),
       expectedSampleRate (expectedSampleRate_),
       actualSampleRate (-1.0f),
-      isActive (true)
+      isActive (true),
+      generatesTimestamps (generatesTimestamps_),
+      syncLine (0),
+      isSynchronized (false)
 {
     LOGD ("Created sync stream ", streamKey, " with sample rate ", expectedSampleRate);
 }
@@ -49,12 +52,14 @@ void SyncStream::reset (String mainStreamKey)
         actualSampleRate = expectedSampleRate;
         globalStartTime = 0.0;
         isSynchronized = true;
+        overrideHardwareTimestamps = true; // main stream overrides hardware timestamps
     }
     else
     {
         actualSampleRate = -1.0;
-        globalStartTime = -1.0;
-        isSynchronized = false;
+        globalStartTime = 0.0;
+        overrideHardwareTimestamps = syncLine > -1; // override hardware timestamps for other streams if sync line is set
+        isSynchronized = generatesTimestamps && !overrideHardwareTimestamps; // if the stream generates its own timestamps, it is synchronized unless it overrides hardware timestamps
     }
 }
 
@@ -349,51 +354,57 @@ void Synchronizer::reset()
 void Synchronizer::prepareForUpdate()
 {
     previousMainStreamKey = mainStreamKey;
-
+    mainStreamKey = String();
+    dataStreamObjects.clear();
+    streams.clear();
     streamCount = 0;
-
-    for (auto [id, stream] : streams)
-        stream->isActive = false;
 }
 
 void Synchronizer::finishedUpdate()
 {
+    if (mainStreamKey.isEmpty() && streamCount > 0)
+    {
+        // if no main stream is set, set the first non-hardware-synced stream as the main stream
+        for (auto stream : dataStreamObjects)
+        {
+            if (! streamGeneratesTimestamps (stream->streamKey))
+            {
+                mainStreamKey = stream->streamKey;
+                LOGD ("No main stream set, setting ", mainStreamKey, " as the main stream");
+                break;
+            }
+        }
+    }
+    
+    reset();
 }
 
-void Synchronizer::addDataStream (String streamKey, float expectedSampleRate)
+void Synchronizer::addDataStream (String streamKey, float expectedSampleRate, int syncLine, bool generatesTimestamps)
 {
     LOGD ("Synchronizer adding ", streamKey, " with sample rate ", expectedSampleRate);
-    // if this is the first stream, make it the main one
-    if (mainStreamKey == "")
-        mainStreamKey = streamKey;
 
     //std::cout << "Main stream ID: " << mainStreamId << std::endl;
 
     // if there's a stored value, and it appears again,
     // re-instantiate this as the main stream
-    if (mainStreamKey == previousMainStreamKey)
+    if (streamKey == previousMainStreamKey)
         mainStreamKey = previousMainStreamKey;
 
-    // if there's no Stream object yet, create a new one
-    if (streams.count (streamKey) == 0)
-    {
-        //std::cout << "Creating new Stream object" << std::endl;
-        dataStreamObjects.add (new SyncStream (streamKey, expectedSampleRate, this));
-        streams[streamKey] = dataStreamObjects.getLast();
-        setSyncLine (streamKey, 0);
-    }
-    else
-    {
-        // otherwise, indicate that the stream is currently active and update sample rate
-        streams[streamKey]->isActive = true;
-        streams[streamKey]->expectedSampleRate = expectedSampleRate;
-    }
+    //std::cout << "Creating new Stream object" << std::endl;
+    dataStreamObjects.add (new SyncStream (streamKey, expectedSampleRate, this, generatesTimestamps));
+    streams[streamKey] = dataStreamObjects.getLast();
+    streams[streamKey]->syncLine = syncLine;
 
     streamCount++;
 }
 
 void Synchronizer::setMainDataStream (String streamKey)
 {
+    if (streamKey.isNotEmpty() && streams.count (streamKey) == 0)
+    {
+        LOGD ("Cannot set ", streamKey, " as main data stream. Stream not found.");
+        return;
+    }
     LOGD ("Synchronizer setting mainDataStream to ", streamKey);
     mainStreamKey = streamKey;
     reset();
@@ -509,10 +520,21 @@ bool Synchronizer::isStreamSynced (String streamKey)
     return streams[streamKey]->isSynchronized;
 }
 
+bool Synchronizer::streamGeneratesTimestamps (String streamKey)
+{
+    if (streams.count (streamKey) == 0)
+        return false;
+
+    return streams[streamKey]->generatesTimestamps && ! streams[streamKey]->overrideHardwareTimestamps;
+}
+
 SyncStatus Synchronizer::getStatus (String streamKey)
 {
     if (! streamKey.length() || ! acquisitionIsActive)
         return SyncStatus::OFF;
+
+    if (streamGeneratesTimestamps (streamKey))
+        return SyncStatus::HARDWARE_SYNCED;
 
     if (isStreamSynced (streamKey))
         return SyncStatus::SYNCED;
@@ -522,12 +544,14 @@ SyncStatus Synchronizer::getStatus (String streamKey)
 
 void Synchronizer::hiResTimerCallback()
 {
+    if (mainStreamKey.isEmpty())
+        return;
 
     const ScopedLock sl (synchronizerLock);
 
     for (auto [key, stream] : streams)
     {
-        if (key != mainStreamKey)
+        if (key != mainStreamKey && ! streamGeneratesTimestamps (key))
         {
             stream->syncWith (streams[mainStreamKey]);
         }

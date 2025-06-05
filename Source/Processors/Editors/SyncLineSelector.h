@@ -88,6 +88,9 @@ public:
 
         // Called when the user sets the primary stream for synchronization
         virtual void primaryStreamChanged() = 0;
+
+        // Called when the updating to popup to reflect changes
+        virtual bool isPrimaryStream() = 0;
     };
 
     /** Constructor */

@@ -495,6 +495,7 @@ ControlPanel::ControlPanel (ProcessorGraph* graph_, AudioComponent* audio_, bool
                                                              "*",
                                                              "",
                                                              "");
+    filenameComponent->addListener (this);
     addChildComponent (filenameComponent.get());
 
     filenameFields.add (std::make_shared<FilenameFieldComponent> (
@@ -586,6 +587,11 @@ void ControlPanel::setRecordingParentDirectory (String path)
 {
     File newFile (path);
     filenameComponent->setCurrentFile (newFile, true, sendNotificationSync);
+
+    for (auto recNode : AccessClass::getProcessorGraph()->getRecordNodes())
+    {
+        recNode->setDefaultRecordingDirectory (newFile);
+    }
 }
 
 File ControlPanel::getRecordingParentDirectory()
@@ -1234,6 +1240,14 @@ void ControlPanel::setSelectedRecordEngine (int index)
     clock->resetRecordingTime();
 
     lastEngineIndex = index;
+}
+
+void ControlPanel::filenameComponentChanged (FilenameComponent* fnComponent)
+{
+    for (auto recNode : AccessClass::getProcessorGraph()->getRecordNodes())
+    {
+        recNode->setDefaultRecordingDirectory (fnComponent->getCurrentFile());
+    }
 }
 
 void ControlPanel::disableCallbacks()

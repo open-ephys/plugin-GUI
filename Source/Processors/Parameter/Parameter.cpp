@@ -224,7 +224,7 @@ Parameter::ChangeValue::ChangeValue (std::string key_, var newValue_)
     if (p != nullptr)
     {
         originalValue = p->getValue();
-        
+
         // Store linked parameter states before the change
         if (p->isLinked())
         {
@@ -236,10 +236,10 @@ Parameter::ChangeValue::ChangeValue (std::string key_, var newValue_)
 bool Parameter::ChangeValue::perform()
 {
     Parameter* p = Parameter::parameterMap[key];
-    if (p == nullptr || !p->isEnabled() || p->getValue() == newValue)
+    if (p == nullptr || ! p->isEnabled() || p->getValue() == newValue)
         return false;
 
-    p->setNextValue(newValue, false);
+    p->setNextValue (newValue, false);
     p->valueChanged();
 
     // Compare current value with new value to check if the change was effective
@@ -255,7 +255,7 @@ bool Parameter::ChangeValue::undo()
     if (p == nullptr)
         return false;
 
-    p->setNextValue(originalValue, false);
+    p->setNextValue (originalValue, false);
     p->valueChanged();
 
     // Restore linked parameter states
@@ -1123,10 +1123,6 @@ TtlLineParameter::TtlLineParameter (ParameterOwner* owner,
 {
     jassert ((lineCount >= 0 && lineCount < 256));
     jassert (scope == ParameterScope::STREAM_SCOPE);
-
-    // Can't have both sync mode and select none
-    if (syncMode && selectNone)
-        jassertfalse;
 }
 
 void TtlLineParameter::setNextValue (var newValue_, bool undoable)
@@ -1135,7 +1131,7 @@ void TtlLineParameter::setNextValue (var newValue_, bool undoable)
         return;
 
     if (((int) newValue_ < lineCount && (int) newValue_ >= 0)
-        || (! syncMode && (int) newValue_ == -1)) // -1 is a valid value for non-sync mode
+        || (selectNone && (int) newValue_ == -1)) // -1 is a valid value for non-sync mode
     {
         newValue = newValue_;
 
@@ -1223,13 +1219,22 @@ void PathParameter::setNextValue (var newValue_, bool undoable)
 
     if (newValue_.isString())
     {
-        if (! isDirectory && File (newValue_.toString()).existsAsFile())
+        if (! isRequired && newValue_.toString() == "None")
+        {
+            newValue = newValue_;
+        }
+        else if (! isDirectory && File (newValue_.toString()).existsAsFile())
         {
             newValue = newValue_;
         }
         else if (isDirectory && File (newValue_.toString()).exists())
         {
             newValue = newValue_;
+        }
+        else
+        {
+            LOGE (getKey(), ": Invalid path");
+            return;
         }
 
         if (! undoable)
@@ -1261,12 +1266,11 @@ void PathParameter::setNextValue (var newValue_, bool undoable)
 
 bool PathParameter::isValid()
 {
-    if (currentValue.toString() == "default")
+    if (currentValue.toString() == "None")
     {
         if (isRequired)
             currentValue = defaultValue;
-        else
-            currentValue = "None";
+
         return true;
     }
     else if (! isDirectory && File (currentValue.toString()).existsAsFile())
@@ -1274,10 +1278,6 @@ bool PathParameter::isValid()
         return true;
     }
     else if (isDirectory && File (currentValue.toString()).exists())
-    {
-        return true;
-    }
-    else if (! isRequired)
     {
         return true;
     }
@@ -1292,11 +1292,18 @@ void PathParameter::toXml (XmlElement* xml)
 
 void PathParameter::fromXml (XmlElement* xml)
 {
-    currentValue = xml->getStringAttribute (getName(), defaultValue);
+    String savedValue = xml->getStringAttribute (getName(), defaultValue);
+    if (savedValue.equalsIgnoreCase ("default"))
+        savedValue = "None";
+
+    currentValue = savedValue;
 }
 
 String PathParameter::getChangeDescription()
 {
+    if (! isRequired && currentValue.toString() == "None" && defaultValue.toString().isNotEmpty())
+        return "default";
+
     return currentValue.toString();
 }
 
@@ -1328,7 +1335,7 @@ void SelectedStreamParameter::setNextValue (var newValue_, bool undoable)
         return;
 
     if (newValue_.isInt()
-        && (int) newValue_ >= 0
+        && (int) newValue_ >= -1
         && (int) newValue_ < streamNames.size())
     {
         newValue = newValue_;
@@ -1384,7 +1391,7 @@ int SelectedStreamParameter::getSelectedIndex()
 String SelectedStreamParameter::getValueAsString()
 {
     if ((int) currentValue == -1 || streamNames.size() == 0)
-        return String();
+        return "None";
     else
         return streamNames[(int) currentValue];
 }
@@ -1402,7 +1409,7 @@ void SelectedStreamParameter::fromXml (XmlElement* xml)
 
 String SelectedStreamParameter::getChangeDescription()
 {
-    return streamNames[(int) currentValue];
+    return getValueAsString();
 }
 
 TimeParameter::TimeParameter (ParameterOwner* owner,
@@ -1449,7 +1456,7 @@ void TimeParameter::setNextValue (var newValue_, bool undoable)
         {
             currentValue = newValue;
             timeValue->setTimeFromString (currentValue.toString());
-            getOwner()->parameterChangeRequest(this);
+            getOwner()->parameterChangeRequest (this);
             valueChanged();
         }
     }
@@ -1473,7 +1480,7 @@ TimeParameter::ChangeValue::ChangeValue (std::string key_, var newValue_)
     if (p != nullptr)
     {
         originalValue = p->getValue();
-        
+
         // Store linked parameter states before the change
         if (p->isLinked())
         {
@@ -1485,10 +1492,10 @@ TimeParameter::ChangeValue::ChangeValue (std::string key_, var newValue_)
 bool TimeParameter::ChangeValue::perform()
 {
     Parameter* p = Parameter::parameterMap[key];
-    if (p == nullptr || !p->isEnabled() || p->getValue() == newValue)
+    if (p == nullptr || ! p->isEnabled() || p->getValue() == newValue)
         return false;
 
-    p->setNextValue(newValue, false);
+    p->setNextValue (newValue, false);
     p->valueChanged();
 
     // Compare current value with new value to check if the change was effective
@@ -1504,7 +1511,7 @@ bool TimeParameter::ChangeValue::undo()
     if (p == nullptr)
         return false;
 
-    p->setNextValue(originalValue, false);
+    p->setNextValue (originalValue, false);
     p->valueChanged();
 
     // Restore linked parameter states

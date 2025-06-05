@@ -22,6 +22,7 @@
 */
 
 #include "ParameterOwner.h"
+#include "../RecordNode/RecordNode.h"
 
 //ParameterOwnerCommon
 ParameterOwner::ParameterOwner (ParameterOwner::Type type)
@@ -200,6 +201,16 @@ Array<ParameterEditor*> ParameterOwner::createDefaultEditor()
             }
             case Parameter::PATH_PARAM:
             {
+                if (auto processor = dynamic_cast<GenericProcessor*> (this))
+                {
+                    if (processor->isRecordNode())
+                    {
+                        RecordPathParameterEditor* pathParameterEditor = new RecordPathParameterEditor (parameter);
+                        editors.add (pathParameterEditor);
+                        break;
+                    }
+                }
+
                 PathParameterEditor* pathParameterEditor = new PathParameterEditor (parameter);
                 editors.add (pathParameterEditor);
                 break;

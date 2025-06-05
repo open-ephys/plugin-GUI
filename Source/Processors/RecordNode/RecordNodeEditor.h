@@ -268,6 +268,51 @@ private:
 };
 
 /**
+ 
+ Custom button to revert recording directory to the control panel default
+ 
+ */
+class ClearButton : public juce::Button
+{
+public:
+    /** Constructor */
+    ClearButton() : Button ("Revert Dir") {}
+
+    /** Renders the button */
+    void paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown) override;
+};
+
+class RecordPathParameterEditor : public ParameterEditor,
+                                  public Button::Listener
+{
+public:
+    /** Constructor */
+    RecordPathParameterEditor (Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
+
+    /** Destructor */
+    virtual ~RecordPathParameterEditor() {}
+
+    /** Displays the File Chooser*/
+    void buttonClicked (Button* label) override;
+
+    /** Must ensure that editor state matches underlying parameter */
+    void updateView() override;
+
+    /** Sets sub-component locations */
+    void resized() override;
+
+    /** Shows a clear button if non-default path is set*/
+    void mouseEnter (const MouseEvent& event) override;
+
+    /** Hides the clear button*/
+    void mouseExit (const MouseEvent& event) override;
+
+private:
+    std::unique_ptr<TextButton> button;
+    std::unique_ptr<ClearButton> clearButton;
+};
+
+/**
     Custom editor for the RecordNode
  */
 class RecordNodeEditor : public GenericEditor,

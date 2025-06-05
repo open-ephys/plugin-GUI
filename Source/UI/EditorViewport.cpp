@@ -1622,15 +1622,15 @@ const String EditorViewport::loadState (File fileToLoad)
             if (child->hasTagName ("VERSION"))
             {
                 String savedVersion = child->getAllSubText();
-                String minimumVersion = "1.0.0";
+                String minimumVersion = String (ProjectInfo::versionString).upToFirstOccurrenceOf (".", false, false) + ".0.0";
 
                 if (savedVersion.compareNatural (minimumVersion) < 0)
                 {
                     bool userResponse = AlertWindow::showOkCancelBox (AlertWindow::WarningIcon,
-                                                                      "Incompatible Configuration File",
-                                                                      "This configuration file was created using a version of Open Ephys GUI older than 1.0.0. "
-                                                                      "Some settings and parmeters may not load correctly.\n\n"
-                                                                      "Would you like to proceed with loading the configuration file?",
+                                                                      "Legacy Configuration File Detected",
+                                                                      "This configuration file was created using a version of Open Ephys GUI older than "
+                                                                          + minimumVersion + ". Some settings and parmeters may not load correctly.\n\n"
+                                                                                             "Would you like to proceed with loading the configuration file?",
                                                                       "Yes",
                                                                       "No");
 

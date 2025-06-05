@@ -60,6 +60,7 @@ void EventTranslator::registerParameters()
                                 "Use this stream as main sync",
                                 {},
                                 0,
+                                false,
                                 true);
 
     // Sync line selection parameter
@@ -90,7 +91,9 @@ void EventTranslator::updateSettings()
     {
         const uint16 streamId = stream->getStreamId();
 
-        synchronizer.addDataStream (stream->getKey(), stream->getSampleRate());
+        TtlLineParameter* syncLineParam = static_cast<TtlLineParameter*> (stream->getParameter ("sync_line"));
+        int syncLine = syncLineParam->getSelectedLine();
+        synchronizer.addDataStream (stream->getKey(), stream->getSampleRate(), syncLine, stream->generatesTimestamps());
 
         EventChannel::Settings s {
             EventChannel::Type::TTL,
@@ -107,24 +110,92 @@ void EventTranslator::updateSettings()
     }
 
     synchronizer.finishedUpdate();
+
+    // Set the main sync stream from the synchronizer
+    auto param = getParameter ("main_sync");
+    Array<String> streamNames = ((SelectedStreamParameter*) param)->getStreamNames();
+    String mainStreamKey = synchronizer.mainStreamKey;
+    if (mainStreamKey.isEmpty())
+    {
+        param->setNextValue (-1, false); // no main stream selected
+    }
+    else
+    {
+        int mainStreamIndex = -1;
+        for (int i = 0; i < streamNames.size(); i++)
+        {
+            if (streamNames[i] == mainStreamKey)
+            {
+                mainStreamIndex = i;
+                break;
+            }
+        }
+        param->setNextValue (mainStreamIndex, false); // set main stream index
+    }
 }
 
 void EventTranslator::parameterValueChanged (Parameter* p)
 {
     if (p->getName() == "sync_line")
     {
-        synchronizer.setSyncLine (getDataStream (p->getStreamId())->getKey(), ((TtlLineParameter*) p)->getSelectedLine());
+        int selectedLine = ((TtlLineParameter*) p)->getSelectedLine();
+        const String streamKey = getDataStream (p->getStreamId())->getKey();
+
+        synchronizer.setSyncLine (streamKey, selectedLine);
+
+        // If sync line is set to none and this is the main stream, we need to find another main stream
+        if (selectedLine == -1 && synchronizer.mainStreamKey == streamKey)
+        {
+            int streamIndex = 0;
+            for (auto stream : dataStreams)
+            {
+                if (stream->getStreamId() != p->getStreamId()
+                    && ! synchronizer.streamGeneratesTimestamps (stream->getKey()))
+                {
+                    getParameter ("main_sync")->setNextValue (streamIndex, false);
+                    return;
+                }
+                streamIndex++;
+            }
+
+            getParameter ("main_sync")->setNextValue (-1, false);
+        }
+        else if (selectedLine >= 0 && synchronizer.mainStreamKey.isEmpty())
+        {
+            // If the sync line is set, but no main stream is set, we need to set the main stream to the one with the sync line
+            int streamIndex = 0;
+            for (auto stream : dataStreams)
+            {
+                if (stream->getKey() == streamKey)
+                {
+                    getParameter ("main_sync")->setNextValue (streamIndex, false);
+                    return;
+                }
+                streamIndex++;
+            }
+        }
     }
     else if (p->getName() == "main_sync")
     {
-        Array<String> streamNames = ((SelectedStreamParameter*) p)->getStreamNames();
-        for (auto stream : dataStreams)
+        int streamIndex = ((SelectedStreamParameter*) p)->getSelectedIndex();
+
+        if (streamIndex == -1)
         {
-            String key = stream->getKey();
-            if (key == streamNames[((SelectedStreamParameter*) p)->getSelectedIndex()])
+            synchronizer.setMainDataStream ("");
+            return;
+        }
+        else
+        {
+            Array<String> streamNames = ((SelectedStreamParameter*) p)->getStreamNames();
+            for (auto stream : dataStreams)
             {
-                synchronizer.setMainDataStream (stream->getKey());
-                break;
+                String key = stream->getKey();
+                if (key == streamNames[streamIndex]
+                    && ! synchronizer.streamGeneratesTimestamps (key))
+                {
+                    synchronizer.setMainDataStream (stream->getKey());
+                    break;
+                }
             }
         }
     }
@@ -184,14 +255,14 @@ void EventTranslator::handleTTLEvent (TTLEventPtr event)
             if (streamKey == eventStreamKey)
                 continue; // don't translate events back to the main stream
 
-            if (synchronizer.isStreamSynced (streamKey))
+            if (synchronizer.isStreamSynced (streamKey) && ! synchronizer.streamGeneratesTimestamps (streamKey))
             {
-               // std::cout << "original sample number: " << sampleNumber << std::endl;
+                // std::cout << "original sample number: " << sampleNumber << std::endl;
                 //std::cout << "original timestamp: " << timestamp << std::endl;
 
                 int64 newSampleNumber = synchronizer.convertTimestampToSampleNumber (streamKey, timestamp);
 
-               // std::cout << "new sample number (" << streamId << "): " << newSampleNumber << std::endl;
+                // std::cout << "new sample number (" << streamId << "): " << newSampleNumber << std::endl;
 
                 int64 firstSampleNumberForBlock = getFirstSampleNumberForBlock (streamId);
 

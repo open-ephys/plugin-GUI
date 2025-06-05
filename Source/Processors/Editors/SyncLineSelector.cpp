@@ -73,26 +73,23 @@ SetPrimaryButton::~SetPrimaryButton() {}
 
 void SetPrimaryButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
+    Colour backgroundColour = findColour (ThemeColours::widgetBackground);
+
+    if (getToggleState())
+        backgroundColour = findColour (ThemeColours::highlightedFill);
+
     if (isMouseOver)
-    {
-        if (getToggleState())
-            g.setColour (findColour (ThemeColours::highlightedFill).withAlpha (0.5f));
-        else
-            g.setColour (findColour (ThemeColours::widgetBackground).contrasting (0.3f));
-    }
-    else
-    {
-        if (getToggleState())
-            g.setColour (findColour (ThemeColours::highlightedFill));
-        else
-            g.setColour (findColour (ThemeColours::widgetBackground));
-    }
+        backgroundColour = backgroundColour.contrasting (0.1f);
+
+    backgroundColour.withAlpha (isEnabled() ? 1.0f : 0.5f);
+
+    g.setColour (backgroundColour);
     g.fillRoundedRectangle (1.0f, 1.0f, (float) getWidth() - 2.0f, (float) getHeight() - 2.0f, 2.0f);
 
-    g.setColour (findColour (ThemeColours::outline));
+    g.setColour (findColour (ThemeColours::outline).withAlpha (isEnabled() ? 1.0f : 0.5f));
     g.drawRoundedRectangle (0.0f, 0.0f, (float) getWidth(), (float) getHeight(), 2.0f, 1.0f);
 
-    g.setColour (findColour (ThemeColours::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText).withAlpha (isEnabled() ? 1.0f : 0.5f));
     g.setFont (FontOptions ("Inter", "Regular", 12.0f));
     g.drawText (String (getName()), 0, 0, getWidth(), getHeight(), Justification::centred);
 }
@@ -145,6 +142,9 @@ SyncLineSelector::SyncLineSelector (Component* parent, SyncLineSelector::Listene
         setPrimaryStreamButton->setBounds (0, height, 0.5 * width, width / nColumns);
         setPrimaryStreamButton->addListener (this);
         addChildAndSetID (setPrimaryStreamButton, "SETPRIMARY");
+
+        if (canSelectNone && selectedLine == -1)
+            setPrimaryStreamButton->setEnabled (false);
     }
     else
     {
@@ -191,15 +191,21 @@ void SyncLineSelector::buttonClicked (Button* button)
         if (canSelectNone && sameButton)
         {
             selectedLine = -1;
+
+            if (! isPrimary)
+                setPrimaryStreamButton->setEnabled (false);
         }
         else
         {
             button->setToggleState (true, dontSendNotification);
             selectedLine = std::stoi (button->getComponentID().toStdString());
+
+            if (! isPrimary)
+                setPrimaryStreamButton->setEnabled (true);
         }
 
         listener->selectedLineChanged (selectedLine);
-        repaint();
+        updatePopup();
     }
 
     detectedChange = true;
@@ -214,5 +220,31 @@ void SyncLineSelector::updatePopup()
             buttons[i]->setToggleState (true, NotificationType::dontSendNotification);
         else
             buttons[i]->setToggleState (false, NotificationType::dontSendNotification);
+    }
+
+    if (listener->isPrimaryStream() && setPrimaryStreamButton != nullptr)
+    {
+        setPrimaryStreamButton->setVisible (false);
+        isPrimary = true;
+        setSize (width, buttonSize * nRows);
+        height = buttonSize * (nRows);
+    }
+    else if (! listener->isPrimaryStream())
+    {
+        height = buttonSize * (nRows);
+        if (setPrimaryStreamButton == nullptr)
+        {
+            setPrimaryStreamButton = new SetPrimaryButton ("Set as main clock");
+            setPrimaryStreamButton->setBounds (0, height, 0.5 * width, buttonSize);
+            setPrimaryStreamButton->addListener (this);
+            addChildAndSetID (setPrimaryStreamButton, "SETPRIMARY");
+        }
+
+        setPrimaryStreamButton->setVisible (true);
+        setSize (width, height + buttonSize);
+        isPrimary = false;
+
+        if (canSelectNone && selectedLine == -1)
+            setPrimaryStreamButton->setEnabled (false);
     }
 }
