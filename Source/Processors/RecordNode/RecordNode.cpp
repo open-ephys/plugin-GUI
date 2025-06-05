@@ -299,7 +299,31 @@ String RecordNode::handleConfigMessage (const String& msg)
         {
             RecordNodeEditor* ed = static_cast<RecordNodeEditor*> (getEditor());
 
-            int engineIndex = tokens[1].getIntValue();
+            String engineValue = tokens[1];
+            int engineIndex = -1;
+
+            // Try to parse as an integer first
+            if (engineValue.containsOnly ("0123456789"))
+            {
+                engineIndex = engineValue.getIntValue();
+            }
+            else // If not an integer, try to match by name
+            {
+                auto engines = getAvailableRecordEngines();
+                for (int i = 0; i < engines.size(); ++i)
+                {
+                    if (engines[i]->getID().toLowerCase() == engineValue.toLowerCase())
+                    {
+                        engineIndex = i;
+                        break;
+                    }
+                }
+
+                if (engineIndex == -1)
+                {
+                    return "Record Node: unknown engine name \"" + engineValue + "\"";
+                }
+            }
 
             int numEngines = ((CategoricalParameter*) getParameter ("engine"))->getCategories().size();
 
