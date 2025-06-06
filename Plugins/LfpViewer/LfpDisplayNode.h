@@ -99,9 +99,6 @@ public:
     /** Acknowledges receipt of a trigger for a given split display*/
     void acknowledgeTrigger (int splitId);
 
-    /** Handles messages from other processors during acquisition*/
-    void handleBroadcastMessage (const String& msg, const int64 messageTimeMillis) override;
-
     bool getHeadlessMode() const
     {
         return headlessMode;
