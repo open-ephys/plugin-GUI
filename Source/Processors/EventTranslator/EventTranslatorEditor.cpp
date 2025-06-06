@@ -56,8 +56,8 @@ void EventTranslatorEditor::updateSettings()
     {
         const uint16 streamId = stream->getStreamId();
 
-        int column = streamCount % 5;
-        int row = streamCount / 5;
+        int column = streamCount % 6;
+        int row = streamCount / 6;
 
         const Array<EventChannel*> eventChannels = proc->getDataStream (streamId)->getEventChannels();
 
