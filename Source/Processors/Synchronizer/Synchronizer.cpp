@@ -530,11 +530,11 @@ bool Synchronizer::streamGeneratesTimestamps (String streamKey)
 
 SyncStatus Synchronizer::getStatus (String streamKey)
 {
-    if (! streamKey.length() || ! acquisitionIsActive)
-        return SyncStatus::OFF;
-
     if (streamGeneratesTimestamps (streamKey))
         return SyncStatus::HARDWARE_SYNCED;
+
+    if (! streamKey.length() || ! acquisitionIsActive)
+        return SyncStatus::OFF;
 
     if (isStreamSynced (streamKey))
         return SyncStatus::SYNCED;
