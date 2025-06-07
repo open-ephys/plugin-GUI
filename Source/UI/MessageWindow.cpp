@@ -85,8 +85,8 @@ MessageWindowComponent::MessageWindowComponent()
 
     messageLabel = std::make_unique<Label> ("Message");
     messageLabel->setFont (FontOptions { "Inter", "Regular", 18.0f });
-    messageLabel->setColour (Label::backgroundColourId, findColour (ThemeColours::componentBackground));
-    messageLabel->setColour (Label::outlineColourId, findColour (ThemeColours::componentParentBackground));
+    messageLabel->setColour (Label::backgroundColourId, findColour (ThemeColours::widgetBackground));
+    messageLabel->setColour (Label::outlineColourId, findColour (ThemeColours::outline));
     messageLabel->setColour (Label::outlineWhenEditingColourId, findColour (ThemeColours::menuHighlightBackground));
     messageLabel->setJustificationType (Justification::left);
     messageLabel->setEditable (true);
@@ -198,9 +198,6 @@ void MessageWindowComponent::paint (Graphics& g)
     g.drawSingleLineText ("Load a saved message: ",
                           20,
                           143);
-
-    g.setColour (findColour (ThemeColours::outline).withAlpha (0.5f));
-    g.drawRect (messageLabel->getBounds());
 }
 
 void MessageWindowComponent::resized()
