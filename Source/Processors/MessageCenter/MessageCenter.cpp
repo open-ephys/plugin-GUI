@@ -147,8 +147,8 @@ void MessageCenter::addOutgoingMessage (const String& msg, const int64 systemTim
     broadcastMessage (msg, systemTimeMilliseconds);
     addSavedMessage (msg);
 
-    if(messageCenterEditor != nullptr)
-		messageCenterEditor->addOutgoingMessage (msg, systemTimeMilliseconds);
+    if (messageCenterEditor != nullptr)
+        messageCenterEditor->addOutgoingMessage (msg, systemTimeMilliseconds);
 }
 
 void MessageCenter::addSavedMessage (const String& msg)
@@ -218,7 +218,7 @@ void MessageCenter::process (AudioBuffer<float>& buffer)
 
             messageQueue.pop();
 
-            LOGC ("Message Center sending message: ", eventString);
+            LOGD ("Message Center sending message: ", eventString);
 
             newEventAvailable = false;
         }

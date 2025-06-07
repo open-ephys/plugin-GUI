@@ -77,7 +77,7 @@ void MessageCenterEditor::buttonClicked (Button* button)
 {
     if (editableMessageDisplayArea->getText().length() > 0)
     {
-        addOutgoingMessage (editableMessageDisplayArea->getText(), CoreServices::getSystemTime());
+        messageCenter->addOutgoingMessage (editableMessageDisplayArea->getText(), CoreServices::getSystemTime());
     }
 }
 
@@ -140,11 +140,13 @@ void MessageCenterEditor::addIncomingMessage (const String& message)
 {
     if (firstMessageReceived)
         incomingMessageLog->addMessage (new MessageLabel ("message",
-                                                          incomingMessageDisplayArea->getText()));
+                                                          incomingMessageDisplayArea->getText(),
+                                                          incomingMessageDisplayArea->getTimeString()));
     else
         firstMessageReceived = true;
 
     incomingMessageDisplayArea->setText (message, sendNotification);
+    incomingMessageDisplayArea->setTimeString (Time::getCurrentTime().toString (false, true, true, true));
 
     incomingBackground = Colour (206, 172, 202);
     startTimer (75);
@@ -153,9 +155,13 @@ void MessageCenterEditor::addIncomingMessage (const String& message)
 
 void MessageCenterEditor::addOutgoingMessage (const String& message, const int64 systemTime)
 {
-    editableMessageDisplayArea->setText (message, dontSendNotification);
+    Time time (systemTime);
+    String timeString = time.toString (false, true, true, true);
+    outgoingMessageLog->addMessage (new MessageLabel ("message", message, timeString));
 
-    outgoingMessageLog->addMessage (new MessageLabel ("message", message));
+    editableMessageDisplayArea->setText (message, dontSendNotification);
+    editableMessageDisplayArea->setTimeString (timeString);
+
     outgoingBackground = Colour (244, 208, 80);
 
     resized();
@@ -309,7 +315,7 @@ void MessageCenterEditor::resized()
 
 // #################################################################
 
-MessageLabel::MessageLabel (const String& componentName, const String& labelText)
+MessageLabel::MessageLabel (const String& componentName, const String& labelText, const String& timeString_)
     : Label (componentName, labelText)
 {
     setJustificationType (Justification::bottomLeft);
@@ -317,7 +323,10 @@ MessageLabel::MessageLabel (const String& componentName, const String& labelText
     setBorderSize (BorderSize<int> (0, 7, 2, 0));
     setMinimumHorizontalScale (1.0f);
 
-    timestring = Time::getCurrentTime().toString (false, true, true, true);
+    if (timeString_.isNotEmpty())
+        timestring = timeString_;
+    else
+        timestring = Time::getCurrentTime().toString (false, true, true, true);
 }
 
 String MessageLabel::getTooltip()
@@ -328,6 +337,16 @@ String MessageLabel::getTooltip()
 void MessageLabel::prependText (String text)
 {
     setText (text + getText(), dontSendNotification);
+}
+
+void MessageLabel::setTimeString (const String& timeString_)
+{
+    timestring = timeString_;
+}
+
+String MessageLabel::getTimeString() const
+{
+    return timestring;
 }
 
 MessageLog::MessageLog (Viewport* vp) : viewport (vp),

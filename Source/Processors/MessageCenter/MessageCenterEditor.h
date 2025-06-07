@@ -37,13 +37,19 @@ class MessageLabel : public Label
 {
 public:
     /** Constructor */
-    MessageLabel (const String& componentName = String(), const String& labelText = String());
+    MessageLabel (const String& componentName = String(), const String& labelText = String(), const String& timeString = String());
 
     /** Returns tooltip */
     String getTooltip();
 
     /** Add text at the beginning of a string */
     void prependText (String text);
+
+    /** Sets the timestamp for the message */
+    void setTimeString (const String& timeString);
+
+    /** Returns the timestamp for the message */
+    String getTimeString() const;
 
 private:
     /** Holds info about the time the message was sent or received */
