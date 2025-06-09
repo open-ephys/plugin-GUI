@@ -1048,7 +1048,7 @@ void ProjectionAxes::updateProjectionImage (float x, float y, float gain, Colour
         float xf = x;
         float yf = float (imageDim) - y; // in microvolts
 
-        g.setColour (col);
+        g.setColour (col.withAlpha (0.25f));
         g.fillEllipse (xf, yf, 2.0f, 2.0f);
     }
 }
