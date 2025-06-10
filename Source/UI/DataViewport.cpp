@@ -110,7 +110,6 @@ void CustomTabButton::itemDragEnter (const SourceDetails& dragSourceDetails)
     isDraggingOver = true;
 
     repaint();
-
 }
 
 void CustomTabButton::itemDragExit (const SourceDetails& dragSourceDetails)
@@ -512,13 +511,16 @@ AddTabbedComponentButton::AddTabbedComponentButton()
     : Button ("Add Tabbed Component")
 {
     path.addRoundedRectangle (1, 1, 18, 18, 3.0f);
-    path.addLineSegment (Line<float> (9, 1, 9, 18), 0.0f);
+    path.addLineSegment (Line<float> (9, 1, 9, 19), 0.0f);
     path.addTriangle (12, 7, 12, 13, 17, 10);
 }
 
 void AddTabbedComponentButton::paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown)
 {
-    Colour btnColour = findColour (ThemeColours::windowBackground).contrasting (0.5f);
+    g.setColour (findColour (ThemeColours::widgetBackground));
+    g.fillRoundedRectangle (getLocalBounds().toFloat().reduced (1.0f), 3.0f);
+
+    Colour btnColour = findColour (ThemeColours::defaultText);
 
     if (isMouseOverButton)
     {
@@ -526,7 +528,7 @@ void AddTabbedComponentButton::paintButton (Graphics& g, bool isMouseOverButton,
     }
     else
     {
-        g.setColour (btnColour);
+        g.setColour (btnColour.withAlpha (0.9f));
     }
 
     g.strokePath (path, PathStrokeType (1.0f));
