@@ -205,6 +205,9 @@ public:
     /** Returns true if all record nodes are synchronized */
     bool allRecordNodesAreSynchronized();
 
+    /** Returns true if all record nodes have valid recording directories */
+    bool allRecordNodeDirectoriesAreValid();
+
     /** Saves processor graph to XML */
     void saveToXml (XmlElement* xml);
 

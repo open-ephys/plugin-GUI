@@ -1171,6 +1171,24 @@ void ControlPanel::buttonClicked (Button* button)
             }
             else
             {
+                if (! graph->allRecordNodeDirectoriesAreValid() && getAcquisitionState())
+                {
+                    recordButton->setToggleState (false, dontSendNotification);
+                    playButton->setToggleState (false, dontSendNotification);
+                    stopAcquisition();
+
+                    if (! isConsoleApp)
+                    {
+                        getLookAndFeel().playAlertSound();
+                        AlertWindow::showMessageBox (AlertWindow::WarningIcon,
+                                                     "Recording Error",
+                                                     "One or more Record Nodes have an invalid recording path set. "
+                                                     "Please ensure all Record Nodes are configured with a valid recording path before starting the recording.");
+                    }
+                    CoreServices::sendStatusMessage ("One or more Record Nodes have invalid recording path");
+                    return;
+                }
+
                 if (! graph->allRecordNodesAreSynchronized() && ! forceRecording)
                 {
                     recordButton->setToggleState (false, dontSendNotification);

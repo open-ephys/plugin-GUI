@@ -1106,6 +1106,22 @@ bool ProcessorGraph::allRecordNodesAreSynchronized()
     return true;
 }
 
+bool ProcessorGraph::allRecordNodeDirectoriesAreValid()
+{
+    Array<GenericProcessor*> processors = getListOfProcessors();
+
+    for (auto p : processors)
+    {
+        if (p->isRecordNode())
+        {
+            auto* pathParam = p->getParameter ("directory");
+            if (pathParam != nullptr && ! pathParam->isValid())
+                return false;
+        }
+    }
+    return true;
+}
+
 bool ProcessorGraph::hasRecordNode()
 {
     Array<GenericProcessor*> processors = getListOfProcessors();
