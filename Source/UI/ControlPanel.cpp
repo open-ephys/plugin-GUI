@@ -1272,9 +1272,30 @@ void ControlPanel::setSelectedRecordEngine (int index)
 
 void ControlPanel::filenameComponentChanged (FilenameComponent* fnComponent)
 {
-    for (auto recNode : AccessClass::getProcessorGraph()->getRecordNodes())
+    File currentFile = fnComponent->getCurrentFile();
+
+    if (! currentFile.exists())
     {
-        recNode->setDefaultRecordingDirectory (fnComponent->getCurrentFile());
+        StringArray fileNames = fnComponent->getRecentlyUsedFilenames();
+        fileNames.removeString (currentFile.getFullPathName(), true);
+        fnComponent->setCurrentFile (CoreServices::getDefaultUserSaveDirectory(), true, dontSendNotification);
+        fnComponent->setRecentlyUsedFilenames (fileNames);
+
+        if (! isConsoleApp)
+        {
+            AccessClass::getUIComponent()->showBubbleMessage (fnComponent,
+                                                              "The selected recording directory does not exist. "
+                                                              "Setting the parent recording directory to the default user save directory.");
+        }
+
+        return;
+    }
+    else
+    {
+        for (auto recNode : AccessClass::getProcessorGraph()->getRecordNodes())
+        {
+            recNode->setDefaultRecordingDirectory (currentFile);
+        }
     }
 }
 
