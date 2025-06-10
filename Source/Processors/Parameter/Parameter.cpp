@@ -1391,7 +1391,7 @@ int SelectedStreamParameter::getSelectedIndex()
 String SelectedStreamParameter::getValueAsString()
 {
     if ((int) currentValue == -1 || streamNames.size() == 0)
-        return "None";
+        return String();
     else
         return streamNames[(int) currentValue];
 }
@@ -1409,7 +1409,10 @@ void SelectedStreamParameter::fromXml (XmlElement* xml)
 
 String SelectedStreamParameter::getChangeDescription()
 {
-    return getValueAsString();
+    if ((int) currentValue == -1)
+        return "None";
+    else
+        return getValueAsString();
 }
 
 TimeParameter::TimeParameter (ParameterOwner* owner,
