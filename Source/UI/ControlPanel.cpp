@@ -1191,9 +1191,9 @@ void ControlPanel::buttonClicked (Button* button)
                     {
                         getLookAndFeel().playAlertSound();
                         AlertWindow::showMessageBox (AlertWindow::WarningIcon,
-                                                     "Recording Error",
-                                                     "One or more Record Nodes have an invalid recording path set. "
-                                                     "Please ensure all Record Nodes are configured with a valid recording path before starting the recording.");
+                                                     "Recording could not start",
+                                                     "One or more Record Nodes have an invalid recording path. "
+                                                     "Please ensure all Record Nodes are configured with a valid path before starting the recording.");
                     }
                     CoreServices::sendStatusMessage ("One or more Record Nodes have invalid recording path");
                     return;
