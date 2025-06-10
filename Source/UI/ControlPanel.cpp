@@ -585,6 +585,13 @@ int64 ControlPanel::getRecordingTime() const
 
 void ControlPanel::setRecordingParentDirectory (String path)
 {
+    if (getRecordingState())
+    {
+        LOGE ("Cannot change recording parent directory while recording is active. "
+              "Please stop recording before changing the directory.");
+        return;
+    }
+
     File newFile (path);
     filenameComponent->setCurrentFile (newFile, true, sendNotificationSync);
 
@@ -840,6 +847,7 @@ void ControlPanel::paint (Graphics& g)
         // Fill record engine selector background area with control panel background colour
         g.setColour (findColour (ThemeColours::controlPanelBackground));
         g.fillRoundedRectangle (recordSelector->getBounds().toFloat(), 3.0f);
+        g.fillRoundedRectangle (filenameComponent->getBounds().toFloat(), 3.0f);
     }
 }
 
@@ -1034,6 +1042,8 @@ void ControlPanel::startRecording()
         }
     }
 
+    filenameComponent->setEnabled (false);
+
     graph->setRecordState (true);
 
     repaint();
@@ -1064,6 +1074,8 @@ void ControlPanel::stopRecording()
     showHideRecordingOptionsButton->setCustomBackground (false, findColour (ThemeColours::windowBackground));
 
     recordButton->setToggleState (false, dontSendNotification);
+
+    filenameComponent->setEnabled (true);
 
     repaint();
 }
