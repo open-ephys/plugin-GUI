@@ -67,7 +67,7 @@ void DiskSpaceChecker::timerCallback()
 
 void DiskSpaceChecker::checkDirectoryAndDiskSpace()
 {
-    if (! recordNode->getParameter ("directory")->isValid())
+    if (! recordNode->getDataDirectory().exists())
     {
         recordNode->getParameter ("directory")->valueChanged();
         notifyDirectoryInvalid();

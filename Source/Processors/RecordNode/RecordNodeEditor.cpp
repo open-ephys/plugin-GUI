@@ -208,7 +208,7 @@ void DiskMonitor::directoryInvalid (bool recordingStopped)
     if (recordingStopped)
     {
         String msg = "Record Node (" + String (processor->getNodeId()) + ") - The selected recording path doesn't exist anymore.";
-        msg += "\n\nPlease select a valid directory in the Record Node editor and restart the recording.";
+        msg += "\n\nPlease select a valid directory and restart the recording.";
         AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "Recording Stopped", msg);
     }
 }
