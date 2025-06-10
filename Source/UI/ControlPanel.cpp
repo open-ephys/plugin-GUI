@@ -1174,8 +1174,6 @@ void ControlPanel::buttonClicked (Button* button)
                 if (! graph->allRecordNodeDirectoriesAreValid() && getAcquisitionState())
                 {
                     recordButton->setToggleState (false, dontSendNotification);
-                    playButton->setToggleState (false, dontSendNotification);
-                    stopAcquisition();
 
                     if (! isConsoleApp)
                     {
@@ -1408,7 +1406,16 @@ Array<String> ControlPanel::getRecentlyUsedFilenames()
 
 void ControlPanel::setRecentlyUsedFilenames (const Array<String>& filenames)
 {
-    filenameComponent->setRecentlyUsedFilenames (StringArray (filenames));
+    StringArray validFilenames;
+    for (const auto& filename : filenames)
+    {
+        if (File (filename).exists())
+        {
+            validFilenames.addIfNotAlreadyThere (filename);
+        }
+    }
+
+    filenameComponent->setRecentlyUsedFilenames (validFilenames);
 }
 
 static void forceFilenameEditor (int result, ControlPanel* panel)

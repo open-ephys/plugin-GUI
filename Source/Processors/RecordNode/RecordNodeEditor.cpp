@@ -200,10 +200,17 @@ void DiskMonitor::updateDiskSpace (float percentage)
     setFillPercentage (1.0f - percentage);
 }
 
-void DiskMonitor::directoryInvalid()
+void DiskMonitor::directoryInvalid (bool recordingStopped)
 {
     setFillPercentage (1.0);
     setTooltip ("Invalid directory");
+
+    if (recordingStopped)
+    {
+        String msg = "Record Node (" + String (processor->getNodeId()) + ") - The selected recording path doesn't exist anymore.";
+        msg += "\n\nPlease select a valid directory in the Record Node editor and restart the recording.";
+        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "Recording Stopped", msg);
+    }
 }
 
 void DiskMonitor::lowDiskSpace()
@@ -325,30 +332,28 @@ RecordToggleButton::~RecordToggleButton() {}
 
 void RecordToggleButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    
     float alpha = 1.0f;
-    
-    if (!isEnabled())
+
+    if (! isEnabled())
     {
         alpha = 0.5f;
     }
-    
-    g.setColour (Colour (0, 0, 0).withAlpha(alpha));
+
+    g.setColour (Colour (0, 0, 0).withAlpha (alpha));
     g.fillRoundedRectangle (0, 0, getWidth(), getHeight(), 4);
 
     if (! getToggleState())
     {
-        g.setColour (findColour (ThemeColours::widgetBackground).withAlpha(alpha));
+        g.setColour (findColour (ThemeColours::widgetBackground).withAlpha (alpha));
     }
     else
     {
-        g.setColour (Colour (255, 0, 0).withAlpha(alpha));
+        g.setColour (Colour (255, 0, 0).withAlpha (alpha));
     }
-        
 
     g.fillRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 2, 3);
 
-    g.setColour (Colour (0, 0, 0).withAlpha(alpha));
+    g.setColour (Colour (0, 0, 0).withAlpha (alpha));
     g.fillEllipse (0.35 * getWidth(), 0.35 * getHeight(), 0.3 * getWidth(), 0.3 * getHeight());
 }
 

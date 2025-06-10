@@ -161,7 +161,7 @@ public:
     void updateDiskSpace (float percentage) override;
 
     /** Responds to invalid directory */
-    void directoryInvalid() override;
+    void directoryInvalid(bool recordingStopped) override;
 
     /** Responds to low disk space */
     void lowDiskSpace() override;
