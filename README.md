@@ -1,6 +1,6 @@
 # Open Ephys GUI
 
-![GUI screenshot](https://images.squarespace-cdn.com/content/v1/53039db8e4b0649958e13c7b/818e42b0-f350-46dd-b413-142b8b11b881/gui-screenshot.png?format=1000w)
+![GUI screenshot](/Resources/Screenshots/screenshot-medium.png)
 
 The Open Ephys GUI is designed to provide a fast and flexible interface for acquiring and visualizing data from extracellular electrodes. Compatible data acquisition hardware includes:
 
@@ -33,11 +33,11 @@ Our primary user base is scientists performing electrophysiology experiments wit
 
 The easiest way to get started is to download the installer for your platform of choice:
 
-- [Windows](https://openephysgui.jfrog.io/artifactory/Release-Installer/windows/Install-Open-Ephys-GUI-v0.6.4.exe)
-- [Ubuntu/Debian](https://openephysgui.jfrog.io/artifactory/Release-Installer/linux/open-ephys-gui-v0.6.4.deb)
-- [macOS](https://openephysgui.jfrog.io/artifactory/Release-Installer/mac/Open_Ephys_GUI_v0.6.4.dmg)
+- [Windows](https://openephys.jfrog.io/artifactory/GUI-binaries/Release-Installer/windows/Install-Open-Ephys-GUI-v1.0.0.exe)
+- [Ubuntu/Debian](https://openephys.jfrog.io/artifactory/GUI-binaries/Release-Installer/linux/open-ephys-gui-v1.0.0.deb)
+- [macOS](https://openephys.jfrog.io/artifactory/GUI-binaries/Release-Installer/mac/Open_Ephys_GUI_v1.0.0.dmg)
 
-It’s also possible to obtain the binaries as a .zip file for [Windows](https://openephysgui.jfrog.io/artifactory/Release/windows/open-ephys-v0.6.4-windows.zip), [Linux](https://openephysgui.jfrog.io/artifactory/Release/linux/open-ephys-v0.6.4-linux.zip), or [Mac](https://openephysgui.jfrog.io/artifactory/Release/mac/open-ephys-v0.6.4-mac.zip).
+It’s also possible to obtain the binaries as a .zip file for [Windows](https://openephys.jfrog.io/artifactory/GUI-binaries/Release/windows/open-ephys-v1.0.0-windows.zip), [Linux](https://openephys.jfrog.io/artifactory/GUI-binaries/Release/linux/open-ephys-v1.0.0-linux.zip), or [Mac](https://openephys.jfrog.io/artifactory/GUI-binaries/Release/mac/open-ephys-v1.0.0-mac.zip).
 
 Detailed installation instructions can be found [here](https://open-ephys.github.io/gui-docs/User-Manual/Installing-the-GUI.html).
 

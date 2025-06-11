@@ -45,7 +45,7 @@ jobs:
       env:
         ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       run: |
-        gui_ver=$(grep -w CMakeLists.txt -e 'GUI_VERSION' | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+(-([0-9A-Za-z\.-]+))?")
+        gui_ver=v$(grep -w CMakeLists.txt -e 'GUI_VERSION' | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+(-([0-9A-Za-z\.-]+))?")
 
         if [ ${{github.ref_name}} == 'development' ]; then
           version_suffix=-dev
