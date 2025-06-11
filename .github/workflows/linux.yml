@@ -11,6 +11,16 @@ on:
     - 'Source/**'
     - 'CMakeLists.txt'
     - 'HelperFunctions.cmake'
+  pull_request:
+    paths:
+    - '.github/workflows/**'
+    - 'JuceLibraryCode/**'
+    - 'PluginGenerator/**'
+    - 'Plugins/**'
+    - 'Resources/**'
+    - 'Source/**'
+    - 'CMakeLists.txt'
+    - 'HelperFunctions.cmake'
 
 jobs:
   build-ubuntu:
@@ -31,43 +41,41 @@ jobs:
         sudo ./install_linux_dependencies.sh
         cd ../../Build && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
         make -j4
-#    - name: test
-#      run: cd build && ctest
-    - name: deploy_dev
-      if: github.ref == 'refs/heads/development-juce8'
+    - name: deploy
       env:
         ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       run: |
-        cd Build
-        cp -r Release open-ephys
-        cp ../LICENSE open-ephys
-        zipfile=open-ephys-v1.0.0-dev-linux.zip
-        zip -r $zipfile open-ephys
-        user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
-        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-dev/linux/$zipfile"
-      shell: bash
-    - name: deploy_preview
-      if: github.ref == 'refs/heads/testing-juce8'
-      env:
-        ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-      run: |
-        gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
+        gui_ver=$(grep -w CMakeLists.txt -e 'GUI_VERSION' | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+(-([0-9A-Za-z\.-]+))?")
+
+        if [ ${{github.ref_name}} == 'development' ]; then
+          version_suffix=-dev
+          artifactory_repo=Dev
+          gui_ver=latest
+        elif [ ${{github.ref_name}} == 'testing' ]; then
+          version_suffix=-beta
+          artifactory_repo=Test
+        elif [ ${{github.ref_name}} == 'main' ]; then
+          artifactory_repo=Release
+        else
+          echo "This branch is not configured for deployment."
+          exit 0
+        fi
 
         cd Build
         cp -r Release open-ephys
         cp ../LICENSE open-ephys
-        zipfile=open-ephys-v1.0.0-alpha.1-linux.zip
+        zipfile=open-ephys-${gui_ver}-linux${version_suffix}.zip
         zip -r $zipfile open-ephys
         user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
-        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-alpha/linux/$zipfile"
+        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/${artifactory_repo}/linux/$zipfile"
 
         cd ../Resources/Installers/Linux/Open-Ephys_Installer
         mkdir -p usr/local/bin/open-ephys-gui
         cp -r ../../../../Build/Release/* usr/local/bin/open-ephys-gui
-        cp ../../../Scripts/40-open-ephys.rules usr/local/bin/open-ephys-gui
+        cp ../../../Scripts/*.rules usr/local/bin/open-ephys-gui
         cd ..
         dpkg-deb --build Open-Ephys_Installer
-        installer=open-ephys-gui-v1.0.0-alpha.1.deb
+        installer=open-ephys-gui-${gui_ver}${version_suffix}.deb
         mv -v Open-Ephys_Installer.deb $installer
-        curl -H $user_info -T $installer "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-alpha/linux/$installer"
+        curl -H $user_info -T $installer "https://openephys.jfrog.io/artifactory/GUI-binaries/${artifactory_repo}-Installer/linux/$installer"
       shell: bash
