@@ -1,8 +1,8 @@
 [Setup]
 AppId=Open Ephys
 AppName=Open Ephys GUI
-AppVersion=1.0.0-alpha.1
-AppVerName=Open Ephys GUI 1.0.0-alpha.1
+AppVersion=1.0.0
+AppVerName=Open Ephys GUI 1.0.0
 AppCopyright=Copyright (C) 2010-2025, Open Ephys & Contributors
 AppPublisher=open-ephys.org
 AppPublisherURL=https://open-ephys.org/gui
@@ -220,7 +220,7 @@ function InitializeSetup: Boolean;
 begin
 
   // https://docs.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist
-  if not IsMsiProductInstalled('{36F68A90-239C-34DF-B58C-64B30153CE35}', PackVersionComponents(14, 42, 34433, 0)) then begin
+  if not IsMsiProductInstalled('{36F68A90-239C-34DF-B58C-64B30153CE35}', PackVersionComponents(14, 44, 35208, 0)) then begin
     Dependency_Add('vcredist2022_x64.exe',
       '/passive /norestart',
       'Visual C++ 2015-2022 Redistributable (x64)',
