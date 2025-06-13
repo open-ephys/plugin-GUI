@@ -61,6 +61,7 @@ var
   Dependency_Memo: String;
   Dependency_Entry: TDependency_Entry;
   Dependency_Added: Boolean;
+  Dependency_NeedToRestart: Boolean;
   Dependency_DownloadPage: TDownloadWizardPage;
 
 procedure Dependency_Add(const Filename, Parameters, Title, URL, Checksum: String);
@@ -134,7 +135,10 @@ begin
         ResultCode := 0;
         if ShellExec('', ExpandConstant('{tmp}{\}') + Dependency_Entry.Filename, Dependency_Entry.Parameters, '', SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode) then begin
 
-          if ResultCode = 0 then begin // ERROR_SUCCESS (0)
+          if (ResultCode = 0) then begin // ERROR_SUCCESS (0)
+             break;
+          end else if ResultCode = 3010 then begin // ERROR_SUCCESS_REBOOT_REQUIRED (3010)
+            Dependency_NeedToRestart := True;
             break;
           end;
 
@@ -184,6 +188,12 @@ begin
     end;
     Result := Result + FmtMessage(Dependency_Memo, [Space]);
   end;
+end;
+
+<event('NeedRestart')>
+function Dependency_NeedRestart: Boolean;
+begin
+  Result := Dependency_NeedToRestart;
 end;
 
 
