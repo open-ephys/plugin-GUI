@@ -67,8 +67,9 @@ void DiskSpaceChecker::timerCallback()
 
 void DiskSpaceChecker::checkDirectoryAndDiskSpace()
 {
-    if (! recordNode->getParameter ("directory")->isValid())
+    if (! recordNode->getDataDirectory().exists())
     {
+        recordNode->getParameter ("directory")->valueChanged();
         notifyDirectoryInvalid();
         return;
     }
@@ -156,15 +157,22 @@ void DiskSpaceChecker::notifyDiskSpaceRemaining (float percentage)
 
 void DiskSpaceChecker::notifyDirectoryInvalid()
 {
+    bool recordingStopped = false;
+    if (recordNode->getRecordingStatus())
+    {
+        CoreServices::setRecordingStatus (false);
+        CoreServices::sendStatusMessage ("Recording stopped due to invalid directory.");
+        recordingStopped = true;
+    }
     std::lock_guard<std::mutex> lock (listenerMutex);
     for (auto listener : listeners)
     {
         if (listener != nullptr)
         {
-            juce::MessageManager::callAsync ([listener]()
+            juce::MessageManager::callAsync ([listener, recordingStopped]()
             {
                 try {
-                    listener->directoryInvalid();
+                    listener->directoryInvalid (recordingStopped);
                 } catch (const std::exception& e) {
                     LOGE("Error notifying directory invalid: ", e.what());
                 }

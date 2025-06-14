@@ -1,13 +1,16 @@
 # Open Ephys GUI
 
-![GUI screenshot](https://images.squarespace-cdn.com/content/v1/53039db8e4b0649958e13c7b/818e42b0-f350-46dd-b413-142b8b11b881/gui-screenshot.png?format=1000w)
+![GUI screenshot](/Resources/Screenshots/screenshot-medium.png)
 
 The Open Ephys GUI is designed to provide a fast and flexible interface for acquiring and visualizing data from extracellular electrodes. Compatible data acquisition hardware includes:
 
-- [Open Ephys Acquisition Board](http://www.open-ephys.org/acq-board/) (supports up to 512 channels)
-- [Intan RHD USB Interface Board](http://intantech.com/RHD_USB_interface_board.html) (supports up to 256 channels)
-- [Intan Recording Controller](http://intantech.com/recording_controller.html) (supports up to 1024 channels)
-- [Neuropixels Probes](http://www.open-ephys.org/neuropixels/) (Windows only, supports up to 6144 channels)
+- [Open Ephys Acquisition Board](http://www.open-ephys.org/acq-board/)
+- [Open Ephys ONIX System](https://open-ephys.org/onix)
+- [IMEC Neuropixels PXIe Basestations](https://www.neuropixels.org/system1-0)
+- [IMEC Neuropixels OneBox](https://www.neuropixels.org/system1-0)
+- [Intan Recording Controller](http://intantech.com/recording_controller.html)
+- [Intan RHD USB Interface Board](http://intantech.com/RHD_USB_interface_board.html)
+- [National Instruments DAQs](https://www.ni.com/en/shop/data-acquisition.html)
 
 The GUI is based around a _plugin architecture_, meaning the data processing modules are compiled separately from the main application. This greatly simplifies the process of adding functionality, since new modules can be shared without the need to re-compile the entire application.
 
@@ -33,11 +36,11 @@ Our primary user base is scientists performing electrophysiology experiments wit
 
 The easiest way to get started is to download the installer for your platform of choice:
 
-- [Windows](https://openephysgui.jfrog.io/artifactory/Release-Installer/windows/Install-Open-Ephys-GUI-v0.6.4.exe)
-- [Ubuntu/Debian](https://openephysgui.jfrog.io/artifactory/Release-Installer/linux/open-ephys-gui-v0.6.4.deb)
-- [macOS](https://openephysgui.jfrog.io/artifactory/Release-Installer/mac/Open_Ephys_GUI_v0.6.4.dmg)
+- [Windows](https://openephys.jfrog.io/artifactory/GUI-binaries/Release-Installer/windows/Install-Open-Ephys-GUI-v1.0.0.exe)
+- [Ubuntu/Debian](https://openephys.jfrog.io/artifactory/GUI-binaries/Release-Installer/linux/open-ephys-gui-v1.0.0.deb)
+- [macOS](https://openephys.jfrog.io/artifactory/GUI-binaries/Release-Installer/mac/Open_Ephys_GUI_v1.0.0.dmg)
 
-It’s also possible to obtain the binaries as a .zip file for [Windows](https://openephysgui.jfrog.io/artifactory/Release/windows/open-ephys-v0.6.4-windows.zip), [Linux](https://openephysgui.jfrog.io/artifactory/Release/linux/open-ephys-v0.6.4-linux.zip), or [Mac](https://openephysgui.jfrog.io/artifactory/Release/mac/open-ephys-v0.6.4-mac.zip).
+It’s also possible to obtain the binaries as a .zip file for [Windows](https://openephys.jfrog.io/artifactory/GUI-binaries/Release/windows/open-ephys-v1.0.0-windows.zip), [Linux](https://openephys.jfrog.io/artifactory/GUI-binaries/Release/linux/open-ephys-v1.0.0-linux.zip), or [Mac](https://openephys.jfrog.io/artifactory/GUI-binaries/Release/mac/open-ephys-v1.0.0-mac.zip).
 
 Detailed installation instructions can be found [here](https://open-ephys.github.io/gui-docs/User-Manual/Installing-the-GUI.html).
 
@@ -45,11 +48,11 @@ To compile the GUI from source, follow the platform-specific instructions in the
 
 ## Funding
 
-The Open Ephys GUI was created by scientists in order to make their experiments more adaptable, affordable, and enjoyable. Therefore, much of the development has been indirectly funded by the universities and research institutes where these scientists work, especially MIT, Brown University, and the Allen Institute.
+The Open Ephys GUI was created by scientists in order to make their experiments more adaptable, affordable, and enjoyable. Therefore, much of the development has been indirectly funded by the universities and research institutes where these scientists have worked, especially MIT, Brown University, and the Allen Institute.
 
-Since 2014, the support efforts of [Aarón Cuevas López](https://github.com/aacuevas) have been funded by revenue from the [Open Ephys store](https://open-ephys.org/store), via a contract with Universidad Miguel Hernández in Valencia.
+Between 2014 and 2019, the support efforts of [Aarón Cuevas López](https://github.com/aacuevas) were funded by revenue from the [Open Ephys store](https://open-ephys.org/store), via a contract with Universidad Miguel Hernández in Valencia.
 
-Since 2019, the support efforts of [Pavel Kulik](https://github.com/medengineer) and [Anjal Doshi](https://github.com/anjaldoshi) have been funded by a BRAIN Initiative U24 Award to the Allen Institute ([U24NS109043](https://projectreporter.nih.gov/project_info_description.cfm?aid=9645567)).
+Since 2019, the support efforts of [Pavel Kulik](https://github.com/medengineer) and [Anjal Doshi](https://github.com/anjaldoshi) have been funded by a [BRAIN Initiative U24 Award](https://reporter.nih.gov/project-details/9645567) and a [BRAIN Initiative U01 Award](https://reporter.nih.gov/project-details/10731991) to the Allen Institute.
 
 ## How to contribute
 

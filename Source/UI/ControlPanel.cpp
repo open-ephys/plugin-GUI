@@ -585,6 +585,13 @@ int64 ControlPanel::getRecordingTime() const
 
 void ControlPanel::setRecordingParentDirectory (String path)
 {
+    if (getRecordingState())
+    {
+        LOGE ("Cannot change recording parent directory while recording is active. "
+              "Please stop recording before changing the directory.");
+        return;
+    }
+
     File newFile (path);
     filenameComponent->setCurrentFile (newFile, true, sendNotificationSync);
 
@@ -840,6 +847,7 @@ void ControlPanel::paint (Graphics& g)
         // Fill record engine selector background area with control panel background colour
         g.setColour (findColour (ThemeColours::controlPanelBackground));
         g.fillRoundedRectangle (recordSelector->getBounds().toFloat(), 3.0f);
+        g.fillRoundedRectangle (filenameComponent->getBounds().toFloat(), 3.0f);
     }
 }
 
@@ -1034,6 +1042,8 @@ void ControlPanel::startRecording()
         }
     }
 
+    filenameComponent->setEnabled (false);
+
     graph->setRecordState (true);
 
     repaint();
@@ -1064,6 +1074,8 @@ void ControlPanel::stopRecording()
     showHideRecordingOptionsButton->setCustomBackground (false, findColour (ThemeColours::windowBackground));
 
     recordButton->setToggleState (false, dontSendNotification);
+
+    filenameComponent->setEnabled (true);
 
     repaint();
 }
@@ -1174,16 +1186,14 @@ void ControlPanel::buttonClicked (Button* button)
                 if (! graph->allRecordNodeDirectoriesAreValid() && getAcquisitionState())
                 {
                     recordButton->setToggleState (false, dontSendNotification);
-                    playButton->setToggleState (false, dontSendNotification);
-                    stopAcquisition();
 
                     if (! isConsoleApp)
                     {
                         getLookAndFeel().playAlertSound();
                         AlertWindow::showMessageBox (AlertWindow::WarningIcon,
-                                                     "Recording Error",
-                                                     "One or more Record Nodes have an invalid recording path set. "
-                                                     "Please ensure all Record Nodes are configured with a valid recording path before starting the recording.");
+                                                     "Recording could not start",
+                                                     "One or more Record Nodes have an invalid recording path. "
+                                                     "Please ensure all Record Nodes are configured with a valid path before starting the recording.");
                     }
                     CoreServices::sendStatusMessage ("One or more Record Nodes have invalid recording path");
                     return;
@@ -1262,9 +1272,30 @@ void ControlPanel::setSelectedRecordEngine (int index)
 
 void ControlPanel::filenameComponentChanged (FilenameComponent* fnComponent)
 {
-    for (auto recNode : AccessClass::getProcessorGraph()->getRecordNodes())
+    File currentFile = fnComponent->getCurrentFile();
+
+    if (! currentFile.exists())
     {
-        recNode->setDefaultRecordingDirectory (fnComponent->getCurrentFile());
+        StringArray fileNames = fnComponent->getRecentlyUsedFilenames();
+        fileNames.removeString (currentFile.getFullPathName(), true);
+        fnComponent->setCurrentFile (CoreServices::getDefaultUserSaveDirectory(), true, dontSendNotification);
+        fnComponent->setRecentlyUsedFilenames (fileNames);
+
+        if (! isConsoleApp)
+        {
+            AccessClass::getUIComponent()->showBubbleMessage (fnComponent,
+                                                              "The selected recording directory does not exist. "
+                                                              "Setting the parent recording directory to the default user save directory.");
+        }
+
+        return;
+    }
+    else
+    {
+        for (auto recNode : AccessClass::getProcessorGraph()->getRecordNodes())
+        {
+            recNode->setDefaultRecordingDirectory (currentFile);
+        }
     }
 }
 
@@ -1408,7 +1439,16 @@ Array<String> ControlPanel::getRecentlyUsedFilenames()
 
 void ControlPanel::setRecentlyUsedFilenames (const Array<String>& filenames)
 {
-    filenameComponent->setRecentlyUsedFilenames (StringArray (filenames));
+    StringArray validFilenames;
+    for (const auto& filename : filenames)
+    {
+        if (File (filename).exists())
+        {
+            validFilenames.addIfNotAlreadyThere (filename);
+        }
+    }
+
+    filenameComponent->setRecentlyUsedFilenames (validFilenames);
 }
 
 static void forceFilenameEditor (int result, ControlPanel* panel)

@@ -33,6 +33,9 @@ DataWindow::DataWindow (Button* cButton, String name)
     centreWithSize (1020, 780);
 #ifdef JUCE_WINDOWS
     setUsingNativeTitleBar (false);
+    File iconDir = File::getSpecialLocation (File::currentApplicationFile).getParentDirectory();
+    Image titleBarIcon = ImageCache::getFromFile (iconDir.getChildFile ("icon-small.png"));
+    setIcon (titleBarIcon);
 #else
     setUsingNativeTitleBar (true); // Use native title bar on Mac and Linux
 #endif

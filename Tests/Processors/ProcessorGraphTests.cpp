@@ -81,7 +81,7 @@ TEST_F (ProcessorGraphTest, LoadFromXMLTest)
                                 <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="File Reader" activeStream="0"/>
                                 </PROCESSOR>
                                 <PROCESSOR name="Bandpass Filter" insertionPoint="1" pluginName="Bandpass Filter"
-                                        type="1" index="1" libraryName="Bandpass Filter" libraryVersion="1.0.0-dev"
+                                        type="1" index="1" libraryName="Bandpass Filter" libraryVersion="1.0.0"
                                         processorType="1" nodeId="101">
                                 <PROCESSOR_PARAMETERS threads="1"/>
                                 <STREAM name="example_data" description="A description of the File Reader Stream"

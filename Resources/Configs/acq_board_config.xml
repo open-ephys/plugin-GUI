@@ -20,7 +20,7 @@
       </STREAM>
       <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Acquisition Board"
-              activeStream="0" Type="Visualizer" SampleRate="17" SampleRateString="30.0 kS/s"
+              activeStream="0" Type="Visualizer" SampleRate="30000" SampleRateString="30.0 kS/s"
               LowCut="1.321774836142808" HighCut="7603.76512183337" AUXsOn="0"
               ADCsOn="1" AudioOutputL="-1" AudioOutputR="-1" NoiseSlicer="0"
               TTLFastSettle="1" DAC_TTL="0" DAC_HPF="1" DSPOffset="1" DSPCutoffFreq="0.1457129257077072"

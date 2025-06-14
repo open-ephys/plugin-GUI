@@ -1,8 +1,8 @@
 [Setup]
 AppId=Open Ephys
 AppName=Open Ephys GUI
-AppVersion=1.0.0-alpha.1
-AppVerName=Open Ephys GUI 1.0.0-alpha.1
+AppVersion=1.0.0
+AppVerName=Open Ephys GUI 1.0.0
 AppCopyright=Copyright (C) 2010-2025, Open Ephys & Contributors
 AppPublisher=open-ephys.org
 AppPublisherURL=https://open-ephys.org/gui
@@ -28,7 +28,7 @@ Name: install_usb2; Description: "Install Opal Kelly Front Panel USB driver (Opa
 
 [Files]
 Source: "..\..\..\Build\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; BeforeInstall: UpdateProgress(0);
-Source: "..\..\DLLs\FTD3XXDriver_WHQLCertified_1.3.0.8_Installer.exe"; DestDir: {tmp}; Flags: deleteafterinstall; BeforeInstall: UpdateProgress(80);
+Source: "..\..\DLLs\FTD3XXDriver_WHQLCertified_1.3.0.10_Installer.exe"; DestDir: {tmp}; Flags: deleteafterinstall; BeforeInstall: UpdateProgress(80);
 Source: "..\..\DLLs\FrontPanelUSB-DriverOnly-4.5.5.exe"; DestDir: {tmp}; Flags: deleteafterinstall; BeforeInstall: UpdateProgress(90);
 
 [Icons]
@@ -61,6 +61,7 @@ var
   Dependency_Memo: String;
   Dependency_Entry: TDependency_Entry;
   Dependency_Added: Boolean;
+  Dependency_NeedToRestart: Boolean;
   Dependency_DownloadPage: TDownloadWizardPage;
 
 procedure Dependency_Add(const Filename, Parameters, Title, URL, Checksum: String);
@@ -134,7 +135,10 @@ begin
         ResultCode := 0;
         if ShellExec('', ExpandConstant('{tmp}{\}') + Dependency_Entry.Filename, Dependency_Entry.Parameters, '', SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode) then begin
 
-          if ResultCode = 0 then begin // ERROR_SUCCESS (0)
+          if (ResultCode = 0) then begin // ERROR_SUCCESS (0)
+             break;
+          end else if ResultCode = 3010 then begin // ERROR_SUCCESS_REBOOT_REQUIRED (3010)
+            Dependency_NeedToRestart := True;
             break;
           end;
 
@@ -186,6 +190,12 @@ begin
   end;
 end;
 
+<event('NeedRestart')>
+function Dependency_NeedRestart: Boolean;
+begin
+  Result := Dependency_NeedToRestart;
+end;
+
 
 function Dependency_IsX64: Boolean;
 begin
@@ -220,7 +230,7 @@ function InitializeSetup: Boolean;
 begin
 
   // https://docs.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist
-  if not IsMsiProductInstalled('{36F68A90-239C-34DF-B58C-64B30153CE35}', PackVersionComponents(14, 42, 34433, 0)) then begin
+  if not IsMsiProductInstalled('{36F68A90-239C-34DF-B58C-64B30153CE35}', PackVersionComponents(14, 44, 35208, 0)) then begin
     Dependency_Add('vcredist2022_x64.exe',
       '/passive /norestart',
       'Visual C++ 2015-2022 Redistributable (x64)',

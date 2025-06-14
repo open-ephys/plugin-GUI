@@ -11,6 +11,16 @@ on:
     - 'Source/**'
     - 'CMakeLists.txt'
     - 'HelperFunctions.cmake'
+  pull_request:
+    paths:
+    - '.github/workflows/**'
+    - 'JuceLibraryCode/**'
+    - 'PluginGenerator/**'
+    - 'Plugins/**'
+    - 'Resources/**'
+    - 'Source/**'
+    - 'CMakeLists.txt'
+    - 'HelperFunctions.cmake'
 
 jobs:
   build-osx:
@@ -32,10 +42,7 @@ jobs:
       run: |
         cd Build 
         xcodebuild -configuration Release 
-#    - name: test
-#      run: cd build && ctest
-    - name: deploy_dev
-      if: github.ref == 'refs/heads/development-juce8'
+    - name: deploy
       env:
         ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
         MACOS_CERTIFICATE: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
@@ -46,6 +53,22 @@ jobs:
         PROD_MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_TEAM_ID }}
         PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.PROD_MACOS_NOTARIZATION_PWD }}
       run: |
+        gui_ver=v$(grep -w CMakeLists.txt -e 'GUI_VERSION' | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+(-([0-9A-Za-z\.-]+))?")
+
+        if [ ${{github.ref_name}} == 'development' ]; then
+          version_suffix=-dev
+          artifactory_repo=Dev
+          gui_ver=latest
+        elif [ ${{github.ref_name}} == 'testing' ]; then
+          version_suffix=-beta
+          artifactory_repo=Test
+        elif [ ${{github.ref_name}} == 'main' ]; then
+          artifactory_repo=Release
+        else
+          echo "This branch is not configured for deployment."
+          exit 0
+        fi
+
         cd Build/Release
         mkdir open-ephys
         mv Open\ Ephys\ GUI.app open-ephys
@@ -92,72 +115,10 @@ jobs:
         /usr/bin/ditto -x -k open-ephys.zip open-ephys
         xcrun stapler staple open-ephys/Open\ Ephys\ GUI.app
 
-        zipfile=open-ephys-v1.0.0-dev-mac.zip
+        zipfile=open-ephys-${gui_ver}-mac${version_suffix}.zip
         /usr/bin/ditto -c -k --sequesterRsrc --keepParent open-ephys $zipfile
         user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
-        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-dev/mac/$zipfile"
-    - name: deploy_preview
-      if: github.ref == 'refs/heads/testing-juce8'
-      env:
-        ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-        MACOS_CERTIFICATE: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
-        MACOS_CERTIFICATE_PWD: ${{ secrets.BUILD_CERTIFICATE_PWD }}
-        MACOS_CERTIFICATE_NAME: ${{ secrets.BUILD_CERTIFICATE_NAME }}
-        MACOS_CI_KEYCHAIN_PWD: ${{ secrets.PROD_MACOS_CI_KEYCHAIN_PWD }}
-        PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_APPLE_ID }}
-        PROD_MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_TEAM_ID }}
-        PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.PROD_MACOS_NOTARIZATION_PWD }}
-      run: |
-        cd Build/Release
-        mkdir open-ephys
-        mv Open\ Ephys\ GUI.app open-ephys
-
-        # Turn our base64-encoded certificate back to a regular .p12 file
-        echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
-
-        # We need to create a new keychain, otherwise using the certificate will prompt
-        # with a UI dialog asking for the certificate password, which we can't
-        # use in a headless CI environment
-        security create-keychain -p $MACOS_CI_KEYCHAIN_PWD build.keychain
-        security default-keychain -s build.keychain
-        security unlock-keychain -p $MACOS_CI_KEYCHAIN_PWD build.keychain
-        security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
-        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $MACOS_CI_KEYCHAIN_PWD build.keychain
-        /usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" -v open-ephys/Open\ Ephys\ GUI.app --deep --strict --timestamp --options=runtime --entitlements ../../Resources/Build-files/entitlements.plist
-
-        /usr/bin/codesign -dv --verbose=4 --entitlements - open-ephys/Open\ Ephys\ GUI.app
-
-        # Store the notarization credentials so that we can prevent a UI password dialog from blocking the CI
-
-        echo "Create keychain profile"
-        xcrun notarytool store-credentials "notarytool-profile" --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" --team-id "$PROD_MACOS_NOTARIZATION_TEAM_ID" --password "$PROD_MACOS_NOTARIZATION_PWD"
-
-        # We can't notarize an app bundle directly, but we need to compress it as an archive.
-        # Therefore, we create a zip file containing our app bundle, so that we can send it to the
-        # notarization service
-
-        echo "Creating temp notarization archive"
-        /usr/bin/ditto -c -k --sequesterRsrc --keepParent open-ephys/Open\ Ephys\ GUI.app open-ephys.zip
-
-        # Here we send the notarization request to the Apple's Notarization service, waiting for the result.
-        # This typically takes a few seconds inside a CI environment, but it might take more depending on the App
-        # characteristics. Visit the Notarization docs for more information and strategies on how to optimize it if
-        # you're curious
-
-        echo "Notarize app"
-        xcrun notarytool submit "open-ephys.zip" --keychain-profile "notarytool-profile" --wait
-
-        # Finally, we need to "attach the staple" to our executable, which will allow our app to be
-        # validated by macOS even when an internet connection is not available.
-        echo "Attach staple"
-        rm -r open-ephys/*
-        /usr/bin/ditto -x -k open-ephys.zip open-ephys
-        xcrun stapler staple open-ephys/Open\ Ephys\ GUI.app
-
-        zipfile=open-ephys-v1.0.0-alpha.1-mac.zip
-        /usr/bin/ditto -c -k --sequesterRsrc --keepParent open-ephys $zipfile
-        user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
-        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-alpha/mac/$zipfile"
+        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/${artifactory_repo}/mac/$zipfile"
 
         # Create a DMG installer
         brew install create-dmg && create-dmg \
@@ -173,7 +134,7 @@ jobs:
           "Open-Ephys-Installer.dmg" \
           "open-ephys/"
 
-        installer=Open_Ephys_GUI_v1.0.0-alpha.1.dmg
+        installer=Open_Ephys_GUI_${gui_ver}${version_suffix}.dmg
         mv -v Open-Ephys-Installer.dmg $installer
 
         echo "Notarize DMG"
@@ -182,4 +143,4 @@ jobs:
         echo "Attach staple to DMG"
         xcrun stapler staple $installer
 
-        curl -H $user_info -T $installer "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-alpha/mac/$installer"
+        curl -H $user_info -T $installer "https://openephys.jfrog.io/artifactory/GUI-binaries/${artifactory_repo}-Installer/mac/$installer"

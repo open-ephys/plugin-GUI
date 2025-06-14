@@ -33,51 +33,44 @@ jobs:
     - name: build
       run: |
         msbuild Build/ALL_BUILD.vcxproj -p:Configuration=Release -p:Platform=x64 -m
-#   - name: test
-#     run: cd build && ctest
-    - name: deploy_dev
-      if: github.ref == 'refs/heads/development-juce8'
+    - name: deploy
       env:
         ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       run: |
+        gui_ver=v$(grep -w CMakeLists.txt -e 'GUI_VERSION' | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+(-([0-9A-Za-z\.-]+))?")
+
+        if [ ${{github.ref_name}} == 'development' ]; then
+          version_suffix=-dev
+          artifactory_repo=Dev
+          gui_ver=latest
+        elif [ ${{github.ref_name}} == 'testing' ]; then
+          version_suffix=-beta
+          artifactory_repo=Test
+        elif [ ${{github.ref_name}} == 'main' ]; then
+          artifactory_repo=Release
+        else
+          echo "This branch is not configured for deployment."
+          exit 0
+        fi
+
         cd Build
         cp -r Release open-ephys
         cp -r ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
-        cp -r ../Resources/DLLs/FTD3XXDriver_WHQLCertified_1.3.0.8_Installer.exe open-ephys
+        cp -r ../Resources/DLLs/FTD3XXDriver_WHQLCertified_1.3.0.10_Installer.exe open-ephys
         cp ../LICENSE open-ephys
         cp C:/Windows/System32/msvcp140.dll open-ephys
         cp C:/Windows/System32/vcruntime140.dll open-ephys
         cp C:/Windows/System32/vcruntime140_1.dll open-ephys
-        gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
-        zipfile=open-ephys-v1.0.0-dev-windows.zip
+        zipfile=open-ephys-${gui_ver}-windows${version_suffix}.zip
         powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
         user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
-        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-dev/windows/$zipfile"
-      shell: bash
-    - name: deploy_preview
-      if: github.ref == 'refs/heads/testing-juce8'
-      env:
-        ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-      run: |
-        cd Build
-        cp -r Release open-ephys
-        cp -r ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
-        cp -r ../Resources/DLLs/FTD3XXDriver_WHQLCertified_1.3.0.8_Installer.exe open-ephys
-        cp ../LICENSE open-ephys
-        cp C:/Windows/System32/msvcp140.dll open-ephys
-        cp C:/Windows/System32/vcruntime140.dll open-ephys
-        cp C:/Windows/System32/vcruntime140_1.dll open-ephys
-        gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
-        zipfile=open-ephys-v1.0.0-alpha.1-windows.zip
-        powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
-        user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
-        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-alpha/windows/$zipfile"
+        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/${artifactory_repo}/windows/$zipfile"
 
         cd open-ephys
         rm -f msvcp140.dll vcruntime140.dll vcruntime140_1.dll
         cd ../../Resources/Installers/Windows
         iscc "windows_installer_script.iss"
-        installer=Install-Open-Ephys-GUI-v1.0.0-alpha.1.exe
+        installer=Install-Open-Ephys-GUI-${gui_ver}${version_suffix}.exe
         mv Open-Ephys_Installer.exe $installer
-        curl -H $user_info -T $installer "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-alpha/windows/$installer"
+        curl -H $user_info -T $installer "https://openephys.jfrog.io/artifactory/GUI-binaries/${artifactory_repo}-Installer/windows/$installer"
       shell: bash
