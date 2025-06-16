@@ -110,6 +110,7 @@ ScrubberInterface* FileReaderEditor::getScrubberInterface()
 
 void FileReaderEditor::showScrubInterface (bool show)
 {
+    if (show) scrubberInterface->update();
     scrubberInterface->setVisible (show);
 
     int dX = scrubberInterface->getWidth();
