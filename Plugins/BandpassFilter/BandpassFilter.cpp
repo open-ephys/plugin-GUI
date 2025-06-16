@@ -206,7 +206,7 @@ void BandpassFilter::parameterValueChanged (Parameter* param)
             (*getDataStream (currentStream))["low_cut"],
             (*getDataStream (currentStream))["high_cut"]);
     }
-    else if (param->getName().equalsIgnoreCase ("Threads"))
+    else if (param->getName().equalsIgnoreCase ("threads"))
     {
         if (threadPool->getNumJobs() > 0)
         {
