@@ -100,7 +100,7 @@ void FullTimeline::paint (Graphics& g)
 
     /* Draw the current playback position */
     g.setColour (findColour (ThemeColours::defaultText));
-    float timelinePos = (float) (fileReader->getCurrentSample() - startSample) / totalSamples * getWidth();
+    float timelinePos = (float) (fileReader->getPlayheadPosition() - startSample) / totalSamples * getWidth();
     g.setOpacity (1.0f);
     g.fillRoundedRectangle (timelinePos, 0, 1, this->getHeight(), 0.2);
 
@@ -220,7 +220,7 @@ void ZoomTimeline::paint (Graphics& g)
 
     /* Draw the current playback position */
     g.setColour (findColour (ThemeColours::defaultText));
-    float timelinePos = (float) (fileReader->getCurrentSample() - startSampleNumber) / (stopSampleNumber - startSampleNumber) * getWidth();
+    float timelinePos = (float) (fileReader->getPlayheadPosition() - startSampleNumber) / (stopSampleNumber - startSampleNumber) * getWidth();
     if (0 < timelinePos < sliderPosition + sliderWidth)
     {
         g.setOpacity (1.0f);
