@@ -64,19 +64,15 @@ protected:
         }
     }
 
-    /** Checks that all samples in a channel are equal (almost equal) to zero */
-    bool checkSamplesZero (int chan)
+    /** Checks that all samples in a channel are equal (almost equal) to a given value */
+    bool checkSamplesEqual (int chan, float expected)
     {
-        for (auto stream : processor->getDataStreams())
+        for (int j = 0; j < signal->getNumSamples(); j++)
         {
-            for (int j = 0; j < signal->getNumSamples(); j++)
-            {
-                float diff = fabs (signal->getSample (chan, j) - 0.0f);
-                if (std::isgreater (diff, 1e-5))
-                    return false;
-            }
+            float diff = fabs (signal->getSample (chan, j) - expected);
+            if (std::isgreater (diff, 0.01f)) // Allow a small tolerance
+                return false;
         }
-
         return true;
     }
 
@@ -110,7 +106,7 @@ TEST_F (CommonAverageRefTests, ContructorTest)
     ASSERT_EQ (processor->getDisplayName(), "Common Avg Ref");
 }
 
-TEST_F (CommonAverageRefTests, CommonAverageTest)
+TEST_F (CommonAverageRefTests, SineWaveTest)
 {
     const float sampleRate = 30000;
     const int bufferSize = 50;
@@ -127,18 +123,15 @@ TEST_F (CommonAverageRefTests, CommonAverageTest)
         affectedChans->currentValue = Array<var> ({ 1 });
     }
 
-    Array<float> posSine = generateSineWave (150.0, 1.0, bufferSize, sampleRate);
-    Array<float> negSine = generateSineWave (150.0, -1.0, bufferSize, sampleRate);
+    Array<float> sineData = generateSineWave (150.0, 1.0, bufferSize, sampleRate);
 
     signal = std::make_unique<AudioBuffer<float>> (2, bufferSize);
 
     for (auto stream : processor->getDataStreams())
     {
-        // Add positive sine wave data to first channel in each dataStream
-        signal->copyFrom (0, 0, posSine.data(), bufferSize, 0.0f);
-
-        // Add negative sine wave data to second channel in each dataStream
-        signal->copyFrom (1, 0, negSine.data(), bufferSize, 0.0f);
+        // Add positive sine wave data to first two channel in each dataStream
+        signal->copyFrom (0, 0, sineData.data(), bufferSize, 1.0f);
+        signal->copyFrom (1, 0, sineData.data(), bufferSize, 1.0f);
 
         AccessClass::ExternalProcessorAccessor::injectNumSamples (processor,
                                                                   stream->getStreamId(),
@@ -148,5 +141,100 @@ TEST_F (CommonAverageRefTests, CommonAverageTest)
     processor->process (*(signal.get()));
 
     // check that signal is common average referenced
-    ASSERT_TRUE (checkSamplesZero (1));
+    ASSERT_TRUE (checkSamplesEqual (1, 0.0f));
+}
+
+TEST_F (CommonAverageRefTests, GainZeroLeavesAffectedUnchanged)
+{
+    const int bufferSize = 8;
+    processor->update();
+
+    for (auto stream : processor->getDataStreams())
+    {
+        auto referenceChans = (MaskChannelsParameter*) stream->getParameter ("reference");
+        referenceChans->currentValue = Array<var> ({ 0 });
+        auto affectedChans = (MaskChannelsParameter*) stream->getParameter ("affected");
+        affectedChans->currentValue = Array<var> ({ 1 });
+        auto gainParam = (FloatParameter*) stream->getParameter ("gain");
+        gainParam->currentValue = 0.0f;
+    }
+
+    signal = std::make_unique<AudioBuffer<float>> (2, bufferSize);
+    for (int i = 0; i < bufferSize; ++i)
+    {
+        signal->setSample (0, i, 1.0f); // reference
+        signal->setSample (1, i, 2.0f); // affected
+    }
+
+    for (auto stream : processor->getDataStreams())
+    {
+        AccessClass::ExternalProcessorAccessor::injectNumSamples (processor, stream->getStreamId(), bufferSize);
+    }
+
+    processor->process (*(signal.get()));
+    ASSERT_TRUE (checkSamplesEqual (1, 2.0f));
+}
+
+TEST_F (CommonAverageRefTests, GainHalfSubtractsHalfReference)
+{
+    const int bufferSize = 8;
+    processor->update();
+
+    for (auto stream : processor->getDataStreams())
+    {
+        auto referenceChans = (MaskChannelsParameter*) stream->getParameter ("reference");
+        referenceChans->currentValue = Array<var> ({ 0 });
+        auto affectedChans = (MaskChannelsParameter*) stream->getParameter ("affected");
+        affectedChans->currentValue = Array<var> ({ 1 });
+        auto gainParam = (FloatParameter*) stream->getParameter ("gain");
+        gainParam->currentValue = 50.0f;
+    }
+
+    signal = std::make_unique<AudioBuffer<float>> (2, bufferSize);
+    for (int i = 0; i < bufferSize; ++i)
+    {
+        signal->setSample (0, i, 1.0f); // reference
+        signal->setSample (1, i, 2.0f); // affected
+    }
+
+    for (auto stream : processor->getDataStreams())
+    {
+        AccessClass::ExternalProcessorAccessor::injectNumSamples (processor, stream->getStreamId(), bufferSize);
+    }
+
+    processor->process (*(signal.get()));
+    // 2.0 - 0.5*1.0 = 1.5
+    ASSERT_TRUE (checkSamplesEqual (1, 1.5f));
+}
+
+TEST_F (CommonAverageRefTests, GainFullSubtractsFullReference)
+{
+    const int bufferSize = 8;
+    processor->update();
+
+    for (auto stream : processor->getDataStreams())
+    {
+        auto referenceChans = (MaskChannelsParameter*) stream->getParameter ("reference");
+        referenceChans->currentValue = Array<var> ({ 0 });
+        auto affectedChans = (MaskChannelsParameter*) stream->getParameter ("affected");
+        affectedChans->currentValue = Array<var> ({ 1 });
+        auto gainParam = (FloatParameter*) stream->getParameter ("gain");
+        gainParam->currentValue = 100.0f;
+    }
+
+    signal = std::make_unique<AudioBuffer<float>> (2, bufferSize);
+    for (int i = 0; i < bufferSize; ++i)
+    {
+        signal->setSample (0, i, 1.0f); // reference
+        signal->setSample (1, i, 2.0f); // affected
+    }
+
+    for (auto stream : processor->getDataStreams())
+    {
+        AccessClass::ExternalProcessorAccessor::injectNumSamples (processor, stream->getStreamId(), bufferSize);
+    }
+
+    processor->process (*(signal.get()));
+    // 2.0 - 1.0*1.0 = 1.0
+    ASSERT_TRUE (checkSamplesEqual (1, 1.0f));
 }
