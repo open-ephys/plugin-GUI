@@ -129,7 +129,7 @@ void FullTimeline::setIntervalPosition (int pos)
     }
 }
 
-int FullTimeline::getIntervalDurationInSeconds()
+double FullTimeline::getIntervalDurationInSeconds()
 {
     return ((stopMs - startMs) / 1000.0f);
 }

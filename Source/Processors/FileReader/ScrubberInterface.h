@@ -40,7 +40,7 @@ public:
 
     virtual int getStartInterval() { return 0; };
     virtual int getIntervalWidth() { return 0; };
-    virtual int getIntervalDurationInSeconds() { return 0; };
+    virtual double getIntervalDurationInSeconds() { return 0; };
 
     virtual void timerCallback() = 0;
 
@@ -74,7 +74,7 @@ public:
 
     int getStartInterval() { return intervalStartPosition; }
     int getIntervalWidth() { return intervalWidth; }
-    int getIntervalDurationInSeconds();
+    double getIntervalDurationInSeconds();
 
     void setIntervalPosition (int pos);
 
