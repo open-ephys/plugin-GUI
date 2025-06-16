@@ -1009,31 +1009,31 @@ public:
     class TimeValue
     {
     public:
-        /** Constructor */
         TimeValue (int hour_, int minute_, double second_)
             : hour (hour_),
               minute (minute_),
               second (second_) {}
 
-        TimeValue (int ms) { setTimeFromMilliseconds (ms); }
+        TimeValue (int64 ms) { setTimeFromMilliseconds (ms); }
 
         TimeValue (String time) { setTimeFromString (time); }
 
-        /** Destructor */
-        ~TimeValue() {}
-
         String toString()
         {
-            return String::formatted ("%02d:%02d:%06.3f", this->hour, this->minute, this->second);
+            return String::formatted ("%02d:%02d:%06.3f", hour, minute, second);
         }
 
         void setTimeFromString (String time)
         {
             StringArray tokens;
             tokens.addTokens (time, ":", "");
-            hour = tokens[0].getIntValue();
-            minute = tokens[1].getIntValue();
-            second = tokens[2].getDoubleValue();
+
+            if (tokens.size() == 3)
+            {
+                hour = tokens[0].getIntValue();
+                minute = tokens[1].getIntValue();
+                second = tokens[2].getDoubleValue();
+            }
         }
 
         void setHours (int h) { hour = h; }
@@ -1044,27 +1044,28 @@ public:
         int getMinutes() { return minute; }
         double getSeconds() { return second; }
 
-        int getTimeInMilliseconds() { return 1000 * (second + 60.0 * double (minute + 60 * hour)); }
-        void setTimeFromMilliseconds (int ms)
+        int64 getTimeInMilliseconds() { return static_cast<int64>(1000 * (second + 60.0 * double (minute + 60 * hour))); }
+        void setTimeFromMilliseconds (int64 ms)
         {
-            hour = ms / 3600000;
-            minute = (ms - hour * 3600000) / 60000;
-            second = (ms - hour * 3600000.0f - minute * 60000.0f) / 1000.0f;
+            hour = int(ms / (1000 * 60 * 60));
+            ms -= hour * (1000 * 60 * 60);
+            minute = int(ms / (1000 * 60));
+            ms -= minute * (1000 * 60);
+            second = double(ms) / 1000.0;
         }
 
-        void setMinTimeInMilliseconds (int ms) { minTimeInMilliseconds = ms; }
-        int getMinTimeInMilliseconds() { return minTimeInMilliseconds; }
+        void setMinTimeInMilliseconds (int64 ms) { minTimeInMilliseconds = ms; }
+        int64 getMinTimeInMilliseconds() { return minTimeInMilliseconds; }
 
-        void setMaxTimeInMilliseconds (int ms) { maxTimeInMilliseconds = ms; }
-        int getMaxTimeInMilliseconds() { return maxTimeInMilliseconds; }
+        void setMaxTimeInMilliseconds (int64 ms) { maxTimeInMilliseconds = ms; }
+        int64 getMaxTimeInMilliseconds() { return maxTimeInMilliseconds; }
 
     private:
         int hour;
         int minute;
         double second;
-
-        int minTimeInMilliseconds;
-        int maxTimeInMilliseconds;
+        int64 minTimeInMilliseconds;
+        int64 maxTimeInMilliseconds;
     };
 
     TimeValue* getTimeValue() { return timeValue.get(); }

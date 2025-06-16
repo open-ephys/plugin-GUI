@@ -107,8 +107,8 @@ public:
             hourEditor.getText().getIntValue(),
             minuteEditor.getText().getIntValue(),
             secondEditor.getText().getDoubleValue());
-        int t1 = newTv->getTimeInMilliseconds();
-        int t2 = p->getTimeValue()->getMaxTimeInMilliseconds();
+        int64 t1 = newTv->getTimeInMilliseconds();
+        int64 t2 = p->getTimeValue()->getMaxTimeInMilliseconds();
         if (newTv->getTimeInMilliseconds() <= p->getTimeValue()->getMaxTimeInMilliseconds()
             && newTv->getTimeInMilliseconds() >= p->getTimeValue()->getMinTimeInMilliseconds())
             p->setNextValue (newTv->toString(), true);
