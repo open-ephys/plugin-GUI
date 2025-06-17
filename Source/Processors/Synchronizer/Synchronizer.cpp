@@ -284,7 +284,7 @@ void SyncStream::syncWith (const SyncStream* mainStream)
             //LOGC (streamKey, " estimatedPulseTime: ", estimatedPulseTime);
             //LOGC (streamKey, " diff from global time: ", estimatedPulseTime - pulses[localIndex].globalTimestamp);
 
-            if (std::abs (estimatedActualSampleRate - expectedSampleRate) / expectedSampleRate < 0.01)
+            if (std::abs (estimatedActualSampleRate - expectedSampleRate) / expectedSampleRate < 0.05)
             {
                 if (actualSampleRate == -1.0)
                 {
