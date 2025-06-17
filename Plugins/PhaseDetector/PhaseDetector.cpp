@@ -33,7 +33,10 @@ PhaseDetectorSettings::PhaseDetectorSettings() : samplesSinceTrigger (0),
                                                  currentPhase (NO_PHASE),
                                                  triggerChannel (0),
                                                  outputLine (0),
-                                                 gateLine (0)
+                                                 gateLine (-1),
+                                                 lastOutputLine (0),
+                                                 outputLineChanged (false),
+                                                 lastTTLWord (0)
 {
 }
 
@@ -129,7 +132,21 @@ void PhaseDetector::parameterValueChanged (Parameter* param)
     }
     else if (param->getName().equalsIgnoreCase ("gate_line"))
     {
-        settings[param->getStreamId()]->gateLine = (int) param->getValue();
+        int newGateLine = (int) param->getValue();
+        settings[param->getStreamId()]->gateLine = newGateLine;
+
+        uint64 ttlWord = settings[param->getStreamId()]->lastTTLWord;
+        // get the bit from the TTL word corresponding to the gate line and check if it is set
+        if (newGateLine >= 0)
+        {
+            settings[param->getStreamId()]->isActive = ((ttlWord & (1ULL << newGateLine)) != 0);
+        }
+        else
+        {
+            settings[param->getStreamId()]->isActive = true; // If gate line is out of range, always active
+        }
+
+        LOGC ("Gate line set to ", newGateLine, " ttl word is ", String (ttlWord));
     }
 }
 
@@ -151,12 +168,20 @@ void PhaseDetector::updateSettings()
         eventChannels.add (new EventChannel (s));
         eventChannels.getLast()->addProcessor (this);
         settings[stream->getStreamId()]->eventChannel = eventChannels.getLast();
+
+        settings[stream->getStreamId()]->lastTTLWord = 0;
+
+        parameterValueChanged (stream->getParameter ("phase"));
+        parameterValueChanged (stream->getParameter ("channel"));
+        parameterValueChanged (stream->getParameter ("ttl_out"));
+        parameterValueChanged (stream->getParameter ("gate_line"));
     }
 }
 
 void PhaseDetector::handleTTLEvent (TTLEventPtr event)
 {
     const uint16 eventStream = event->getStreamId();
+    settings[eventStream]->lastTTLWord = event->getWord();
 
     if (settings[eventStream]->gateLine > -1)
     {
@@ -289,7 +314,7 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
             }
 
             // If event is on when 'None' is selected in channel selector, turn off event
-            if (module->wasTriggered && module->triggerChannel < 0)
+            if (module->wasTriggered && (module->triggerChannel < 0 || module->isActive == false))
             {
                 TTLEventPtr ptr = module->createEvent (firstSampleInBlock, false);
 

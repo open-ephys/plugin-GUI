@@ -76,6 +76,8 @@ public:
     int outputLine;
     int gateLine;
 
+    uint64 lastTTLWord;
+
     EventChannel* eventChannel;
 };
 
