@@ -294,10 +294,14 @@ bool AudioComponent::beginCallbacks()
                 // pause to let device initialize
             }
 
-            LOGC ("Adding audio callback.");
+            LOGD ("Adding audio callback.");
             deviceManager.addAudioCallback (graphPlayer.get());
             isPlaying = true;
             return true;
+        }
+        else
+        {
+            LOGE ("No audio device found. Cannot start callbacks.");
         }
     }
     else
@@ -310,7 +314,7 @@ bool AudioComponent::beginCallbacks()
 
 void AudioComponent::endCallbacks()
 {
-    LOGC ("Removing audio callback.");
+    LOGD ("Removing audio callback.");
     deviceManager.removeAudioCallback (graphPlayer.get());
     isPlaying = false;
 }

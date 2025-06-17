@@ -672,6 +672,8 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
     {
         graph->updateConnections();
 
+        LOGC ("Starting acquisition");
+
         graph->startAcquisition(); // inform processors that acquisition will start
 
         if (recordingShouldAlsoStart)
@@ -708,6 +710,8 @@ void ControlPanel::stopAcquisition()
     }
 
     graph->stopAcquisition();
+
+    LOGC ("Stopping acquisition");
 
     audio->endCallbacks();
 
@@ -1046,6 +1050,8 @@ void ControlPanel::startRecording()
 
     graph->setRecordState (true);
 
+    LOGC ("Starting recording");
+
     repaint();
 }
 
@@ -1076,6 +1082,8 @@ void ControlPanel::stopRecording()
     recordButton->setToggleState (false, dontSendNotification);
 
     filenameComponent->setEnabled (true);
+
+    LOGC ("Stopping recording");
 
     repaint();
 }
