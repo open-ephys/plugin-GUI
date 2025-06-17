@@ -316,7 +316,6 @@ void FileReader::setActiveStream (int index, bool reset)
         return;
     }
 
-    //TODO: Change to setActiveStream
     input->setActiveRecord (index);
 
     currentNumChannels = input->getActiveNumChannels();
@@ -335,11 +334,11 @@ void FileReader::setActiveStream (int index, bool reset)
     if (currentSample > currentNumTotalSamples)
         reset = true;
 
-    //TODO: Also need to check if currentSample
+    stopSample = currentNumTotalSamples;
+
     if (reset)
     {
         startSample = 0;
-        stopSample = currentNumTotalSamples;
         bufferCacheWindow = 0;
 
         /*
@@ -607,6 +606,8 @@ void FileReader::updateSettings()
     readBuffer = &bufferB;
     bufferCacheWindow = 0;
     m_shouldFillBackBuffer.set (false);
+    if (firstProcess)
+        switchBuffer();
 
     LOGD ("File Reader finished updating custom settings.");
 }
