@@ -1647,7 +1647,7 @@ int PluginInfoComponent::downloadPlugin (const String& plugin, const String& ver
     // Copy only if shared files exist
     if (fs::exists (tempSharedPath))
     {
-        const auto copyOptions = fs::copy_options::overwrite_existing
+        const auto copyOptions = fs::copy_options::update_existing
                                  | fs::copy_options::recursive
                                  | fs::copy_options::copy_symlinks;
         try
@@ -1673,15 +1673,21 @@ int PluginInfoComponent::downloadPlugin (const String& plugin, const String& ver
             return 5;
         }
 
-        int loadPlugin = AccessClass::getPluginManager()->loadPlugin (pluginDllPath);
+        LOGD ("Loading plugin: ", pInfo.displayName, "from ", pluginDllPath);
 
-        AccessClass::getProcessorList()->fillItemList();
-        AccessClass::getProcessorList()->repaint();
+        int retCode = -1;
 
-        if (pInfo.type == "RecordEngine")
-            AccessClass::getControlPanel()->updateRecordEngineList();
+        MessageManager::callSync ([&]()
+                                  {
+                                    retCode = AccessClass::getPluginManager()->loadPlugin (pluginDllPath);
 
-        if (loadPlugin == -1)
+                                    AccessClass::getProcessorList()->fillItemList();
+                                    AccessClass::getProcessorList()->repaint();
+
+                                    if (pInfo.type == "RecordEngine")
+                                        AccessClass::getControlPanel()->updateRecordEngineList(); });
+
+        if (retCode == -1)
             return 6;
     }
 
