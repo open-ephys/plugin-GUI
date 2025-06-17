@@ -29,6 +29,7 @@
 ArduinoOutput::ArduinoOutput()
     : GenericProcessor ("Arduino Output"), gateIsOpen (true), deviceSelected (false)
 {
+    devices = getDevices();   
 }
 
 ArduinoOutput::~ArduinoOutput()
@@ -39,10 +40,12 @@ ArduinoOutput::~ArduinoOutput()
 
 void ArduinoOutput::registerParameters()
 {
-    addCategoricalParameter (Parameter::PROCESSOR_SCOPE, "device", "Device", "The Arduino device to use", getDevices(), 0, true);
+    addCategoricalParameter (Parameter::PROCESSOR_SCOPE, "device", "Device", "The Arduino device to use", devices, 0, true);
     addIntParameter (Parameter::PROCESSOR_SCOPE, "output_pin", "Output pin", "The Arduino pin to use", 13, 0, 13);
     addIntParameter (Parameter::STREAM_SCOPE, "input_line", "Input line", "The TTL line for triggering output", 1, 1, 16);
     addIntParameter (Parameter::STREAM_SCOPE, "gate_line", "Gate line", "The TTL line for gating the output", 0, 0, 16);
+
+    setDevice (devices[0], true);
 }
 
 AudioProcessorEditor* ArduinoOutput::createEditor()
@@ -59,13 +62,17 @@ Array<String> ArduinoOutput::getDevices()
 
     for (int i = 0; i < devices.size(); i++)
     {
-        out.add (devices[i].getDevicePath());
+        if (devices[i].getDeviceName().compare(0, 7, "Arduino") == 0)
+        {
+            out.add (devices[i].getDevicePath());
+        }
+        
     }
 
     return out;
 }
 
-void ArduinoOutput::setDevice (String devName)
+void ArduinoOutput::setDevice (String devName, bool initializing)
 {
     LOGC ("Selecting device ", devName);
 
@@ -122,7 +129,12 @@ void ArduinoOutput::setDevice (String devName)
         CoreServices::sendStatusMessage (("Arduino could not be initialized at " + devName));
         deviceSelected = false;
     }
-    CoreServices::updateSignalChain (this);
+
+    if (!initializing)
+    {
+        CoreServices::updateSignalChain (this);
+    }
+
 }
 
 void ArduinoOutput::updateSettings()

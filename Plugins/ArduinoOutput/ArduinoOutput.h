@@ -71,7 +71,7 @@ public:
     Array<String> getDevices();
 
     /** Tries to connect to an Arduino on a given port*/
-    void setDevice (String deviceString);
+    void setDevice (String deviceString, bool initializing = false);
 
 private:
     /** Opens the serial connection to the Arduino. */
@@ -84,6 +84,7 @@ private:
     bool deviceSelected;
 
     String deviceString;
+    Array<String> devices;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArduinoOutput);
 };
