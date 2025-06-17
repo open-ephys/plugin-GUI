@@ -449,6 +449,20 @@ DelayMonitor* StreamSelectorTable::getDelayMonitor (const DataStream* stream)
 
 void StreamSelectorTable::startAcquisition()
 {
+    // Reset TTL Monitor states
+    for (auto stream : streams)
+    {
+        TTLMonitor* ttlMonitor = getTTLMonitor (stream);
+
+        if (ttlMonitor != nullptr)
+        {
+            for (int bit = 0; bit < 8; ++bit)
+            {
+                ttlMonitor->setState (bit, false);
+            }
+        }
+    }
+
     startTimer (20);
 }
 
