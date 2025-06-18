@@ -1796,6 +1796,16 @@ void ProcessorGraph::stopAcquisition()
             }
 
             allClear = p->stopAcquisition();
+
+            // Reset line states of all event channels
+            for (auto& eventChan : p->eventChannels)
+            {
+                for (int bit = 0; bit < 64; bit++)
+                {
+                    eventChan->setLineState (bit, false);
+                }
+            }
+            p->ttlLineStates.fill (false);
         }
     }
 }
