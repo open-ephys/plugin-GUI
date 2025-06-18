@@ -1656,7 +1656,7 @@ int PluginInfoComponent::downloadPlugin (const String& plugin, const String& ver
         }
         catch (fs::filesystem_error& e)
         {
-            LOGE ("Could not copy shared files: \"", e.what(), "\"");
+            LOGD ("Could not copy shared files: \"", e.what(), "\"");
         }
     }
 
