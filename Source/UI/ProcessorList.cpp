@@ -441,6 +441,7 @@ void ProcessorList::mouseDown (const MouseEvent& e)
         if (listItem == baseItem.get())
         {
             arrowButton->setToggleState (listItem->isOpen(), dontSendNotification);
+            searchButton->setVisible (listItem->isOpen());
             AccessClass::getUIComponent()->childComponentChanged();
         }
     }
