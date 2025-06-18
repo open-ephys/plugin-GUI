@@ -136,7 +136,7 @@ bool ofArduino::connect (string device, int baud)
 {
     connectTime = ofGetElapsedTimef();
     _initialized = false;
-    _port.enumerateDevices();
+    //_port.enumerateDevices();
     connected = _port.setup (device.c_str(), baud);
     return connected;
 }
@@ -196,7 +196,7 @@ void ofArduino::update()
     int bytesToRead = _port.available();
     if (bytesToRead > 0)
     {
-        std::cout << "Bytes found: " << bytesToRead << std::endl;
+        //std::cout << "Bytes found: " << bytesToRead << std::endl;
         bytesToProcess.resize (bytesToRead);
         _port.readBytes (&bytesToProcess[0], bytesToRead);
         for (int i = 0; i < bytesToRead; i++)
@@ -469,7 +469,7 @@ bool ofArduino::isInitialized()
 void ofArduino::processData (unsigned char inputData)
 {
     char msg[100];
-    snprintf (msg, sizeof (msg), "Received Byte: %i", inputData);
+    //snprintf (msg, sizeof (msg), "Received Byte: %i", inputData);
     //Logger::get("Application").information(msg);
 
     // we have command data
@@ -489,7 +489,7 @@ void ofArduino::processData (unsigned char inputData)
                     processDigitalPort (_multiByteChannel, (_storedInputData[0] << 7) | _storedInputData[1]);
                     break;
                 case FIRMATA_REPORT_VERSION: // report version
-                    printf ("Received report version\n\n");
+                   // printf ("Received report version\n\n");
                     _majorProtocolVersion = _storedInputData[1];
                     _minorProtocolVersion = _storedInputData[0];
                     //ofNotifyEvent(EProtocolVersionReceived, _majorProtocolVersion, this);

@@ -63,9 +63,10 @@ Array<String> ArduinoOutput::getDevices()
     for (int i = 0; i < devices.size(); i++)
     {
 
-        if (devices[i].getDeviceName().compare(0, 6, "ttyACM") == 0 ||
-            devices[i].getDeviceName().compare(0, 7, "tty.usb") == 0 ||
-            devices[i].getDeviceName().compare(0, 7, "Arduino") == 0)
+        if (devices[i].getDeviceName().compare(0, 6, "ttyACM") == 0 ||  // Linux Communications Device Class
+            devices[i].getDeviceName().compare(0, 6, "ttyUSB") == 0 ||  // Linux FTDI chip
+            devices[i].getDeviceName().compare(0, 7, "tty.usb") == 0 || // macOS
+            devices[i].getDeviceName().compare(0, 7, "Arduino") == 0)   // Windows with driver installed
         {
             out.add (devices[i].getDevicePath());
         }
