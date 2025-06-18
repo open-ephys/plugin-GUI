@@ -62,10 +62,20 @@ Array<String> ArduinoOutput::getDevices()
 
     for (int i = 0; i < devices.size(); i++)
     {
+
+#ifdef WIN32
         if (devices[i].getDeviceName().compare(0, 7, "Arduino") == 0)
         {
             out.add (devices[i].getDevicePath());
         }
+#else
+        if (devices[i].getDeviceName().compare(0, 6, "ttyACM") == 0 ||
+            devices[i].getDeviceName().compare(0, 6, "ttyUSB") == 0 ||
+            devices[i].getDeviceName().compare(0, 7, "Arduino") == 0)
+        {
+            out.add (devices[i].getDevicePath());
+        }
+#endif
         
     }
 
@@ -105,7 +115,12 @@ void ArduinoOutput::setDevice (String devName, bool initializing)
         LOGC ("Sending firmware version request...");
         arduino.sendFirmwareVersionRequest();
 
+        #ifdef WIN32
+        // Windows seems to work faster, but Linux needs more time
         timer.waitForMillisecondCounter (currentTime + 500);
+        #else
+        timer.waitForMillisecondCounter (currentTime + 3000);
+        #endif
 
         LOGC ("Updating...");
         arduino.update();
