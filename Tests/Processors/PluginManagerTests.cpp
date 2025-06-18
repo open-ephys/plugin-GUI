@@ -7,20 +7,23 @@ class PluginManagerTest : public testing::Test
 protected:
     void SetUp() override
     {
+        File arduinoOutputDir = File::getSpecialLocation (File::currentExecutableFile).getParentDirectory();
+
 #ifdef JUCE_LINUX
+        arduinoOutputDir = arduinoOutputDir.getChildFile ("../ArduinoOutput");
         files =
-        File::getCurrentWorkingDirectory().getChildFile ("../ArduinoOutput").findChildFiles (File::findFiles, false, "ArduinoOutput.*", File::FollowSymlinks::no);
-#else 
+            arduinoOutputDir.findChildFiles (File::findFiles, false, "ArduinoOutput.*", File::FollowSymlinks::no);
+#else
+        arduinoOutputDir = arduinoOutputDir.getChildFile ("../../ArduinoOutput");
         files =
-        File::getCurrentWorkingDirectory().getChildFile ("../../ArduinoOutput").findChildFiles (File::findFiles, true, "ArduinoOutput.*", File::FollowSymlinks::no);
+            arduinoOutputDir.findChildFiles (File::findFiles, true, "ArduinoOutput.*", File::FollowSymlinks::no);
 #endif
 
-        ASSERT_GT (files.size(), 1) << "Arduino Ouput plugin not found. Make sure to build the plugin tests before running the tests.";
+        ASSERT_GE (files.size(), 1) << "Arduino Output plugin not found in " << arduinoOutputDir.getFullPathName();
 
         String path = files[0].getFullPathName();
 
-        pluginManager.loadPlugin(path);
-
+        pluginManager.loadPlugin (path);
     }
 
     PluginManager pluginManager;
@@ -44,11 +47,11 @@ Find the processor information from the Plugin Manager and verify the processor 
 */
 TEST_F (PluginManagerTest, PluginCreation)
 {
-    Plugin::ProcessorInfo processorInfo = pluginManager.getProcessorInfo(0);
+    Plugin::ProcessorInfo processorInfo = pluginManager.getProcessorInfo (0);
 
-    EXPECT_EQ(String(processorInfo.name), "Arduino Output");
-    EXPECT_EQ(processorInfo.type, Plugin::Processor::SINK);
-    EXPECT_NE(processorInfo.creator, nullptr);
+    EXPECT_EQ (String (processorInfo.name), "Arduino Output");
+    EXPECT_EQ (processorInfo.type, Plugin::Processor::SINK);
+    EXPECT_NE (processorInfo.creator, nullptr);
 }
 
 TEST_F (PluginManagerTest, getLibraryIndexFromPlugin)
