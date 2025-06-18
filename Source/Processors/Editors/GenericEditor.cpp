@@ -287,7 +287,6 @@ void GenericEditor::addCustomParameterEditor (ParameterEditor* ed, int xPos_, in
 
 void GenericEditor::refreshColours()
 {
-
     if (getProcessor()->isSource())
         backgroundColour = getLookAndFeel().findColour (ProcessorColour::IDs::SOURCE_COLOUR);
     else if (getProcessor()->isSink())
@@ -674,8 +673,7 @@ void GenericEditor::update (bool isEnabled_)
 
     updateSelectedStream (getCurrentStream());
 
-    updateVisualizer(); // does nothing unless this method
-        // has been implemented
+    updateVisualizer(); // does nothing unless this method has been implemented
 }
 
 void GenericEditor::setTTLState (uint16 streamId, int bit, bool state)
@@ -897,9 +895,9 @@ void UtilityButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDow
     g.setFont (font);
 
     if (! isEnabled || isButtonDown)
-        g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.4f));
+        g.setColour (baseColour.contrasting().withAlpha (0.4f));
     else
-        g.setColour (findColour (ThemeColours::defaultText));
+        g.setColour (baseColour.contrasting());
 
     g.drawFittedText (label, 1, 1, getWidth() - 2, getHeight() - 2, Justification::centred, 2, 1.0f);
 }
@@ -1168,7 +1166,6 @@ void GenericEditor::updateSelectedStream (uint16 streamId)
         {
             if (streamAvailable)
             {
-
                 auto stream = getProcessor()->getDataStream (streamId);
 
                 if (stream->hasParameter (parameterName))

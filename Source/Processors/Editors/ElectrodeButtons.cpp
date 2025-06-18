@@ -22,6 +22,7 @@
 */
 
 #include "ElectrodeButtons.h"
+#include "../../UI/LookAndFeel/CustomLookAndFeel.h"
 
 ElectrodeButton::ElectrodeButton (int chan_, Colour defaultColour_) : Button ("Electrode"),
                                                                       chan (chan_),
@@ -42,27 +43,23 @@ int ElectrodeButton::getChannelNum()
 
 void ElectrodeButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    if (getToggleState() == true)
-        g.setColour (defaultColour);
-    else
-        g.setColour (Colours::darkgrey);
+    Colour bgColour = findColour (ThemeColours::widgetBackground);
 
-    if (isMouseOver)
-        g.setColour (Colours::white);
+    if (getToggleState())
+        bgColour = findColour (ThemeColours::highlightedFill);
 
-    if (! isEnabled())
-        g.setColour (Colours::black);
+    auto baseColour = bgColour.withMultipliedAlpha (isEnabled() ? 1.0f : 0.5f);
 
+    if (isButtonDown || isMouseOver)
+        baseColour = baseColour.contrasting (isButtonDown ? 0.2f : 0.1f);
+
+    g.setColour (baseColour);
     g.fillRect (0, 0, getWidth(), getHeight());
 
-    g.setColour (Colours::black);
-
+    g.setColour (findColour (ThemeColours::outline).withAlpha (isEnabled() ? 1.0f : 0.5f));
     g.drawRect (0, 0, getWidth(), getHeight(), 1.0);
 
-    if (! isEnabled())
-    {
-        g.setColour (Colours::grey);
-    }
+    g.setColour (baseColour.contrasting().withAlpha (isEnabled() ? 1.0f : 0.5f));
 
     if (chan < 100)
         g.setFont (10.f);
