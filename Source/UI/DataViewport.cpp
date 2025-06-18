@@ -174,6 +174,11 @@ DraggableTabComponent::DraggableTabComponent (DataViewport* parent_) : TabbedCom
         closeButton->setVisible (false);
 }
 
+DraggableTabComponent::~DraggableTabComponent()
+{
+    shutdown = true;
+}
+
 bool DraggableTabComponent::isInterestedInDragSource (const juce::DragAndDropTarget::SourceDetails& dragSourceDetails)
 {
     Array<var>* descr = dragSourceDetails.description.getArray();
@@ -515,6 +520,8 @@ AddTabbedComponentButton::AddTabbedComponentButton()
     path.addTriangle (12, 7, 12, 13, 17, 10);
 }
 
+AddTabbedComponentButton::~AddTabbedComponentButton() = default;
+
 void AddTabbedComponentButton::paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown)
 {
     g.setColour (findColour (ThemeColours::widgetBackground));
@@ -541,6 +548,8 @@ TabbedComponentResizerBar::TabbedComponentResizerBar (StretchableLayoutManager* 
         "M19.63,11.31,16.5,9.17a1,1,0,0,0-1.5.69v4.28a1,1,0,0,0,1.5.69l3.13-2.14A.82.82,0,0,0,19.63,11.31ZM4.37,"
         "12.69,7.5,14.83A1,1,0,0,0,9,14.14V9.86a1,1,0,0,0-1.5-.69L4.37,11.31A.82.82,0,0,0,4.37,12.69Z");
 }
+
+TabbedComponentResizerBar::~TabbedComponentResizerBar() = default;
 
 void TabbedComponentResizerBar::paint (Graphics& g)
 {

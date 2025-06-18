@@ -120,7 +120,7 @@ public:
     DraggableTabComponent (DataViewport* parent);
 
     /** Destructor */
-    ~DraggableTabComponent() { shutdown = true; }
+    ~DraggableTabComponent();
 
     /** Paint**/
     void paint (Graphics& g);
@@ -210,7 +210,7 @@ public:
     AddTabbedComponentButton();
 
     /** Destructor */
-    ~AddTabbedComponentButton() {}
+    ~AddTabbedComponentButton();
 
     /** Renders the button */
     void paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown) override;
@@ -232,7 +232,7 @@ public:
     TabbedComponentResizerBar (StretchableLayoutManager* layoutToUse);
 
     /** Destructor */
-    ~TabbedComponentResizerBar() {}
+    ~TabbedComponentResizerBar();
 
     /** Paints the resizer bar */
     void paint (Graphics& g) override;
