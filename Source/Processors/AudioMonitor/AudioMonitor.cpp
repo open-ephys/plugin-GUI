@@ -304,8 +304,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
     {
         for (auto stream : dataStreams)
         {
-            if (stream->getStreamId() == selectedStream
-                && (*stream)["enable_stream"])
+            if (stream->getStreamId() == selectedStream)
             {
                 auto streamSettings = settings[selectedStream];
                 AudioSampleBuffer* overflowBuffer;
