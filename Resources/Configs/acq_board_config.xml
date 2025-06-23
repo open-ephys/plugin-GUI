@@ -42,10 +42,10 @@
                type="0" index="3" libraryName="" libraryVersion="" processorType="8"
                nodeId="101">
       <PROCESSOR_PARAMETERS directory="default" engine="0"
-                            events="1" spikes="1" main_sync="0"/>
-      <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
+                            events="1" spikes="1"/>
+      <STREAM name="acquisition_board" description="Continuous and event data from a device running Rhythm FPGA firmware"
               sample_rate="30000.0" channel_count="72">
-        <PARAMETERS enable_stream="1" channels="" sync_line="0"/>
+        <PARAMETERS channels=""/>
       </STREAM>
       <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Record Node" activeStream="0"/>
@@ -54,9 +54,9 @@
                type="1" index="8" libraryName="LFP viewer" libraryVersion=""
                processorType="3" nodeId="103">
       <PROCESSOR_PARAMETERS/>
-      <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
+      <STREAM name="acquisition_board" description="Continuous and event data from a device running Rhythm FPGA firmware"
               sample_rate="30000.0" channel_count="72">
-        <PARAMETERS enable_stream="1"/>
+        <PARAMETERS/>
       </STREAM>
       <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="LFP Viewer" activeStream="0"
@@ -94,9 +94,9 @@
                type="1" index="6" libraryName="Bandpass Filter" libraryVersion=""
                processorType="1" nodeId="104">
       <PROCESSOR_PARAMETERS/>
-      <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
+      <STREAM name="acquisition_board" description="Continuous and event data from a device running Rhythm FPGA firmware"
               sample_rate="30000.0" channel_count="72">
-        <PARAMETERS enable_stream="1" high_cut="5000.0" low_cut="100.0" Channels=""/>
+        <PARAMETERS enable_stream="1" high_cut="5000.0" low_cut="100.0" channels=""/>
       </STREAM>
       <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Bandpass Filter"
@@ -106,13 +106,13 @@
                type="1" index="2" libraryName="Spike Detector" libraryVersion=""
                processorType="1" nodeId="105">
       <PROCESSOR_PARAMETERS/>
-      <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
+      <STREAM name="acquisition_board" description="Continuous and event data from a device running Rhythm FPGA firmware"
               sample_rate="30000.0" channel_count="72">
         <PARAMETERS enable_stream="1"/>
       </STREAM>
       <CUSTOM_PARAMETERS>
         <SPIKE_CHANNEL name="Tetrode 1" description="Tetrode from Spike Detector 105"
-                       num_channels="4" sample_rate="30000.0" stream_name="Rhythm Data"
+                       num_channels="4" sample_rate="30000.0" stream_name="acquisition_board"
                        stream_source="100" local_channels="1,2,3,4" thrshlder_type="0"
                        abs_threshold1="-50.0" std_threshold1="4.0" dyn_threshold1="4.0"
                        abs_threshold2="-50.0" std_threshold2="4.0" dyn_threshold2="4.0"
@@ -120,7 +120,7 @@
                        abs_threshold4="-50.0" std_threshold4="4.0" dyn_threshold4="4.0"
                        waveform_type="0"/>
         <SPIKE_CHANNEL name="Tetrode 2" description="Tetrode from Spike Detector 105"
-                       num_channels="4" sample_rate="30000.0" stream_name="Rhythm Data"
+                       num_channels="4" sample_rate="30000.0" stream_name="acquisition_board"
                        stream_source="100" local_channels="5,6,7,8" thrshlder_type="0"
                        abs_threshold1="-50.0" std_threshold1="4.0" dyn_threshold1="4.0"
                        abs_threshold2="-50.0" std_threshold2="4.0" dyn_threshold2="4.0"
@@ -128,7 +128,7 @@
                        abs_threshold4="-50.0" std_threshold4="4.0" dyn_threshold4="4.0"
                        waveform_type="0"/>
         <SPIKE_CHANNEL name="Tetrode 3" description="Tetrode from Spike Detector 105"
-                       num_channels="4" sample_rate="30000.0" stream_name="Rhythm Data"
+                       num_channels="4" sample_rate="30000.0" stream_name="acquisition_board"
                        stream_source="100" local_channels="9,10,11,12" thrshlder_type="0"
                        abs_threshold1="-50.0" std_threshold1="4.0" dyn_threshold1="4.0"
                        abs_threshold2="-50.0" std_threshold2="4.0" dyn_threshold2="4.0"
@@ -136,7 +136,7 @@
                        abs_threshold4="-50.0" std_threshold4="4.0" dyn_threshold4="4.0"
                        waveform_type="0"/>
         <SPIKE_CHANNEL name="Tetrode 4" description="Tetrode from Spike Detector 105"
-                       num_channels="4" sample_rate="30000.0" stream_name="Rhythm Data"
+                       num_channels="4" sample_rate="30000.0" stream_name="acquisition_board"
                        stream_source="100" local_channels="13,14,15,16" thrshlder_type="0"
                        abs_threshold1="-50.0" std_threshold1="4.0" dyn_threshold1="4.0"
                        abs_threshold2="-50.0" std_threshold2="4.0" dyn_threshold2="4.0"
@@ -151,9 +151,9 @@
                type="0" index="4" libraryName="" libraryVersion="" processorType="6"
                nodeId="102">
       <PROCESSOR_PARAMETERS audio_output="1" mute_audio="0"/>
-      <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
+      <STREAM name="acquisition_board" description="Continuous and event data from a device running Rhythm FPGA firmware"
               sample_rate="30000.0" channel_count="72">
-        <PARAMETERS enable_stream="1" Channels=""/>
+        <PARAMETERS channels=""/>
       </STREAM>
       <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Audio Monitor"
@@ -163,10 +163,10 @@
                type="0" index="3" libraryName="" libraryVersion="" processorType="8"
                nodeId="106">
        <PROCESSOR_PARAMETERS directory="default" engine="0"
-                            events="1" spikes="1" main_sync="0"/>
-      <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
+                            events="1" spikes="1"/>
+      <STREAM name="acquisition_board" description="Continuous and event data from a device running Rhythm FPGA firmware"
               sample_rate="30000.0" channel_count="72">
-        <PARAMETERS enable_stream="1"  channels="" sync_line=""/>
+        <PARAMETERS channels=""/>
       </STREAM>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Record Node" activeStream="0"/>
     </PROCESSOR>
@@ -174,9 +174,9 @@
                type="1" index="3" libraryName="Spike Viewer" libraryVersion=""
                processorType="3" nodeId="107">
       <PROCESSOR_PARAMETERS/>
-      <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
+      <STREAM name="acquisition_board" description="Continuous and event data from a device running Rhythm FPGA firmware"
               sample_rate="30000.0" channel_count="72">
-        <PARAMETERS enable_stream="1"/>
+        <PARAMETERS/>
       </STREAM>
       <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Spike Viewer" activeStream="0"
