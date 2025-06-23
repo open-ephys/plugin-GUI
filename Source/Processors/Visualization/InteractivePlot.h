@@ -74,6 +74,7 @@ class XYLine
 public:
     /** Creates a line from vectors of x and y values */
     XYLine (std::vector<float> x, std::vector<float> y);
+    virtual ~XYLine() = default;
 
     /** Sets the colour of the line*/
     void setColour (Colour c);
@@ -92,7 +93,7 @@ public:
 
     /** Renders the line. Stretches Y such that ymin->0 and ymax->plotHeight 
 	    and only display points between [xmin and xmax] */
-    void draw (Graphics& g, XYRange& range, int width, int height);
+    virtual void draw (Graphics& g, XYRange& range, int width, int height);
 
     /** The x values */
     std::vector<float> x;
@@ -100,7 +101,7 @@ public:
     /** The x values */
     std::vector<float> y;
 
-private:
+protected:
     /** The parameters of this line */
     Colour colour;
     float width;
@@ -121,7 +122,7 @@ public:
     Axis();
 
     /** Destructor */
-    ~Axis() {}
+    ~Axis() override {}
 
     /** Sets the min / max range, and number of ticks between them */
     void setRange (float minvalue, float maxvalue, int numTicks = 10);
@@ -179,7 +180,7 @@ public:
     XAxis() {}
 
     /** Renders the axis */
-    void paint (Graphics& g);
+    void paint (Graphics& g) override;
 };
 
 /**
@@ -194,7 +195,7 @@ public:
     YAxis() {}
 
     /** Renders the axis */
-    void paint (Graphics& g);
+    void paint (Graphics& g) override;
 };
 
 /**
@@ -210,7 +211,7 @@ public:
     DrawComponent (Axis* x, Axis* y);
 
     /** Destructor */
-    ~DrawComponent() {}
+    ~DrawComponent() override {}
 
     /** Adds a line to be drawn */
     void add (XYLine* line);
@@ -250,9 +251,9 @@ private:
     OwnedArray<XYLine> lines;
 
     /** Mouse listeners */
-    void mouseDown (const juce::MouseEvent& event);
-    void mouseDrag (const juce::MouseEvent& event);
-    void mouseWheelMove (const MouseEvent& event, const MouseWheelDetails& wheel);
+    void mouseDown (const juce::MouseEvent& event) override;
+    void mouseDrag (const juce::MouseEvent& event) override;
+    void mouseWheelMove (const MouseEvent& event, const MouseWheelDetails& wheel) override;
 
     //std::vector<float> computeSamplePositions(int subsample);
     std::list<XYRange> rangeMemory;
@@ -263,7 +264,7 @@ private:
 
     void drawGrid (Graphics& g);
 
-    void paint (Graphics& g);
+    void paint (Graphics& g) override;
 
     XYRange range, limit, originalRange;
 
@@ -292,15 +293,15 @@ public:
     InteractivePlot();
 
     /** Destructor */
-    ~InteractivePlot() {}
+    ~InteractivePlot() override {}
 
     /** Adds a line based on X and Y values */
-    void plot (std::vector<float> x,
-               std::vector<float> y,
-               Colour c = Colours::white,
-               float width = 1.0f,
-               float opacity = 1.0f,
-               PlotType type = PlotType::LINE);
+    virtual void plot (std::vector<float> x,
+                       std::vector<float> y,
+                       Colour c = Colours::white,
+                       float width = 1.0f,
+                       float opacity = 1.0f,
+                       PlotType type = PlotType::LINE);
 
     /** Clears all lines from the plot */
     void clear();
@@ -345,11 +346,11 @@ public:
     void getRange (XYRange& range);
 
     /** Called when size of plot is changed */
-    void resized();
+    void resized() override;
 
-private:
+protected:
     /** Respond to button clicks */
-    void buttonClicked (Button* btn);
+    void buttonClicked (Button* btn) override;
 
     FontOptions font;
     juce::Colour backgroundColour;
