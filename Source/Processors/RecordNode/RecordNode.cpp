@@ -170,16 +170,24 @@ void RecordNode::parameterValueChanged (Parameter* p)
         synchronizer.setSyncLine (streamKey, selectedLine);
 
         // Assume overrideTimestampWarningShown is already true if a sync line is set for any hardware-synced stream
-        if (getDataStream (streamKey)->generatesTimestamps() 
-            && selectedLine >= 0 
-            && !overrideTimestampWarningShown)
+        if (getDataStream (streamKey)->generatesTimestamps()
+            && selectedLine >= 0
+            && ! overrideTimestampWarningShown)
         {
             overrideTimestampWarningShown = true;
         }
 
-        // If sync line is set to none and this is the main stream, we need to find another main stream
+        // If sync line is set to none and this is the main stream
         if (selectedLine == -1 && synchronizer.mainStreamKey == streamKey)
         {
+            // If stream does not generate timestamps, set ttl line to 0
+            if (! getDataStream (streamKey)->generatesTimestamps())
+            {
+                p->setNextValue (0, false);
+                return;
+            }
+
+            // Find a new main stream that is not hardware-synced
             int streamIndex = 0;
             for (auto stream : dataStreams)
             {
