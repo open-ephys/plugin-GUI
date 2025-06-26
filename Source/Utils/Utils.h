@@ -25,11 +25,14 @@
 #define UTIL_H_DEFINED
 
 #include <chrono>
+#include <ctime>
 #include <fstream>
 #include <functional>
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <mutex>
+#include <sstream>
 #include <string>
 
 #include "../Processors/PluginManager/PluginAPI.h"
@@ -69,6 +72,7 @@ public:
     template <typename... Args>
     void LOGFile (Args&&... args)
     {
+        logFile << "[" << getCurrentTimeIso() << "]";
         (logFile << ... << args);
         logFile << std::endl;
     }
@@ -83,7 +87,8 @@ public:
     }
 
     static std::string getModuleName();
-    static std::string formatModuleName(const std::string& path);
+    static std::string formatModuleName (const std::string& path);
+    static std::string getCurrentTimeIso();
 
 private:
     std::mutex mt;
@@ -93,9 +98,8 @@ private:
     ~OELogger() = default;
 
     // Disable copy and move
-    OELogger(const OELogger&) = delete;
-    OELogger& operator=(const OELogger&) = delete;
-
+    OELogger (const OELogger&) = delete;
+    OELogger& operator= (const OELogger&) = delete;
 };
 
 /* Expose the Logger instance to plugins */
@@ -107,7 +111,7 @@ extern "C" PLUGIN_API OELogger& getOELogger();
 
 /* Log Buffer -- related logs i.e. inside process() method */
 #define LOGB(...) \
-    getOELogger().LOGFile (getOELogger().getModuleName(),"[buffer] ", __VA_ARGS__);
+    getOELogger().LOGFile (getOELogger().getModuleName(), "[buffer] ", __VA_ARGS__);
 
 /* Log Console -- gets printed to the GUI Debug Console */
 #define LOGC(...) \
