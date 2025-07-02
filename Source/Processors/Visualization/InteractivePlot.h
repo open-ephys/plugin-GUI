@@ -69,7 +69,7 @@ struct PLUGIN_API XYRange
 	Represents a line on a 2D plot
 	
 */
-class XYLine
+class PLUGIN_API XYLine
 {
 public:
     /** Creates a line from vectors of x and y values */
