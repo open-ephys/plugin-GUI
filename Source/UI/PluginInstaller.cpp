@@ -1610,9 +1610,16 @@ int PluginInfoComponent::downloadPlugin (const String& plugin, const String& ver
         fs::path tempPluginPath = tempDir.getChildFile ("plugins").getFullPathName().toStdString();
         fs::path destPluginPath = getPluginsDirectory().getFullPathName().toStdString();
 
-        // Copy only if plugin file exists
+        // Copy only if plugin file exists in temp directory
         if (fs::exists (tempPluginPath))
         {
+            // Delete existing plugin DLL file if it exists
+            File dllFile = getPluginsDirectory().getChildFile (dllName);
+            if (dllFile.exists())
+            {
+                dllFile.deleteRecursively();
+            }
+
             const auto copyOptions = fs::copy_options::overwrite_existing
                                      | fs::copy_options::recursive;
             try
@@ -1647,9 +1654,15 @@ int PluginInfoComponent::downloadPlugin (const String& plugin, const String& ver
     // Copy only if shared files exist
     if (fs::exists (tempSharedPath))
     {
+#ifdef JUCE_WINDOWS || JUCE_MAC
+        const auto copyOptions = fs::copy_options::overwrite_existing
+                                 | fs::copy_options::recursive
+                                 | fs::copy_options::copy_symlinks;
+#else
         const auto copyOptions = fs::copy_options::update_existing
                                  | fs::copy_options::recursive
                                  | fs::copy_options::copy_symlinks;
+#endif
         try
         {
             fs::copy (tempSharedPath, destSharedPath, copyOptions);
