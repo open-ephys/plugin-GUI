@@ -1180,9 +1180,11 @@ void PluginInfoComponent::run()
     {
         LOGC ("Download Successful!");
 
+        String pluginVer = pInfo.selectedVersion.substring (0, pInfo.selectedVersion.indexOf ("-API"));
+
         showAlertOnMessageThread (AlertWindow::InfoIcon,
                                   "[Plugin Installer] " + pInfo.displayName,
-                                  pInfo.displayName + " Installed Successfully");
+                                  pInfo.displayName + " v" + pluginVer + " Installed Successfully!");
 
         updateUIOnMessageThread();
     }
@@ -1654,7 +1656,7 @@ int PluginInfoComponent::downloadPlugin (const String& plugin, const String& ver
     // Copy only if shared files exist
     if (fs::exists (tempSharedPath))
     {
-#ifdef JUCE_WINDOWS || JUCE_MAC
+#if JUCE_WINDOWS || JUCE_MAC
         const auto copyOptions = fs::copy_options::overwrite_existing
                                  | fs::copy_options::recursive
                                  | fs::copy_options::copy_symlinks;
@@ -1685,6 +1687,23 @@ int PluginInfoComponent::downloadPlugin (const String& plugin, const String& ver
             LOGE ("Error! Couldn't write to installedPlugins.xml");
             return 5;
         }
+
+#if JUCE_LINUX
+        // Add shared library directory to LD_LIBRARY_PATH before loading plugin
+        setStatusMessage ("Setting up library path...");
+
+        File sharedDir = getSharedDirectory();
+        String currentPath = SystemStats::getEnvironmentVariable ("LD_LIBRARY_PATH", "");
+        String newPath = sharedDir.getFullPathName();
+
+        if (! currentPath.contains (newPath))
+        {
+            if (! currentPath.isEmpty())
+                newPath += ":" + currentPath;
+
+            setenv ("LD_LIBRARY_PATH", newPath.toRawUTF8(), 1);
+        }
+#endif
 
         LOGD ("Loading plugin: ", pInfo.displayName, "from ", pluginDllPath);
 
