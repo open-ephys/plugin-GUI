@@ -72,7 +72,10 @@ jobs:
         cd ../Resources/Installers/Linux/Open-Ephys_Installer
         mkdir -p usr/local/bin/open-ephys-gui
         cp -r ../../../../Build/Release/* usr/local/bin/open-ephys-gui
+        cp ../../../Icons/icon-large.png usr/local/bin/open-ephys-gui
         cp ../../../Scripts/*.rules usr/local/bin/open-ephys-gui
+        mkdir -p usr/share/applications
+        cp open-ephys.desktop usr/share/applications
         cd ..
         dpkg-deb --build Open-Ephys_Installer
         installer=open-ephys-gui-${gui_ver}${version_suffix}.deb

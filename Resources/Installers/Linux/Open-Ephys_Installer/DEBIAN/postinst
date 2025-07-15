@@ -11,6 +11,12 @@ if [ "$1" = configure ]; then
     echo "Creating open-ephys symlink to /usr/local/bin..."
     ln -sf open-ephys-gui/open-ephys open-ephys
 
+    echo "Ensuring desktop entry permissions..."
+    chmod 644 /usr/share/applications/open-ephys.desktop
+    
+    echo "Updating desktop database..."
+    update-desktop-database -q
+
     echo "Installation finished!"
 
 fi

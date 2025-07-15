@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Open Ephys GUI
+Comment=Software for processing, recording, and visualizing multichannel electrophysiology data.
+Exec=/usr/local/bin/open-ephys-gui/open-ephys
+Icon=/usr/local/bin/open-ephys-gui/icon-large.png
+Categories=Science
+Terminal=false
+StartupNotify=true
+Keywords=ephys;electrophysiology;neuroscience;acquisition;visualization;recording;
