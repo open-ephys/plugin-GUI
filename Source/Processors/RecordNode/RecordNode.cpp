@@ -427,16 +427,31 @@ void RecordNode::handleBroadcastMessage (const String& msg, const int64 messageS
     {
         String streamKey = synchronizer.mainStreamKey;
 
-        DataStream* mainStream = getDataStream (streamKey);
+        const DataStream* syncStream = getDataStream (streamKey);
+
+        if (syncStream == nullptr)
+        {
+            syncStream = getDataStreams().getFirst();
+        }
 
         int64 offsetMilliseconds = Time::currentTimeMillis() - messageSystemTime;
 
-        int64 messageSampleNumber = getFirstSampleNumberForBlock (mainStream->getStreamId())
-                                    - int64 (offsetMilliseconds * mainStream->getSampleRate() / 1000.0f);
+        int64 messageSampleNumber = getFirstSampleNumberForBlock (syncStream->getStreamId())
+                                    - int64 (offsetMilliseconds * syncStream->getSampleRate() / 1000.0f);
 
         TextEventPtr event = TextEvent::createTextEvent (getMessageChannel(), messageSampleNumber, msg);
 
-        double ts = synchronizer.convertSampleNumberToTimestamp (synchronizer.mainStreamKey, messageSampleNumber);
+        double ts = -1.0;
+
+        if (synchronizer.mainStreamKey.isEmpty())
+        {
+            ts = getFirstTimestampForBlock (syncStream->getStreamId())
+                 + (messageSampleNumber - getFirstSampleNumberForBlock (syncStream->getStreamId())) / syncStream->getSampleRate();
+        }
+        else
+        {
+            ts = synchronizer.convertSampleNumberToTimestamp (synchronizer.mainStreamKey, messageSampleNumber);
+        }
 
         event->setTimestampInSeconds (ts);
 
