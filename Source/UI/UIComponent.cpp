@@ -820,6 +820,7 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
         case openDefaultConfigWindow:
             result.setInfo ("Load a default config", "Load a default configuration", "General", 0);
             result.addDefaultKeypress ('D', ModifierKeys::commandModifier);
+            result.setActive (! acquisitionStarted && ! getEditorViewport()->isSignalChainLocked());
             break;
 
         case showHelp:
@@ -1152,7 +1153,7 @@ bool UIComponent::perform (const InvocationInfo& info)
             {
                 delete pluginInstaller;
             }
-            
+
             pluginInstaller = new PluginInstaller();
             pluginInstaller->setVisible (true);
             pluginInstaller->toFront (true);
