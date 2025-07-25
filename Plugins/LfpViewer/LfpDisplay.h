@@ -159,10 +159,10 @@ public:
     bool getEventDisplayState (int ttlLine);
 
     /** Returns the number of adjacent channels of each colour */
-    int getColourGrouping();
+    const String& getColourGrouping();
 
     /** Sets the number of adjacent channels of each colour */
-    void setColourGrouping (int i);
+    void setColourGrouping (const String& i);
 
     /** Sets whether a particular channel is enabled */
     void setEnabledState (bool state, int chan, bool updateSavedChans = true);
@@ -325,7 +325,7 @@ private:
 
     int totalHeight;
 
-    int colourGrouping;
+    String colourGrouping;
 
     bool channelsReversed;
     bool channelsOrderedByDepth;

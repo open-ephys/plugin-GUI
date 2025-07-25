@@ -283,6 +283,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     colourGroupings.add ("4");
     colourGroupings.add ("8");
     colourGroupings.add ("16");
+    colourGroupings.add ("By Shank"); // special case for shank grouping
 
     colourGroupingSelection = std::make_unique<ComboBox> ("Colour Grouping");
     for (int i = 0; i < colourGroupings.size(); i++)
@@ -623,7 +624,7 @@ void LfpDisplayOptions::resized()
                                             160,
                                             height);
 
-    colourGroupingSelection->setBounds (mainOptionsBox.items[7].currentBounds.getX(), mainOptionsHeight - 35, 65, height);
+    colourGroupingSelection->setBounds (mainOptionsBox.items[7].currentBounds.getX(), mainOptionsHeight - 35, 95, height);
     colourGroupingLabel->setBounds (colourGroupingSelection->getX(), mainOptionsHeight - 55, 110, 15);
 
     // EXTENDED OPTIONS
@@ -1366,7 +1367,8 @@ void LfpDisplayOptions::comboBoxChanged (ComboBox* cb)
     else if (cb == colourGroupingSelection.get())
     {
         // set colour grouping here
-        lfpDisplay->setColourGrouping (colourGroupings[cb->getSelectedId() - 1].getIntValue()); // so that channel colours get re-assigned
+        String selectedGrouping = colourGroupings[cb->getSelectedId() - 1];
+        lfpDisplay->setColourGrouping (selectedGrouping); // so that channel colours get re-assigned
         canvasSplit->redraw();
     }
     else if (cb == triggerSourceSelection.get())
@@ -1567,7 +1569,7 @@ void LfpDisplayOptions::loadParameters (XmlElement* xml)
 
             // COLOUR GROUPING
             colourGroupingSelection->setSelectedId (xmlNode->getIntAttribute ("colourGrouping", 1), dontSendNotification);
-            lfpDisplay->setColourGrouping (colourGroupings[colourGroupingSelection->getSelectedId() - 1].getIntValue());
+            lfpDisplay->setColourGrouping (colourGroupings[colourGroupingSelection->getSelectedId() - 1]);
 
             // SPIKE RASTER
             String spikeRasterThresh = xmlNode->getStringAttribute ("spikeRaster", "OFF");

@@ -84,7 +84,7 @@ LfpDisplay::LfpDisplay (LfpDisplaySplitter* c, Viewport* v)
 
     activeColourScheme = 0;
     totalHeight = 0;
-    colourGrouping = 1;
+    colourGrouping = "1";
 
     //hand-built palette (used for event channels)
     channelColours.add (Colour (224, 185, 36));
@@ -132,15 +132,26 @@ int LfpDisplay::getNumChannels()
     return numChans;
 }
 
-int LfpDisplay::getColourGrouping()
+const String& LfpDisplay::getColourGrouping()
 {
     return colourGrouping;
 }
 
-void LfpDisplay::setColourGrouping (int i)
+void LfpDisplay::setColourGrouping (const String& grouping)
 {
-    colourGrouping = i;
-    getColourSchemePtr()->setColourGrouping (i);
+    colourGrouping = grouping;
+
+    if (grouping.equalsIgnoreCase ("By Shank"))
+    {
+        // Set colour grouping to 1 to allow shank grouping
+        // by using the shank index to determine the colour
+        getColourSchemePtr()->setColourGrouping (1);
+    }
+    else
+    {
+        getColourSchemePtr()->setColourGrouping (grouping.getIntValue());
+    }
+
     setColours(); // so that channel colours get re-assigned
 }
 
@@ -221,14 +232,41 @@ void LfpDisplay::setColours()
     {
         for (int i = 0; i < drawableChannels.size(); i++)
         {
-            drawableChannels[i].channel->setColour (getColourSchemePtr()->getColourForIndex (i));
-            drawableChannels[i].channelInfo->setColour (getColourSchemePtr()->getColourForIndex (i));
+            if (colourGrouping.equalsIgnoreCase ("By Shank"))
+            {
+                /*
+                depth ranges of electrodes for multishank configurations:
+                Shank 1: depth < 10000
+                Shank 2: 10000 ≤ depth < 20000
+                Shank 3: 20000 ≤ depth < 30000
+                Shank 4: depth ≥ 30000
+                */
+                int depth = drawableChannels[i].channel->getDepth();
+                int colourIdx = depth < 10000 ? 0 : depth < 20000 ? 2 : depth < 30000 ? 4 : 6;
+                drawableChannels[i].channel->setColour (getColourSchemePtr()->getColourForIndex (colourIdx));
+                drawableChannels[i].channelInfo->setColour (getColourSchemePtr()->getColourForIndex (colourIdx));
+            }
+            else
+            {
+                drawableChannels[i].channel->setColour (getColourSchemePtr()->getColourForIndex (i));
+                drawableChannels[i].channelInfo->setColour (getColourSchemePtr()->getColourForIndex (i));
+            }
         }
     }
     else
     {
-        drawableChannels[0].channel->setColour (getColourSchemePtr()->getColourForIndex (singleChan));
-        drawableChannels[0].channelInfo->setColour (getColourSchemePtr()->getColourForIndex (singleChan));
+        if (colourGrouping.equalsIgnoreCase ("By Shank"))
+        {
+            int depth = drawableChannels[0].channel->getDepth();
+            int colourIdx = depth < 10000 ? 0 : depth < 20000 ? 2 : depth < 30000 ? 4 : 6;
+            drawableChannels[0].channel->setColour (getColourSchemePtr()->getColourForIndex (colourIdx));
+            drawableChannels[0].channelInfo->setColour (getColourSchemePtr()->getColourForIndex (colourIdx));
+        }
+        else
+        {
+            drawableChannels[0].channel->setColour (getColourSchemePtr()->getColourForIndex (singleChan));
+            drawableChannels[0].channelInfo->setColour (getColourSchemePtr()->getColourForIndex (singleChan));
+        }
     }
 
     if (displayIsPaused)
