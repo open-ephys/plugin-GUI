@@ -482,14 +482,29 @@ public:
     /* Get the text contents of this event*/
     String getText() const;
 
-    /* Create a TextEvent*/
+    /** Create a TextEvent.
+        @param channelInfo              The EventChannel object that holds the channel information.
+        @param sampleNumberOrSystemTime Text events sent between processors should include the system time (in milliseconds) when they occurred;
+                                        the Record Node uses internal text events aligned to the sample number of the main stream.
+        @param text                     The text contents of the event.
+
+        @return TextEventPtr to be used when adding the event using GenericProcessor::addEvent()
+    */
     static TextEventPtr createTextEvent (const EventChannel* channelInfo,
-                                         int64 sampleNumber,
+                                         int64 sampleNumberOrSystemTime,
                                          const String& text);
 
-    /* Create a TextEvent with metadata*/
+    /** Create a TextEvent with metadata
+        @param channelInfo              The EventChannel object that holds the channel information.
+        @param sampleNumberOrSystemTime Text events sent between processors should include the system time (in milliseconds) when they occurred;
+                                        the Record Node uses internal text events aligned to the sample number of the main stream.
+        @param text                     The text contents of the event.
+        @param metaData                 Metadata to be included with the event.
+
+        @return TextEventPtr to be used when adding the event using GenericProcessor::addEvent()
+    */
     static TextEventPtr createTextEvent (const EventChannel* channelInfo,
-                                         int64 sampleNumber,
+                                         int64 sampleNumberOrSystemTime,
                                          const String& text,
                                          const MetadataValueArray& metaData);
 
