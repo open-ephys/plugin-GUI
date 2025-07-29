@@ -112,6 +112,9 @@ void FileReader::parameterValueChanged (Parameter* p)
     }
     else if (p->getName() == "start_time")
     {
+        if (! input)
+            return;
+
         TimeParameter* tp = static_cast<TimeParameter*> (p);
         startSample = millisecondsToSamples (tp->getTimeValue()->getTimeInMilliseconds());
 
@@ -122,6 +125,9 @@ void FileReader::parameterValueChanged (Parameter* p)
     }
     else if (p->getName() == "end_time")
     {
+        if (! input)
+            return;
+
         TimeParameter* tp = static_cast<TimeParameter*> (p);
         stopSample = millisecondsToSamples (tp->getTimeValue()->getTimeInMilliseconds());
         
@@ -193,6 +199,12 @@ void FileReader::initialize (bool signalChainIsLoading)
 
     if (isEnabled)
         return;
+
+    if (! defaultFile.exists())
+    {
+        CoreServices::sendStatusMessage ("File Reader: default file not found");
+        return;
+    }
 
     //setFile (defaultFile.getFullPathName(), false);
     input.reset (createBuiltInFileSource (0));

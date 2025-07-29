@@ -986,7 +986,7 @@ ProjectionAxes::ProjectionAxes (SpikeDisplayCanvas* canvas,
     n2ProjIdx (proj, &ampDim1, &ampDim2);
 
     channelNameLabel = std::make_unique<Label>();
-    channelNameLabel->setFont (13);
+    channelNameLabel->setFont (FontOptions (13.0f));
     channelNameLabel->setJustificationType (Justification::left);
     channelNameLabel->setColour (Label::textColourId, Colours::white.withAlpha (0.4f));
     channelNameLabel->setText (channelName, dontSendNotification);
