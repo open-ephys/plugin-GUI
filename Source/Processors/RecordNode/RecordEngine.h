@@ -145,6 +145,9 @@ protected:
     /** Gets the number of recorded data streams */
     int getNumRecordedDataStreams() const;
 
+    /** Gets all the data streams, regardless of whether they have any recordable channels */
+    Array<const DataStream*> getDataStreams() const;
+
     /** Gets the number of recorded continuous channels */
     int getNumRecordedContinuousChannels() const;
 
