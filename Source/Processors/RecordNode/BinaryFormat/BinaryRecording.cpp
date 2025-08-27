@@ -672,7 +672,7 @@ void BinaryRecording::writeSpike (int electrodeIndex, const Spike* spike)
     increaseEventCounts (rec);
 }
 
-void BinaryRecording::writeTimestampSyncText (uint64 streamId, int64 sampleNumber, float sourceSampleRate, String text)
+void BinaryRecording::writeTimestampSyncText(DataStream* stream, int64 sampleNumber, double timestamp, String text) 
 {
     if (! m_syncTextFile)
         return;
@@ -680,11 +680,10 @@ void BinaryRecording::writeTimestampSyncText (uint64 streamId, int64 sampleNumbe
     String syncString = text + ": " + String (sampleNumber);
     LOGD (syncString);
 
-    int64 fsn = firstSampleNumber[streamId];
-
-    if(streamId > 0)
+    if(stream != nullptr){
+        int64 fsn = firstSampleNumber[stream->getStreamId()];
         jassert (fsn == sampleNumber);
-
+    }
     m_syncTextFile->writeText (syncString + "\r\n", false, false, nullptr);
     
     m_syncTextFile->flush();

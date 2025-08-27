@@ -240,7 +240,19 @@ void RecordThread::writeData (const AudioBuffer<float>& dataBuffer,
         if (SystemEvent::getBaseType (event) == EventBase::Type::SYSTEM_EVENT)
         {
             String syncText = SystemEvent::getSyncText (event);
-            m_engine->writeTimestampSyncText (SystemEvent::getStreamId (event), SystemEvent::getSampleNumber (event), 0.0f, SystemEvent::getSyncText (event));
+            auto streamId = SystemEvent::getStreamId (event);
+            DataStream* stream = recordNode->getDataStream(streamId);
+            int64 sampleNumber = SystemEvent::getSampleNumber (event);
+            
+            double timestamp;
+            if (stream == nullptr){
+                timestamp = 0;
+            } else if(recordNode->synchronizer.streamGeneratesTimestamps (stream->getKey())){
+                timestamp = static_cast<double>(sampleNumber) / stream->getSampleRate();
+            } else {
+                timestamp = recordNode->synchronizer.convertSampleNumberToTimestamp (stream->getKey(), sampleNumber);
+            }   
+            m_engine->writeTimestampSyncText (stream, sampleNumber, timestamp, SystemEvent::getSyncText (event));
         }
         else
         {

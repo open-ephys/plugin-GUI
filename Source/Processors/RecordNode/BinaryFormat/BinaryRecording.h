@@ -69,7 +69,7 @@ public:
     void writeSpike (int electrodeIndex, const Spike* spike);
 
     /** Writes timestamp sync texts */
-    void writeTimestampSyncText (uint64 streamId, int64 sampleNumber, float sampleRate, String text);
+    void writeTimestampSyncText (DataStream* stream, int64 sampleNumber, double timestamp, String text);
 
     /** Sets an engine parameter (in this case TTL word writing bool) */
     void setParameter (EngineParameter& parameter);

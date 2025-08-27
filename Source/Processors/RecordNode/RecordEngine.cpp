@@ -111,6 +111,11 @@ int RecordEngine::getLocalIndex (int channel) const
     return localChannelMap[channel];
 }
 
+Array<const DataStream*> RecordEngine::getDataStreams() const
+{
+    return recordNode->getDataStreams();
+}
+
 int RecordEngine::getNumRecordedDataStreams() const
 {
     return recordNode->getTotalRecordedStreams();

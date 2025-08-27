@@ -104,8 +104,8 @@ public:
     /** Write a spike to disk */
     virtual void writeSpike (int electrodeIndex, const Spike* spike) = 0;
 
-    /** Handle the timestamp sync text messages*/
-    virtual void writeTimestampSyncText (uint64 streamId, int64 timestamp, float sourceSampleRate, String text) = 0;
+    /** Handle the timestamp sync text messages. */
+    virtual void writeTimestampSyncText (DataStream* stream, int64 sampleNumber, double timestamp, String text) = 0;
 
     // ------------------------------------------------------------
     //                   VIRTUAL METHODS
@@ -144,6 +144,9 @@ protected:
 
     /** Gets the number of recorded data streams */
     int getNumRecordedDataStreams() const;
+
+    /** Gets all the data streams, regardless of whether they have any recordable channels */
+    Array<const DataStream*> getDataStreams() const;
 
     /** Gets the number of recorded continuous channels */
     int getNumRecordedContinuousChannels() const;
