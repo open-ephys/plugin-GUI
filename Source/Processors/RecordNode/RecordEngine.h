@@ -104,8 +104,8 @@ public:
     /** Write a spike to disk */
     virtual void writeSpike (int electrodeIndex, const Spike* spike) = 0;
 
-    /** Handle the timestamp sync text messages*/
-    virtual void writeTimestampSyncText (uint64 streamId, int64 timestamp, float sourceSampleRate, String text) = 0;
+    /** Handle the timestamp sync text messages. */
+    virtual void writeTimestampSyncText (DataStream* stream, int64 sampleNumber, double timestamp, String text) = 0;
 
     // ------------------------------------------------------------
     //                   VIRTUAL METHODS
