@@ -306,7 +306,6 @@ void BinaryFileSource::fillRecordInfo()
 
 void BinaryFileSource::processEventData (EventInfo& eventInfo, int64 start, int64 stop)
 {
-    const ScopedLock sl (m_readLock);
     int64 local_start = start % getActiveNumSamples();
     int64 local_stop = stop % getActiveNumSamples();
 
