@@ -116,9 +116,6 @@ public:
     /** Writes TEXT messages sent from the MessageCenter to disk */
     void handleBroadcastMessage (const String& msg, const int64 messageSystemTime) override;
 
-    /** Update DataQueue block size when Audio Settings buffer size changes */
-    void updateBlockSize (int newBlockSize);
-
     /** Creates a custom editor */
     AudioProcessorEditor* createEditor() override;
 

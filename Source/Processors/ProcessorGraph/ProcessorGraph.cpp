@@ -1420,15 +1420,6 @@ void ProcessorGraph::connectProcessors (GenericProcessor* source, GenericProcess
         addConnection (Connection (cs, cd));
     }
 
-    //3. Ensure the RecordNode block size matches the buffer size of Audio Settings
-    if (dest->isRecordNode())
-    {
-        AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
-        AudioDeviceManager::AudioDeviceSetup ads;
-        adm.getAudioDeviceSetup (ads);
-        int blockSize = ads.bufferSize;
-        ((RecordNode*) dest)->updateBlockSize (blockSize);
-    }
 }
 
 void ProcessorGraph::connectAudioMonitorToAudioNode (GenericProcessor* source)

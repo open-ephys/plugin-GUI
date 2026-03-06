@@ -459,17 +459,6 @@ void RecordNode::handleBroadcastMessage (const String& msg, const int64 messageS
     }
 }
 
-void RecordNode::updateBlockSize (int newBlockSize)
-{
-    // Block size change requires recreating all queues
-    // This will happen on next startRecording() since queues are created per-stream there
-    // Just clear existing queues to ensure fresh creation
-    if (dataQueues.size() > 0 && dataQueues[0]->getBlockSize() != newBlockSize)
-    {
-        dataQueues.clear();
-    }
-}
-
 String RecordNode::getEngineId()
 {
     return recordEngine->getEngineId();
