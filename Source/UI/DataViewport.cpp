@@ -160,6 +160,7 @@ DraggableTabComponent::DraggableTabComponent (DataViewport* parent_) : TabbedCom
     setTabBarDepth (28);
     setOutline (0);
     setIndent (5); // gap to leave around the edge of the content component
+    getTabbedButtonBar().setMinimumTabScaleFactor (0.5f);
 
     Path closeButtonPath;
     closeButtonPath.addLineSegment (Line<float> (0, 0, 12, 12), 1.0f);
@@ -512,12 +513,10 @@ void DraggableTabComponent::takeComponentSnapshot (int tabIndex, const String& t
     }
 }
 
-AddTabbedComponentButton::AddTabbedComponentButton()
-    : Button ("Add Tabbed Component")
+AddTabbedComponentButton::AddTabbedComponentButton (SplitType splitType)
+    : Button ("Add Tabbed Component"), type (splitType)
 {
     path.addRoundedRectangle (1, 1, 18, 18, 3.0f);
-    path.addLineSegment (Line<float> (9, 1, 9, 19), 0.0f);
-    path.addTriangle (12, 7, 12, 13, 17, 10);
 }
 
 AddTabbedComponentButton::~AddTabbedComponentButton() = default;
@@ -538,11 +537,21 @@ void AddTabbedComponentButton::paintButton (Graphics& g, bool isMouseOverButton,
         g.setColour (btnColour.withAlpha (0.9f));
     }
 
-    g.strokePath (path, PathStrokeType (1.0f));
+    Path splitPath;
+    if (type == SplitType::Horizontal)
+    {
+        g.drawRoundedRectangle (3, 3, getWidth() - 6, getHeight() - 6, 2, 1);
+        g.fillRect ((float) (getWidth() / 2) - 0.5f, 3.0f, 1.0f, (float) (getHeight() - 6));
+    }
+    else
+    {
+        g.drawRoundedRectangle (3, 3, getWidth() - 6, getHeight() - 6, 2, 1);
+        g.fillRect (3.0f, (float) (getHeight() / 2) - 0.5f, (float) (getWidth() - 6), 1.0f);
+    }
 }
 
-TabbedComponentResizerBar::TabbedComponentResizerBar (StretchableLayoutManager* layoutToUse)
-    : StretchableLayoutResizerBar (layoutToUse, 1, true), layout (layoutToUse)
+TabbedComponentResizerBar::TabbedComponentResizerBar (StretchableLayoutManager* layoutToUse, bool isVerticalBar)
+    : StretchableLayoutResizerBar (layoutToUse, 1, isVerticalBar), layout (layoutToUse), isVertical (isVerticalBar)
 {
     dragHandle = Drawable::parseSVGPath (
         "M19.63,11.31,16.5,9.17a1,1,0,0,0-1.5.69v4.28a1,1,0,0,0,1.5.69l3.13-2.14A.82.82,0,0,0,19.63,11.31ZM4.37,"
@@ -553,8 +562,8 @@ TabbedComponentResizerBar::~TabbedComponentResizerBar() = default;
 
 void TabbedComponentResizerBar::paint (Graphics& g)
 {
-    int w = getWidth();
-    int h = getHeight();
+    const int w = getWidth();
+    const int h = getHeight();
 
     if (isMouseButtonDown())
         g.setColour (findColour (ThemeColours::highlightedFill));
@@ -563,16 +572,30 @@ void TabbedComponentResizerBar::paint (Graphics& g)
     else
         g.setColour (findColour (ThemeColours::defaultFill).withAlpha (0.6f));
 
-    g.fillRect ((w / 2) - 1, 0, 2, h);
-
-    g.fillPath (dragHandle, dragHandle.getTransformToScaleToFit (0, (h / 2) - (w / 2), w, w, true));
+    if (isVertical)
+    {
+        g.fillRect ((w / 2) - 1, 0, 2, h);
+        g.fillPath (dragHandle, dragHandle.getTransformToScaleToFit (0, (h / 2) - (w / 2), w, w, true));
+    }
+    else
+    {
+        g.fillRect (0, (h / 2) - 1, w, 2);
+        g.fillPath (dragHandle, dragHandle.getTransformToScaleToFit ((w / 2) - (h / 2), 0, h, h, true).rotated (MathConstants<float>::halfPi, w / 2.0f, h / 2.0f));
+    }
 }
 
 void TabbedComponentResizerBar::mouseDoubleClick (const MouseEvent& event)
 {
     if (Component* parent = getParentComponent())
     {
-        layout->setItemPosition (1, (parent->getWidth() / 2) - (getWidth() / 2));
+        if (isVertical)
+        {
+            layout->setItemPosition (1, (parent->getWidth() / 2) - (getWidth() / 2));
+        }
+        else
+        {
+            layout->setItemPosition (1, (parent->getHeight() / 2) - (getHeight() / 2));
+        }
         parent->resized();
     }
 }
@@ -583,40 +606,44 @@ DataViewport::DataViewport() : shutdown (false)
     addAndMakeVisible (c);
     draggableTabComponents.add (c);
 
-    addTabbedComponentButton = std::make_unique<AddTabbedComponentButton>();
-    addAndMakeVisible (addTabbedComponentButton.get());
-    addTabbedComponentButton->addListener (this);
+    addHorizontalSplitButton = std::make_unique<AddTabbedComponentButton> (AddTabbedComponentButton::SplitType::Horizontal);
+    addAndMakeVisible (addHorizontalSplitButton.get());
+    addHorizontalSplitButton->addListener (this);
 
-    tabbedComponentResizer = std::make_unique<TabbedComponentResizerBar> (&tabbedComponentLayout);
-    addChildComponent (tabbedComponentResizer.get());
+    addVerticalSplitButton = std::make_unique<AddTabbedComponentButton> (AddTabbedComponentButton::SplitType::Vertical);
+    addAndMakeVisible (addVerticalSplitButton.get());
+    addVerticalSplitButton->addListener (this);
+
+    recreateResizerBar();
 }
 
 void DataViewport::resized()
 {
-    int width = getWidth() / draggableTabComponents.size();
+    const int numComponents = draggableTabComponents.size();
+    const int width = numComponents > 0 ? getWidth() / numComponents : getWidth();
 
-    if (draggableTabComponents.size() == 1)
-        draggableTabComponents[0]->setBounds (0, 0, width, getHeight());
-    else if (draggableTabComponents.size() == 2)
+    if (numComponents == 1)
     {
+        draggableTabComponents[0]->setBounds (0, 0, width, getHeight());
+        tabbedComponentResizer->setVisible (false);
+    }
+    else if (numComponents == 2)
+    {
+        tabbedComponentResizer->setVisible (true);
         Component* comps[] = { draggableTabComponents[0], tabbedComponentResizer.get(), draggableTabComponents[1] };
-        tabbedComponentLayout.layOutComponents (comps, 3, 0, 0, getWidth(), getHeight(), false, true);
+        const bool layOutVertically = splitOrientation == SplitOrientation::Vertical;
+        tabbedComponentLayout.layOutComponents (comps, 3, 0, 0, getWidth(), getHeight(), layOutVertically, true);
     }
     else
     {
-        for (int i = 0; i < draggableTabComponents.size(); i++)
+        tabbedComponentResizer->setVisible (false);
+        for (int i = 0; i < numComponents; i++)
         {
             draggableTabComponents[i]->setBounds (width * i, 0, width, getHeight());
         }
     }
 
-    addTabbedComponentButton->setBounds (getWidth() - 24, getHeight() - 26, 20, 20);
-    addTabbedComponentButton->toFront (false);
-
-    if (draggableTabComponents[activeTabbedComponent]->getNumTabs() > 1 && activeTabbedComponent < 2)
-        addTabbedComponentButton->setVisible (true);
-    else
-        addTabbedComponentButton->setVisible (false);
+    updateControlButtons();
 }
 
 void DataViewport::addTab (String name,
@@ -654,26 +681,13 @@ void DataViewport::removeTab (int nodeId, bool sendNotification)
 
 void DataViewport::buttonClicked (Button* button)
 {
-    if (button == addTabbedComponentButton.get())
+    if (button == addHorizontalSplitButton.get())
     {
-        DraggableTabComponent* d = new DraggableTabComponent (this);
-        addAndMakeVisible (d);
-        draggableTabComponents.add (d);
-
-        if (draggableTabComponents.size() == 2)
-        {
-            tabbedComponentResizer->setVisible (true);
-
-            tabbedComponentLayout.setItemLayout (0, -0.25, -0.75, -0.5);
-            tabbedComponentLayout.setItemLayout (1, 12, 12, 12);
-            tabbedComponentLayout.setItemLayout (2, -0.25, -0.75, -0.5);
-        }
-
-        resized();
-
-        activeTabbedComponent++;
-
-        addTabbedComponentButton->setVisible (false);
+        handleSplit (SplitOrientation::Horizontal);
+    }
+    else if (button == addVerticalSplitButton.get())
+    {
+        handleSplit (SplitOrientation::Vertical);
     }
 }
 
@@ -708,11 +722,7 @@ void DataViewport::removeTabbedComponent (DraggableTabComponent* draggableTabCom
 
         if (draggableTabComponents.size() == 2)
         {
-            tabbedComponentResizer->setVisible (true);
-
-            tabbedComponentLayout.setItemLayout (0, -0.25, -0.75, -0.5);
-            tabbedComponentLayout.setItemLayout (1, 12, 12, 12);
-            tabbedComponentLayout.setItemLayout (2, -0.25, -0.75, -0.5);
+            configureLayoutForTwoComponents();
         }
         else
         {
@@ -726,6 +736,8 @@ void DataViewport::removeTabbedComponent (DraggableTabComponent* draggableTabCom
 void DataViewport::saveStateToXml (XmlElement* xml)
 {
     XmlElement* dataViewportState = xml->createNewChildElement ("DATAVIEWPORT");
+
+    dataViewportState->setAttribute ("splitOrientation", splitOrientation == SplitOrientation::Vertical ? "vertical" : "horizontal");
 
     // save tab order in each draggableTabComponent
     for (int i = 0; i < draggableTabComponents.size(); i++)
@@ -753,6 +765,9 @@ void DataViewport::loadStateFromXml (XmlElement* xml)
     {
         LOGD ("Loading DataViewport state from XML...");
 
+        const auto orientationString = dvXml->getStringAttribute ("splitOrientation", "horizontal");
+        setSplitOrientation (orientationString.equalsIgnoreCase ("vertical") ? SplitOrientation::Vertical : SplitOrientation::Horizontal);
+
         // remove info, graph, and console tabs
         for (int i = 0; i < 3; i++)
             removeTab (i);
@@ -773,12 +788,8 @@ void DataViewport::loadStateFromXml (XmlElement* xml)
                         DraggableTabComponent* d = new DraggableTabComponent (this);
                         addAndMakeVisible (d);
                         draggableTabComponents.add (d);
-
-                        tabbedComponentResizer->setVisible (draggableTabComponents.size() == 2);
-
-                        tabbedComponentLayout.setItemLayout (0, -0.25, -0.75, -0.5);
-                        tabbedComponentLayout.setItemLayout (1, 12, 12, 12);
-                        tabbedComponentLayout.setItemLayout (2, -0.25, -0.75, -0.5);
+                        if (draggableTabComponents.size() == 2)
+                            configureLayoutForTwoComponents();
                     }
 
                     activeTabbedComponent = index;
@@ -837,4 +848,69 @@ void DataViewport::loadStateFromXml (XmlElement* xml)
 void DataViewport::disableConnectionToEditorViewport()
 {
     shutdown = true;
+}
+
+void DataViewport::recreateResizerBar()
+{
+    tabbedComponentResizer = std::make_unique<TabbedComponentResizerBar> (&tabbedComponentLayout, splitOrientation != SplitOrientation::Vertical);
+    addChildComponent (tabbedComponentResizer.get());
+}
+
+void DataViewport::configureLayoutForTwoComponents()
+{
+    tabbedComponentLayout.clearAllItems();
+    tabbedComponentResizer->setVisible (true);
+    tabbedComponentLayout.setItemLayout (0, -0.25, -0.75, -0.5);
+    tabbedComponentLayout.setItemLayout (1, 16, 16, 16);
+    tabbedComponentLayout.setItemLayout (2, -0.25, -0.75, -0.5);
+}
+
+void DataViewport::updateControlButtons()
+{
+    const int buttonSize = 20;
+    const int padding = 4;
+    const int addButtonX = getWidth() - buttonSize - padding;
+
+    const bool hasActiveComponent = activeTabbedComponent < draggableTabComponents.size();
+    const bool canAddSplit = hasActiveComponent && draggableTabComponents[activeTabbedComponent]->getNumTabs() > 1 && activeTabbedComponent < 2;
+
+    const int vertY = getHeight() - buttonSize - padding;
+    const int horizY = vertY - buttonSize - padding;
+
+    addHorizontalSplitButton->setBounds (addButtonX, horizY, buttonSize, buttonSize);
+    addVerticalSplitButton->setBounds (addButtonX, vertY, buttonSize, buttonSize);
+
+    addHorizontalSplitButton->toFront (false);
+    addVerticalSplitButton->toFront (false);
+}
+
+void DataViewport::setSplitOrientation (SplitOrientation orientation)
+{
+    splitOrientation = orientation;
+    recreateResizerBar();
+    if (draggableTabComponents.size() == 2)
+        configureLayoutForTwoComponents();
+    else
+        tabbedComponentResizer->setVisible (false);
+    resized();
+}
+
+void DataViewport::handleSplit (SplitOrientation desiredOrientation)
+{
+    // Ensure a second component exists
+    if (draggableTabComponents.size() < 2)
+    {
+        DraggableTabComponent* d = new DraggableTabComponent (this);
+        addAndMakeVisible (d);
+        draggableTabComponents.add (d);
+
+        activeTabbedComponent++;
+        setSplitOrientation (desiredOrientation);
+    }
+    else if (splitOrientation != desiredOrientation)
+    {
+        setSplitOrientation (desiredOrientation);
+    }
+
+    resized();
 }

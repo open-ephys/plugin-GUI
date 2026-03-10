@@ -206,8 +206,14 @@ private:
 class AddTabbedComponentButton : public juce::Button
 {
 public:
+    enum class SplitType
+    {
+        Horizontal,
+        Vertical
+    };
+
     /** Constructor */
-    AddTabbedComponentButton();
+    AddTabbedComponentButton (SplitType splitType);
 
     /** Destructor */
     ~AddTabbedComponentButton();
@@ -215,7 +221,10 @@ public:
     /** Renders the button */
     void paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown) override;
 
+    SplitType getSplitType() const { return type; }
+
 private:
+    SplitType type;
     Path path;
 };
 
@@ -229,7 +238,7 @@ class TabbedComponentResizerBar : public StretchableLayoutResizerBar
 {
 public:
     /** Constructor */
-    TabbedComponentResizerBar (StretchableLayoutManager* layoutToUse);
+    TabbedComponentResizerBar (StretchableLayoutManager* layoutToUse, bool isVerticalBar);
 
     /** Destructor */
     ~TabbedComponentResizerBar();
@@ -242,6 +251,8 @@ public:
 
 private:
     StretchableLayoutManager* layout;
+
+    bool isVertical;
 
     Path dragHandle;
 };
@@ -263,6 +274,12 @@ class TESTABLE DataViewport : public Component,
                               public Button::Listener
 {
 public:
+    enum class SplitOrientation
+    {
+        Horizontal,
+        Vertical
+    };
+
     /** Constructor*/
     DataViewport();
 
@@ -305,6 +322,9 @@ public:
     /** Removes an empty TabbedComponent */
     void removeTabbedComponent (DraggableTabComponent* draggableTabComponent);
 
+    void setSplitOrientation (SplitOrientation orientation);
+    SplitOrientation getSplitOrientation() const { return splitOrientation; }
+
 private:
     /** Maps original tab indices to their location within the DataViewport. */
     //Array<int> tabArray;
@@ -321,8 +341,9 @@ private:
     /** Tabbed sub-components **/
     OwnedArray<DraggableTabComponent> draggableTabComponents;
 
-    /** Button to add a tab component */
-    std::unique_ptr<AddTabbedComponentButton> addTabbedComponentButton;
+    /** Buttons to add splits with explicit orientation */
+    std::unique_ptr<AddTabbedComponentButton> addHorizontalSplitButton;
+    std::unique_ptr<AddTabbedComponentButton> addVerticalSplitButton;
 
     //int tabIndex;
 
@@ -331,6 +352,20 @@ private:
 
     /** True when shutting down */
     bool shutdown;
+
+    SplitOrientation splitOrientation = SplitOrientation::Horizontal;
+
+    /** Recreates the resizer bar according to the current split orientation */
+    void recreateResizerBar();
+
+    /** Configures the layout for two tabbed components */
+    void configureLayoutForTwoComponents();
+
+    /** Updates the position of the control buttons */
+    void updateControlButtons();
+
+    /** Handles adding/modifying a split with the desired orientation */
+    void handleSplit (SplitOrientation desiredOrientation);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataViewport);
 };
