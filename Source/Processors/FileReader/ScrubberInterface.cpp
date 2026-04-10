@@ -134,6 +134,18 @@ double FullTimeline::getIntervalDurationInSeconds()
     return ((stopMs - startMs) / 1000.0f);
 }
 
+void FullTimeline::mouseMove (const MouseEvent& event)
+{
+    if (event.x >= intervalStartPosition && event.x <= intervalStartPosition + intervalWidth)
+    {
+        setMouseCursor (MouseCursor::DraggingHandCursor);
+    }
+    else
+    {
+        setMouseCursor (MouseCursor::NormalCursor);
+    }
+}
+
 void FullTimeline::mouseDown (const MouseEvent& event)
 {
     if (event.x >= intervalStartPosition && event.x <= intervalStartPosition + intervalWidth)
@@ -221,18 +233,29 @@ void ZoomTimeline::paint (Graphics& g)
     /* Draw the current playback position */
     g.setColour (findColour (ThemeColours::defaultText));
     float timelinePos = (float) (fileReader->getPlayheadPosition() - startSampleNumber) / (stopSampleNumber - startSampleNumber) * getWidth();
-    if (0 < timelinePos < sliderPosition + sliderWidth)
+    if (0 < timelinePos && timelinePos < getWidth())
     {
         g.setOpacity (1.0f);
         g.fillRoundedRectangle (timelinePos, 0, 1, this->getHeight(), 0.2);
     }
 
     /* Draw the scrubber interval */
-    g.setColour (findColour (ThemeColours::componentParentBackground));
+    g.setColour (findColour (ThemeColours::outline));
     g.fillRoundedRectangle (sliderPosition, 0, sliderWidth, this->getHeight(), 2);
     g.setColour (findColour (ThemeColours::componentBackground));
-    g.setOpacity (0.8f);
     g.fillRoundedRectangle (sliderPosition + 1, 1, sliderWidth - 2, this->getHeight() - 2, 2);
+}
+
+void ZoomTimeline::mouseMove (const MouseEvent& event)
+{
+    if (event.x > sliderPosition && event.x < sliderPosition + sliderWidth)
+    {
+        setMouseCursor (MouseCursor::DraggingHandCursor);
+    }
+    else
+    {
+        setMouseCursor (MouseCursor::NormalCursor);
+    }
 }
 
 void ZoomTimeline::mouseDown (const MouseEvent& event)

@@ -86,6 +86,7 @@ private:
     bool intervalIsSelected;
 
     void paint (Graphics& g) override;
+    void mouseMove (const MouseEvent& event) override;
     void mouseDown (const MouseEvent& event) override;
     void mouseDrag (const MouseEvent& event) override;
     void mouseUp (const MouseEvent& event) override;
@@ -116,6 +117,7 @@ private:
     bool sliderIsSelected;
 
     void paint (Graphics& g) override;
+    void mouseMove (const MouseEvent& event) override;
     void mouseDown (const MouseEvent& event) override;
     void mouseDrag (const MouseEvent& event) override;
     void mouseUp (const MouseEvent& event) override;
