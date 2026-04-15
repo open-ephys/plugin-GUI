@@ -67,6 +67,7 @@ private:
     float lastUpdateTime;
     int64 lastFreeSpace;
     float dataRate;
+    float smoothedDataRate;
     float recordingTimeLeftInSeconds;
 
     std::vector<DiskSpaceListener*> listeners;

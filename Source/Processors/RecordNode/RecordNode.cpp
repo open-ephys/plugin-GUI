@@ -920,6 +920,7 @@ void RecordNode::startRecording()
 
     recordThread->setFileComponents (rootFolder, experimentNumber, recordingNumber);
     recordThread->startThread (Thread::Priority::highest);
+    diskSpaceChecker->reset();
 
     if (settingsNeeded)
     {

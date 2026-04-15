@@ -29,6 +29,7 @@ DiskSpaceChecker::DiskSpaceChecker (RecordNode* rn)
       lastUpdateTime (0),
       lastFreeSpace (0),
       dataRate (0),
+      smoothedDataRate (0),
       recordingTimeLeftInSeconds (0)
 {
     startTimerHz (1);
@@ -43,6 +44,7 @@ void DiskSpaceChecker::reset()
 {
     lastUpdateTime = Time::getMillisecondCounterHiRes();
     lastFreeSpace = recordNode->getDataDirectory().getBytesFreeOnVolume();
+    smoothedDataRate = 0.0f;
 }
 
 void DiskSpaceChecker::addListener (DiskSpaceListener* listener)
@@ -94,18 +96,27 @@ void DiskSpaceChecker::checkDirectoryAndDiskSpace()
             lastUpdateTime = currentTime;
             lastFreeSpace = bytesFree;
 
-            recordingTimeLeftInSeconds = bytesFree / dataRate / 1000.0f;
+            // Smooth with an exponential moving average to prevent a single OS write-back
+            // cache flush from transiently inflating dataRate and causing a false positive.
+            // Seed the EMA with the first positive measurement so it is useful immediately.
+            static constexpr float alpha = 0.25f;
+            if (smoothedDataRate <= 0.0f)
+                smoothedDataRate = (dataRate > 0.0f) ? dataRate : 0.0f;
+            else if (dataRate > 0.0f)
+                smoothedDataRate = alpha * dataRate + (1.0f - alpha) * smoothedDataRate;
 
-            // Stop recording and show warning when less than 5 minutes of disk space left
-            if (dataRate > 0.0f && recordingTimeLeftInSeconds < (60.0f * 5.0f))
+            if (smoothedDataRate > 0.0f)
             {
-                CoreServices::setRecordingStatus (false);
-                notifyLowDiskSpace();
-            }
+                recordingTimeLeftInSeconds = bytesFree / smoothedDataRate / 1000.0f;
 
-            if (dataRate > 0.0f)
-            {
-                update (dataRate, bytesFree, recordingTimeLeftInSeconds);
+                // Stop recording and show warning when less than 5 minutes of disk space left
+                if (recordingTimeLeftInSeconds < (60.0f * 5.0f))
+                {
+                    CoreServices::setRecordingStatus (false);
+                    notifyLowDiskSpace();
+                }
+
+                update (smoothedDataRate, bytesFree, recordingTimeLeftInSeconds);
             }
         }
     }
