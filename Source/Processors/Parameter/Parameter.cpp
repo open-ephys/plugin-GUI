@@ -706,6 +706,12 @@ void SelectedChannelsParameter::setNextValue (var newValue_, bool undoable)
     if (newValue_ == currentValue)
         return;
 
+    if (! newValue_.isArray())
+    {
+        LOGD ("SelectedChannelsParameter: Invalid value type. Expected array, got ", newValue_.toString());
+        return;
+    }
+
     int arraySize = newValue_.getArray()->size();
     if (arraySize <= maxSelectableChannels && arraySize <= channelCount)
     {
@@ -895,6 +901,12 @@ MaskChannelsParameter::MaskChannelsParameter (ParameterOwner* owner,
 
 void MaskChannelsParameter::setNextValue (var newValue_, bool undoable)
 {
+    if (! newValue_.isArray())
+    {
+        LOGD ("MaskChannelsParameter: Invalid value type. Expected array, got ", newValue_.toString());
+        return;
+    }
+
     Array<var> values;
 
     String result = "";
