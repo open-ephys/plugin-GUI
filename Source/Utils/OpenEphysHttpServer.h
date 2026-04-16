@@ -1115,6 +1115,7 @@ public:
                        }
                        catch (json::exception& e)
                        {
+                           LOGE ("HTTPServer - Failed to parse request body. Exception: ", e.what());
                            res.set_content (e.what(), "text/plain");
                            res.status = 400;
                            return;
@@ -1124,6 +1125,7 @@ public:
 
                        if (val.isUndefined())
                        {
+                           LOGE ("HTTPServer - Value is undefined after conversion.");
                            res.set_content ("Request value could not be converted.", "text/plain");
                            res.status = 400;
                            return;
@@ -1222,6 +1224,7 @@ public:
                        }
                        catch (json::exception& e)
                        {
+                           LOGE ("HTTPServer - Failed to parse request body. Exception: ", e.what());
                            res.set_content (e.what(), "text/plain");
                            res.status = 400;
                            return;
@@ -1231,9 +1234,22 @@ public:
 
                        if (val.isUndefined())
                        {
+                           LOGE ("HTTPServer - Value is undefined after conversion.");
                            res.set_content ("Request value could not be converted.", "text/plain");
                            res.status = 400;
                            return;
+                       }
+
+                       if (parameter->getType() == Parameter::MASK_CHANNELS_PARAM
+                           || parameter->getType() == Parameter::SELECTED_CHANNELS_PARAM)
+                       {
+                           if (! val.isArray())
+                           {
+                               LOGE ("HTTPServer - Value for masked and selected channels parameter should be an array.");
+                               res.set_content ("Value for masked and selected channels parameter should be an array.", "text/plain");
+                               res.status = 400;
+                               return;
+                           }
                        }
 
                        std::promise<void> parameterChanged;
@@ -1440,7 +1456,7 @@ private:
     {
         (*parameter_json)["name"] = parameter->getName().toStdString();
         (*parameter_json)["type"] = parameter->getParameterTypeString().toStdString();
-        (*parameter_json)["value"] = parameter->getValue().toString().toStdString();
+        (*parameter_json)["value"] = parameter->getValueAsString().toStdString();
     }
 
     inline static void parameters_to_json (GenericProcessor* processor, std::vector<json>* parameters_json)
