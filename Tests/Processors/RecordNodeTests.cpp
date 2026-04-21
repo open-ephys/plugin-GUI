@@ -875,7 +875,7 @@ TEST_F(MultiStream_RecordNodeTests, DisabledMiddleStream_DoesNotBlockSubsequentS
     middleStreamMask->setNextValue(noChannelsSelected, false);
     processor->updateSettings();
 
-    tester->startAcquisition(true);
+    tester->startAcquisition(true, true);
 
     AudioBuffer<float> inputBuffer(12, 256); // 3 streams * 4 channels/stream
     for (int ch = 0; ch < inputBuffer.getNumChannels(); ch++) {
