@@ -1156,19 +1156,21 @@ TEST_F(RecordNodeBenchmark, BatchWrite_vs_PerChannel_Interleave_384ch)
     {
         auto tempFile = parentRecordingDir / ("bench_perchan_" + std::to_string(iter) + ".dat");
         
-        SequentialBlockFile blockFile(channels, 4096);
-        blockFile.openFile(tempFile.string());
-        
-        auto startTime = high_resolution_clock::now();
-        
-        for (int ch = 0; ch < channels; ch++)
         {
-            blockFile.writeChannel(0, ch, channelPtrs[ch], samples);
+            SequentialBlockFile blockFile(channels, 4096);
+            blockFile.openFile(tempFile.string());
+            
+            auto startTime = high_resolution_clock::now();
+            
+            for (int ch = 0; ch < channels; ch++)
+            {
+                blockFile.writeChannel(0, ch, channelPtrs[ch], samples);
+            }
+            
+            auto endTime = high_resolution_clock::now();
+            perChannelTimeMs += duration_cast<microseconds>(endTime - startTime).count() / 1000.0;
         }
-        
-        auto endTime = high_resolution_clock::now();
-        perChannelTimeMs += duration_cast<microseconds>(endTime - startTime).count() / 1000.0;
-        
+
         std::filesystem::remove(tempFile);
     }
     
@@ -1176,17 +1178,18 @@ TEST_F(RecordNodeBenchmark, BatchWrite_vs_PerChannel_Interleave_384ch)
     for (int iter = 0; iter < iterations; iter++)
     {
         auto tempFile = parentRecordingDir / ("bench_batch_" + std::to_string(iter) + ".dat");
-        
-        SequentialBlockFile blockFile(channels, 4096);
-        blockFile.openFile(tempFile.string());
-        
-        auto startTime = high_resolution_clock::now();
-        
-        blockFile.writeChannelBatch(0, channelPtrs.data(), channels, samples);
-        
-        auto endTime = high_resolution_clock::now();
-        batchTimeMs += duration_cast<microseconds>(endTime - startTime).count() / 1000.0;
-        
+        {
+            SequentialBlockFile blockFile(channels, 4096);
+            blockFile.openFile(tempFile.string());
+            
+            auto startTime = high_resolution_clock::now();
+            
+            blockFile.writeChannelBatch(0, channelPtrs.data(), channels, samples);
+            
+            auto endTime = high_resolution_clock::now();
+            batchTimeMs += duration_cast<microseconds>(endTime - startTime).count() / 1000.0;
+        }
+
         std::filesystem::remove(tempFile);
     }
     
@@ -1237,37 +1240,39 @@ TEST_F(RecordNodeBenchmark, BatchWrite_vs_PerChannel_Interleave_768ch)
     for (int iter = 0; iter < iterations; iter++)
     {
         auto tempFile = parentRecordingDir / ("bench_perchan_768_" + std::to_string(iter) + ".dat");
-        
-        SequentialBlockFile blockFile(channels, 4096);
-        blockFile.openFile(tempFile.string());
-        
-        auto startTime = high_resolution_clock::now();
-        
-        for (int ch = 0; ch < channels; ch++)
         {
-            blockFile.writeChannel(0, ch, channelPtrs[ch], samples);
+            SequentialBlockFile blockFile(channels, 4096);
+            blockFile.openFile(tempFile.string());
+            
+            auto startTime = high_resolution_clock::now();
+            
+            for (int ch = 0; ch < channels; ch++)
+            {
+                blockFile.writeChannel(0, ch, channelPtrs[ch], samples);
+            }
+            
+            auto endTime = high_resolution_clock::now();
+            perChannelTimeMs += duration_cast<microseconds>(endTime - startTime).count() / 1000.0;
         }
-        
-        auto endTime = high_resolution_clock::now();
-        perChannelTimeMs += duration_cast<microseconds>(endTime - startTime).count() / 1000.0;
-        
+
         std::filesystem::remove(tempFile);
     }
     
     for (int iter = 0; iter < iterations; iter++)
     {
         auto tempFile = parentRecordingDir / ("bench_batch_768_" + std::to_string(iter) + ".dat");
-        
-        SequentialBlockFile blockFile(channels, 4096);
-        blockFile.openFile(tempFile.string());
-        
-        auto startTime = high_resolution_clock::now();
-        
-        blockFile.writeChannelBatch(0, channelPtrs.data(), channels, samples);
-        
-        auto endTime = high_resolution_clock::now();
-        batchTimeMs += duration_cast<microseconds>(endTime - startTime).count() / 1000.0;
-        
+        {
+            SequentialBlockFile blockFile(channels, 4096);
+            blockFile.openFile(tempFile.string());
+            
+            auto startTime = high_resolution_clock::now();
+            
+            blockFile.writeChannelBatch(0, channelPtrs.data(), channels, samples);
+            
+            auto endTime = high_resolution_clock::now();
+            batchTimeMs += duration_cast<microseconds>(endTime - startTime).count() / 1000.0;
+        }
+
         std::filesystem::remove(tempFile);
     }
     
