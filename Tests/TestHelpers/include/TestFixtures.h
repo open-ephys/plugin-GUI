@@ -5,6 +5,7 @@
 
 #include <Audio/AudioComponent.h>
 #include <Processors/ProcessorGraph/ProcessorGraph.h>
+#include <Processors/RecordNode/RecordNode.h>
 #include <Processors/SourceNode/SourceNode.h>
 #include <UI/ControlPanel.h>
 #include <juce_audio_processors/juce_audio_processors.h>
@@ -162,6 +163,30 @@ public:
         {
             // Do it this way to ensure the GUI elements (which apparently control logic) are set properly
             controlPanel->setRecordingState (true, forceRecording);
+
+            // RecordNode::notifyRecordThreadFilesOpened() sets isRecording=true via
+            // MessageManager::callAsync. Since tests run on the message thread, that callback
+            // is only dispatched when we explicitly pump the message loop. Pump until all
+            // record nodes report they are actively recording before returning.
+            const int timeoutMs = 5000;
+            for (int elapsed = 0; elapsed < timeoutMs; elapsed += 10)
+            {
+                juce::MessageManager::getInstance()->runDispatchLoopUntil (10);
+
+                bool allReady = true;
+                for (auto* rn : processorGraph->getRecordNodes())
+                {
+                    if (! rn->getRecordingStatus())
+                    {
+                        allReady = false;
+                        break;
+                    }
+                }
+                if (allReady)
+                {
+                    break;
+                }
+            }
         }
         else
         {

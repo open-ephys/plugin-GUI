@@ -946,7 +946,7 @@ void RecordNode::notifyRecordThreadFilesOpened()
 // called by GenericProcessor::setRecording() and CoreServices::setRecordingStatus()
 void RecordNode::stopRecording()
 {
-    if (! isRecording)
+    if (! isRecording && !recordThread->isThreadRunning())
         return;
 
     isRecording = false;

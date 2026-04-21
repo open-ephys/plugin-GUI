@@ -153,6 +153,8 @@ void RecordThread::run()
         wait (1);
     }
 
+    LOGD ("RecordThread received first block, starting main loop...");
+
     // 3 - Get initial sample numbers from each stream's queue
     int globalChan = 0;
     for (int streamIdx = 0; streamIdx < numStreams; streamIdx++)
