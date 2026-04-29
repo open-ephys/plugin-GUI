@@ -128,6 +128,12 @@ public:
     /** Called when a label is changed.*/
     void labelTextChanged (Label* label);
 
+    /** Called when the EditorViewport loses keyboard focus. Deselects all editors.*/
+    void focusLost (FocusChangeType cause) override;
+
+    /** Called when the EditorViewport gains keyboard focus. Selects the last editor (if any) that was clicked on.*/
+    void focusGained (FocusChangeType cause) override;
+
     /** Save the current configuration as an XML file. */
     const String saveState (File filename, String* xmlText = nullptr);
 

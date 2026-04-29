@@ -73,6 +73,8 @@ GenericEditor::GenericEditor (GenericProcessor* owner) : AudioProcessorEditor (o
     }
 
     backgroundColour = Colour (10, 10, 10);
+
+    setMouseClickGrabsKeyboardFocus (false);
 }
 
 GenericEditor::~GenericEditor()

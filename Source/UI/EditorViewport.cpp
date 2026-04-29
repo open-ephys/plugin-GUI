@@ -48,6 +48,7 @@ EditorViewport::EditorViewport (SignalChainTabComponent* s_)
       dragProcType (Plugin::Processor::INVALID)
 {
     addMouseListener (this, true);
+    setWantsKeyboardFocus (true);
 
     sourceDropImage = ImageCache::getFromMemory (BinaryData::SourceDrop_png,
                                                  BinaryData::SourceDrop_pngSize);
@@ -494,13 +495,21 @@ void EditorViewport::moveSelection (const KeyPress& key)
         {
             selectionIndex = -1;
 
-            for (int i = 0; i < editorArray.size(); i++)
+            if (lastEditorClicked != nullptr && editorArray.contains (lastEditorClicked))
             {
-                if (editorArray[i]->getSelectionState() && i > 0)
+                int i = editorArray.indexOf (lastEditorClicked);
+
+                if (i > 0)
                 {
                     editorArray[i - 1]->select();
                     lastEditorClicked = editorArray[i - 1];
-                    editorArray[i]->deselect();
+                    this->grabKeyboardFocus();
+                }
+
+                for (int j = 0; j < editorArray.size(); j++)
+                {
+                    if (editorArray[j] != lastEditorClicked)
+                        editorArray[j]->deselect();
                 }
             }
         }
@@ -542,22 +551,21 @@ void EditorViewport::moveSelection (const KeyPress& key)
         {
             selectionIndex = -1;
 
-            // bool stopSelection = false;
-            int i = 0;
-
-            while (i < editorArray.size() - 1)
+            if (lastEditorClicked != nullptr && editorArray.contains (lastEditorClicked))
             {
-                if (editorArray[i]->getSelectionState())
+                int i = editorArray.indexOf (lastEditorClicked);
+
+                if (i < editorArray.size() - 1)
                 {
-                    lastEditorClicked = editorArray[i + 1];
                     editorArray[i + 1]->select();
-                    editorArray[i]->deselect();
-                    i += 2;
+                    lastEditorClicked = editorArray[i + 1];
+                    this->grabKeyboardFocus();
                 }
-                else
+
+                for (int j = 0; j < editorArray.size(); j++)
                 {
-                    editorArray[i]->deselect();
-                    i++;
+                    if (editorArray[j] != lastEditorClicked)
+                        editorArray[j]->deselect();
                 }
             }
         }
@@ -945,37 +953,59 @@ void EditorViewport::mouseDown (const MouseEvent& e)
                 return;
 
             clickInEditor = true;
-            editorArray[i]->select();
 
             if (e.mods.isShiftDown())
             {
-                if (editorArray.contains (lastEditorClicked))
+                // Save the anchor before any calls that could trigger focusLost.
+                // Do NOT update lastEditorClicked here — the anchor must remain at the
+                // original (non-shift) click so that repeated shift+clicks and subsequent
+                // shift+arrow keys all extend from the same point.
+                GenericEditor* anchor = editorArray.contains (lastEditorClicked) ? lastEditorClicked : nullptr;
+
+                // Deselect all editors first so stale selections outside the new range
+                // are cleared before we highlight the new range.
+                for (auto ed : editorArray)
+                    ed->deselect();
+
+                // Use highlight() to avoid editorWasClicked() which can steal focus
+                editorArray[i]->highlight();
+
+                if (anchor != nullptr)
                 {
-                    int index = editorArray.indexOf (lastEditorClicked);
+                    int index = editorArray.indexOf (anchor);
 
                     if (index > i)
                     {
                         for (int j = i + 1; j <= index; j++)
                         {
-                            editorArray[j]->select();
+                            editorArray[j]->highlight();
                         }
                     }
                     else
                     {
                         for (int j = i - 1; j >= index; j--)
                         {
-                            editorArray[j]->select();
+                            editorArray[j]->highlight();
                         }
                     }
                 }
+                else
+                {
+                    // No anchor yet — treat this shift+click as the initial anchor click.
+                    lastEditorClicked = editorArray[i];
+                }
 
+                // selectionIndex tracks the "far end" of the selection for shift+arrow navigation.
                 selectionIndex = i;
                 break;
             }
 
+            editorArray[i]->select();
+
             beginDragAutoRepeat (20);
 
             lastEditorClicked = editorArray[i];
+            this->grabKeyboardFocus();
             selectionIndex = -1;
         }
         else
@@ -1137,6 +1167,23 @@ void EditorViewport::mouseExit (const MouseEvent& e)
         dragProcType = Plugin::Processor::INVALID;
 
         repaint();
+    }
+}
+
+void EditorViewport::focusLost (FocusChangeType cause)
+{
+    for (auto editor : editorArray)
+    {
+        editor->deselect();
+    }
+    lastEditorClicked = nullptr;
+}
+
+void EditorViewport::focusGained (FocusChangeType cause)
+{
+    if (lastEditorClicked != nullptr && editorArray.contains (lastEditorClicked))
+    {
+        lastEditorClicked->highlight();
     }
 }
 
@@ -1671,16 +1718,18 @@ void EditorViewport::deleteSelectedProcessors()
 
     AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction ("Disabled during acquisition");
 
-    Array<GenericEditor*> editors = Array (editorArray);
+    Array<GenericProcessor*> processorsToDelete;
 
-    for (auto editor : editors)
+    for (auto editor : editorArray)
     {
         if (! editor->getProcessor()->isEmpty() && editor->getSelectionState())
-        {
-            editorArray.remove (editorArray.indexOf (editor));
-            DeleteProcessor* action = new DeleteProcessor (editor->getProcessor());
-            AccessClass::getProcessorGraph()->getUndoManager()->perform (action);
-        }
+            processorsToDelete.add (editor->getProcessor());
+    }
+
+    for (auto processor : processorsToDelete)
+    {
+        DeleteProcessor* action = new DeleteProcessor (processor);
+        AccessClass::getProcessorGraph()->getUndoManager()->perform (action);
     }
 }
 
