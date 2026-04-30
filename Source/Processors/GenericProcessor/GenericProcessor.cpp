@@ -1402,6 +1402,12 @@ int GenericProcessor::checkForEvents (bool checkForSpikes)
 
 void GenericProcessor::addEvent (const Event* event, int sampleNum)
 {
+    if (event == nullptr || event->getChannelInfo() == nullptr)
+    {
+        jassertfalse; // this should never happen
+        return;
+    }
+
     size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
 
     HeapBlock<char> buffer (size);
