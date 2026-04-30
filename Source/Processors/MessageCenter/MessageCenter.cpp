@@ -208,11 +208,22 @@ void MessageCenter::process (AudioBuffer<float>& buffer)
 
             String eventString = message.message;
 
-            eventString.dropLastCharacters (eventString.length() - MAX_MSG_LENGTH);
+            if (eventString.length() > MAX_MSG_LENGTH)
+            {
+                CoreServices::sendStatusMessage ("Broadcast message length exceeds maximum; truncating message to " + String (MAX_MSG_LENGTH) + " characters.");
+                eventString = eventString.dropLastCharacters (eventString.length() - MAX_MSG_LENGTH);
+            }
 
             TextEventPtr event = TextEvent::createTextEvent (eventChannels[0],
                                                              message.systemTimeMilliseconds,
                                                              eventString);
+
+            if (event == nullptr)
+            {
+                LOGE ("Message Center: failed to create event for message: ", eventString);
+                messageQueue.pop();
+                continue;
+            }
 
             addEvent (event, 0);
 
