@@ -20,7 +20,8 @@ void FakeSourceNode::updateSettings()
                 "FakeSourceNode" + String (i),
                 "description",
                 "identifier",
-                params.sampleRate
+                params.sampleRate,
+                params.generatesTimestamps
             };
 
             cachedDataStreams.add (new DataStream (settings));

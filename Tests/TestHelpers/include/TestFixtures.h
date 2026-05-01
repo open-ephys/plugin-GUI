@@ -230,26 +230,42 @@ public:
     AudioBuffer<float> processBlock (
         GenericProcessor* processor,
         const AudioBuffer<float>& buffer,
-        TTLEvent* maybeTtlEvent = nullptr)
+        TTLEvent* maybeTtlEvent = nullptr,
+        const double* sampleTimestamps = nullptr)
     {
         auto audioProcessor = (AudioProcessor*) processor;
         auto dataStreams = processor->getDataStreams();
+        auto* sourceProcessor = getSourceNode();
 
         MidiBuffer eventBuffer;
         for (const auto* datastream : dataStreams)
         {
             HeapBlock<char> data;
             auto streamId = datastream->getStreamId();
+            double startTimestamp = sampleTimestamps != nullptr ? sampleTimestamps[0] : 0.0;
             size_t dataSize = SystemEvent::fillTimestampAndSamplesData (
                 data,
-                processor,
+                sourceProcessor,
                 streamId,
                 currentSampleIndex,
-                // NOTE: this timestamp is actually ignored in the current implementation?
-                0,
+                startTimestamp,
                 buffer.getNumSamples(),
                 0);
             eventBuffer.addEvent (data, dataSize, 0);
+
+            if (sampleTimestamps != nullptr)
+            {
+                HeapBlock<char> timestampData;
+                size_t timestampDataSize = SystemEvent::fillTimestampArrayData (
+                    timestampData,
+                    sourceProcessor,
+                    streamId,
+                    currentSampleIndex,
+                    sampleTimestamps,
+                    buffer.getNumSamples(),
+                    0);
+                eventBuffer.addEvent (timestampData, timestampDataSize, 0);
+            }
 
             if (maybeTtlEvent != nullptr)
             {
