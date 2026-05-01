@@ -64,7 +64,11 @@ public:
     /** Returns the number of samples currently available in the buffer.*/
     int getNumSamples() const;
 
-    /** Copies as many samples as possible from the DataBuffer to an AudioBuffer.*/
+    /** Copies as many samples as possible from the DataBuffer to an AudioBuffer.
+
+        The first sample number is returned in `sampleNumbers[0]`, while `timestamps`
+        and `eventCodes` receive one value per copied sample.
+    */
     int readAllFromBuffer (AudioBuffer<float>& data,
                            int64* sampleNumbers,
                            double* timestamps,

@@ -220,7 +220,10 @@ public:
         TIMESTAMP_SYNC_TEXT = 3,
 
         // Indicates reference sample information for each incoming data buffer
-        REFERENCE_SAMPLE = 4
+        REFERENCE_SAMPLE = 4,
+
+        // Per-sample timestamps for the current buffer
+        TIMESTAMP_ARRAY = 5
     };
 
     /* Create a TIMESTAMP_AND_SAMPLES event (used by processors that update timestamps) */
@@ -232,6 +235,16 @@ public:
                                                uint32 nSamplesInBlock,
                                                int64 processStartTime,
                                                uint16 syncStreamId = 0);
+
+    /* Create a TIMESTAMP_ARRAY event (used by processors that provide per-sample timestamps) */
+    static size_t fillTimestampArrayData (HeapBlock<char>& data,
+                                          const GenericProcessor* proc,
+                                          uint16 streamId,
+                                          int64 startSampleForBlock,
+                                          const double* timestamps,
+                                          uint32 nSamplesInBlock,
+                                          int64 processStartTime,
+                                          uint16 syncStreamId = 0);
 
     /* Create a TIMESTAMP_SYNC_TEXT event (used by Record Node) */
     static size_t fillTimestampSyncTextData (HeapBlock<char>& data,
