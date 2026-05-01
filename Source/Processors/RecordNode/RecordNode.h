@@ -256,6 +256,8 @@ public:
     static bool overrideTimestampWarningShown;
 
 private:
+    double resolveRecordedTimestamp (const String& streamKey, uint16 streamId, int64 sampleNumber);
+
     /** Handles other types of events (text, sync texts, etc.) */
     void handleEvent (const EventChannel* channel, const EventPacket& eventPacket);
 

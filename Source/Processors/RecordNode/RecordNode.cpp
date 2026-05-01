@@ -990,15 +990,7 @@ void RecordNode::handleTTLEvent (TTLEventPtr event)
         size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
         uint16 streamId = event->getStreamId();
 
-        double ts = -1.0;
-        if (synchronizer.streamGeneratesTimestamps (streamKey))
-        {
-            ts = getFirstTimestampForBlock (streamId) + (sampleNumber - getFirstSampleNumberForBlock (streamId)) / getDataStream (streamId)->getSampleRate();
-        }
-        else
-        {
-            ts = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber);
-        }
+        double ts = resolveRecordedTimestamp (streamKey, streamId, sampleNumber);
 
         HeapBlock<char> buffer (size);
         event->setTimestampInSeconds (ts);
@@ -1020,7 +1012,7 @@ void RecordNode::handleEvent (const EventChannel* eventInfo, const EventPacket& 
 
         String streamKey = getDataStream (eventInfo->getStreamId())->getKey();
 
-        Event::setTimestampInSeconds (packet, synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber));
+        Event::setTimestampInSeconds (packet, resolveRecordedTimestamp (streamKey, eventInfo->getStreamId(), sampleNumber));
 
         eventQueue->addEvent (packet, sampleNumber, eventIndex);
     }
@@ -1037,15 +1029,7 @@ void RecordNode::handleSpike (SpikePtr spike)
         uint16 streamId = spike->getStreamId();
         int64 sampleNumber = spike->getSampleNumber();
 
-        double ts = -1.0;
-        if (synchronizer.streamGeneratesTimestamps (streamKey))
-        {
-            ts = getFirstTimestampForBlock (streamId) + (sampleNumber - getFirstSampleNumberForBlock (streamId)) / getDataStream (streamId)->getSampleRate();
-        }
-        else
-        {
-            ts = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber);
-        }
+        double ts = resolveRecordedTimestamp (streamKey, streamId, sampleNumber);
 
         spike->setTimestampInSeconds (ts);
         writeSpike (spike, spike->getChannelInfo());
@@ -1143,19 +1127,36 @@ void RecordNode::process (AudioBuffer<float>& buffer)
                 {
                     first = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber);
                     second = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber + 1);
+
+                    dataQueues[streamIndex]->writeSynchronizedTimestamps (
+                        first,
+                        second - first,
+                        0,
+                        numSamples);
                 }
                 else
                 {
-                    first = getFirstTimestampForBlock (streamId);
-                    second = first + 1 / stream->getSampleRate();
+                    const double* blockTimestamps = getTimestampsForBlock (streamId);
+
+                    if (blockTimestamps != nullptr)
+                    {
+                        first = blockTimestamps[0];
+                        dataQueues[streamIndex]->writeSynchronizedTimestamps (blockTimestamps, 0, (int) numSamples);
+                    }
+                    else
+                    {
+                        first = getFirstTimestampForBlock (streamId);
+                        second = first + 1 / stream->getSampleRate();
+
+                        dataQueues[streamIndex]->writeSynchronizedTimestamps (
+                            first,
+                            second - first,
+                            0,
+                            numSamples);
+                    }
+
                     synchronizer.setHardwareTimestamp (sampleNumber, first, streamKey);
                 }
-                // Each per-stream queue has only 1 timestamp stream (index 0)
-                dataQueues[streamIndex]->writeSynchronizedTimestamps (
-                    first,
-                    second - first,
-                    0, // timestamp stream index within this queue
-                    numSamples);
             }
 
             if (numSamples > 0 && recordChanCount > 0 && streamSourceChannels[streamIndex] != nullptr)
@@ -1208,6 +1209,22 @@ void RecordNode::process (AudioBuffer<float>& buffer)
             setFirstBlock = true;
         }
     }
+}
+
+double RecordNode::resolveRecordedTimestamp (const String& streamKey, uint16 streamId, int64 sampleNumber)
+{
+    if (synchronizer.streamGeneratesTimestamps (streamKey))
+    {
+        double timestamp = -1.0;
+
+        if (getTimestampForSample (streamId, sampleNumber, timestamp))
+            return timestamp;
+
+        return getFirstTimestampForBlock (streamId)
+               + (sampleNumber - getFirstSampleNumberForBlock (streamId)) / getDataStream (streamId)->getSampleRate();
+    }
+
+    return synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber);
 }
 
 // called in RecordNode::handleSpike
