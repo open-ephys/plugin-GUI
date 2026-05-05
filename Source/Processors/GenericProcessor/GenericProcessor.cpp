@@ -48,52 +48,58 @@
 
 namespace
 {
-using TimestampArrayState = std::unordered_map<const GenericProcessor*, std::map<uint16, std::vector<double>>>;
+using TimestampArraysByStream = std::unordered_map<uint16, std::vector<double>>;
 
-TimestampArrayState& getTimestampArrayState()
+class TimestampArrayRegistry
 {
-    static TimestampArrayState state;
-    return state;
-}
+public:
+    void clearProcessor (const GenericProcessor* processor)
+    {
+        arrays.erase (processor);
+    }
 
-void clearTimestampArrayState (const GenericProcessor* processor)
+    void clearStream (const GenericProcessor* processor, uint16 streamId)
+    {
+        auto processorIt = arrays.find (processor);
+
+        if (processorIt == arrays.end())
+            return;
+
+        processorIt->second.erase (streamId);
+
+        if (processorIt->second.empty())
+            arrays.erase (processorIt);
+    }
+
+    void store (const GenericProcessor* processor, uint16 streamId, const double* timestamps, uint32 nSamples)
+    {
+        auto& streamTimestamps = arrays[processor][streamId];
+        streamTimestamps.assign (timestamps, timestamps + nSamples);
+    }
+
+    const std::vector<double>* find (const GenericProcessor* processor, uint16 streamId) const
+    {
+        auto processorIt = arrays.find (processor);
+
+        if (processorIt == arrays.end())
+            return nullptr;
+
+        auto streamIt = processorIt->second.find (streamId);
+
+        if (streamIt == processorIt->second.end() || streamIt->second.empty())
+            return nullptr;
+
+        return &streamIt->second;
+    }
+
+private:
+    std::unordered_map<const GenericProcessor*, TimestampArraysByStream> arrays;
+};
+
+TimestampArrayRegistry& getTimestampArrayRegistry()
 {
-    getTimestampArrayState().erase (processor);
-}
-
-void clearTimestampArrayState (const GenericProcessor* processor, uint16 streamId)
-{
-    auto processorIt = getTimestampArrayState().find (processor);
-
-    if (processorIt == getTimestampArrayState().end())
-        return;
-
-    processorIt->second.erase (streamId);
-
-    if (processorIt->second.empty())
-        getTimestampArrayState().erase (processorIt);
-}
-
-void setTimestampArrayState (const GenericProcessor* processor, uint16 streamId, const double* timestamps, uint32 nSamples)
-{
-    auto& timestampsByStream = getTimestampArrayState()[processor];
-    auto& streamTimestamps = timestampsByStream[streamId];
-    streamTimestamps.assign (timestamps, timestamps + nSamples);
-}
-
-const std::vector<double>* findTimestampArrayState (const GenericProcessor* processor, uint16 streamId)
-{
-    auto processorIt = getTimestampArrayState().find (processor);
-
-    if (processorIt == getTimestampArrayState().end())
-        return nullptr;
-
-    auto streamIt = processorIt->second.find (streamId);
-
-    if (streamIt == processorIt->second.end() || streamIt->second.empty())
-        return nullptr;
-
-    return &streamIt->second;
+    static TimestampArrayRegistry registry;
+    return registry;
 }
 
 constexpr int timestampArrayOffset = EVENT_BASE_SIZE + 12;
@@ -194,7 +200,7 @@ GenericProcessor::GenericProcessor (const String& name, bool headlessMode_)
 
 GenericProcessor::~GenericProcessor()
 {
-    clearTimestampArrayState (this);
+    getTimestampArrayRegistry().clearProcessor (this);
     editor.reset(); // remove parameter editors before parameters
 
     dataStreamParameters.clear (true);
@@ -717,7 +723,7 @@ void GenericProcessor::clearSettings()
 
     ttlEventChannel = nullptr;
 
-    clearTimestampArrayState (this);
+    getTimestampArrayRegistry().clearProcessor (this);
     startTimestampsForBlock.clear();
     startSamplesForBlock.clear();
     syncStreamIds.clear();
@@ -1313,14 +1319,14 @@ double GenericProcessor::getFirstTimestampForBlock (uint16 streamId) const
 
 const double* GenericProcessor::getTimestampsForBlock (uint16 streamId) const
 {
-    const std::vector<double>* timestamps = findTimestampArrayState (this, streamId);
+    const std::vector<double>* timestamps = getTimestampArrayRegistry().find (this, streamId);
 
     return timestamps != nullptr ? timestamps->data() : nullptr;
 }
 
 bool GenericProcessor::getTimestampForSample (uint16 streamId, int64 sampleNumber, double& timestamp) const
 {
-    const std::vector<double>* timestamps = findTimestampArrayState (this, streamId);
+    const std::vector<double>* timestamps = getTimestampArrayRegistry().find (this, streamId);
 
     if (timestamps == nullptr)
         return false;
@@ -1349,7 +1355,7 @@ void GenericProcessor::setTimestampAndSamples (int64 sampleNumber,
                                                uint16 streamId,
                                                uint16 syncStreamId)
 {
-    clearTimestampArrayState (this, streamId);
+    getTimestampArrayRegistry().clearStream (this, streamId);
 
     HeapBlock<char> data;
     size_t dataSize = SystemEvent::fillTimestampAndSamplesData (data,
@@ -1377,7 +1383,7 @@ void GenericProcessor::setTimestampArrayForBlock (int64 sampleNumber,
                                                   uint16 streamId,
                                                   uint16 syncStreamId)
 {
-    clearTimestampArrayState (this, streamId);
+    getTimestampArrayRegistry().clearStream (this, streamId);
 
     if (timestamps == nullptr || nSamples == 0)
         return;
@@ -1399,7 +1405,7 @@ void GenericProcessor::setTimestampArrayForBlock (int64 sampleNumber,
     syncStreamIds[streamId] = syncStreamId;
     numSamplesInBlock[streamId] = nSamples;
     processStartTimes[streamId] = m_initialProcessTime;
-    setTimestampArrayState (this, streamId, timestamps, nSamples);
+    getTimestampArrayRegistry().store (this, streamId, timestamps, nSamples);
 }
 
 int GenericProcessor::getGlobalChannelIndex (uint16 streamId, int localIndex) const
@@ -1441,7 +1447,7 @@ int GenericProcessor::processEventBuffer()
                     uint32 nSamples = *reinterpret_cast<const uint32*> (dataptr + 24);
                     int64 initialTicks = *reinterpret_cast<const int64*> (dataptr + 28);
 
-                    clearTimestampArrayState (this, sourceStreamId);
+                    getTimestampArrayRegistry().clearStream (this, sourceStreamId);
 
                     startSamplesForBlock[sourceStreamId] = startSample;
                     startTimestampsForBlock[sourceStreamId] = startTimestamp;
@@ -1452,7 +1458,7 @@ int GenericProcessor::processEventBuffer()
                     if (systemEventType == SystemEvent::Type::TIMESTAMP_ARRAY && nSamples > 0)
                     {
                         const double* timestamps = reinterpret_cast<const double*> (dataptr + timestampArrayOffset);
-                        setTimestampArrayState (this, sourceStreamId, timestamps, nSamples);
+                        getTimestampArrayRegistry().store (this, sourceStreamId, timestamps, nSamples);
                     }
                 }
             }
