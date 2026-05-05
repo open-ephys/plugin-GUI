@@ -25,7 +25,6 @@
 #define __AUDIONODE_H_AF61F3C5__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../../TestableExport.h"
 #include <stdio.h>
 
 #include "../Dsp/Dsp.h"
@@ -68,14 +67,11 @@ private:
   @see GenericProcessor, AudioEditor
 
 */
-class TESTABLE AudioNode : public GenericProcessor
+class AudioNode : public GenericProcessor
 {
 public:
     /** Constructor */
     AudioNode();
-
-    /** Destructor */
-    ~AudioNode() {}
 
     /** Handle incoming data and decide which channels to monitor
     */
