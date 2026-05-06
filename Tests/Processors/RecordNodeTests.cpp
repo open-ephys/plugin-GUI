@@ -23,7 +23,8 @@ protected:
             numChannels,
             sampleRate,
             bitVolts
-        }));
+        }), 
+        ProcessorTesterMode::FullApp);
 
         parentRecordingDir = std::filesystem::temp_directory_path() / "record_node_tests";
         if (std::filesystem::exists(parentRecordingDir)) {
@@ -285,7 +286,8 @@ protected:
             1,
             0,
             true
-        }));
+        }),
+        ProcessorTesterMode::FullApp);
 
         parentRecordingDir = std::filesystem::temp_directory_path() / "record_node_hardware_sync_tests";
         if (std::filesystem::exists(parentRecordingDir)) {
@@ -873,7 +875,8 @@ class SingleChannel_RecordNodeTests : public RecordNodeTests {
             numChannels,
             sampleRate,
             bitVolts
-        }));
+        }),
+        ProcessorTesterMode::FullApp);
 
         parentRecordingDir = std::filesystem::temp_directory_path() / "record_node_single_ch_tests";
         if (std::filesystem::exists(parentRecordingDir)) {
@@ -961,7 +964,8 @@ protected:
             30000,  // sample rate
             1.0f,   // bitVolts
             3       // streams
-        }));
+        }),
+        ProcessorTesterMode::FullApp);
 
         parentRecordingDir = std::filesystem::temp_directory_path() / "record_node_multi_stream_tests";
         if (std::filesystem::exists(parentRecordingDir)) {
@@ -1055,7 +1059,8 @@ class BufferResize_RecordNodeTests : public RecordNodeTests {
             numChannels,
             sampleRate,
             bitVolts
-        }));
+        }),
+        ProcessorTesterMode::FullApp);
 
         parentRecordingDir = std::filesystem::temp_directory_path() / "record_node_buffer_resize_tests";
         if (std::filesystem::exists(parentRecordingDir)) {
@@ -1120,7 +1125,8 @@ class ManyChannels_RecordNodeTests : public RecordNodeTests {
             numChannels,
             sampleRate,
             bitVolts
-        }));
+        }),
+        ProcessorTesterMode::FullApp);
 
         parentRecordingDir = std::filesystem::temp_directory_path() / "record_node_many_ch_tests";
         if (std::filesystem::exists(parentRecordingDir)) {
