@@ -13,13 +13,15 @@ UsePreviousGroup=no
 OutputBaseFilename=Open-Ephys_Installer
 OutputDir=.
 LicenseFile=..\..\..\LICENSE
-ArchitecturesAllowed=x64
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
 ChangesAssociations=yes
 SetupIconFile="..\..\Build-files\icon.ico"
 UninstallDisplayIcon={app}\open-ephys.exe
 AllowNoIcons=yes
-WizardStyle=modern
+WizardStyle=modern dynamic
+ArchiveExtraction=enhanced/nopassword
+SetupLogging=yes
 
 [Tasks]
 Name: desktopicon; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
@@ -28,7 +30,7 @@ Name: install_usb2; Description: "Install Opal Kelly Front Panel USB driver (Opa
 
 [Files]
 Source: "..\..\..\Build\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; BeforeInstall: UpdateProgress(0);
-Source: "..\..\DLLs\FTD3XXDriver_WHQLCertified_1.3.0.10_Installer.exe"; DestDir: {tmp}; Flags: deleteafterinstall; BeforeInstall: UpdateProgress(80);
+Source: "https://ftdichip.com/wp-content/uploads/2025/08/WU_Driver_Installers.7z"; DestDir: "{tmp}"; DestName: "WU_Driver_Installers.7z"; ExternalSize: 206_075_224; Flags: external download extractarchive recursesubdirs ignoreversion; Tasks: install_usb1; BeforeInstall: UpdateProgress(50);
 Source: "..\..\DLLs\FrontPanelUSB-DriverOnly-4.5.5.exe"; DestDir: {tmp}; Flags: deleteafterinstall; BeforeInstall: UpdateProgress(90);
 
 [Icons]
@@ -36,7 +38,7 @@ Name: "{autodesktop}\Open Ephys GUI"; Filename: "{app}\open-ephys.exe"; Tasks: d
 Name: "{autoprograms}\Open Ephys GUI"; Filename: "{app}\open-ephys.exe"
 
 [Run]
-Filename: "{tmp}\FTD3XXDriver_WHQLCertified_1.3.0.10_Installer.exe"; StatusMsg: "Installing FTDI D3XX driver..."; Tasks: install_usb1; Flags: skipifsilent
+Filename: "{tmp}\WU_Driver_Installers\FTDI_DriverInstaller_WU_x64.exe"; StatusMsg: "Installing FTDI D3XX driver..."; Tasks: install_usb1; Flags: skipifsilent
 Filename: "{tmp}\FrontPanelUSB-DriverOnly-4.5.5.exe"; StatusMsg: "Installing Front Panel USB driver..."; Tasks: install_usb2; Flags: skipifsilent
 Filename: "{app}\open-ephys.exe"; Description: "Launch Open Ephys GUI"; Flags: postinstall nowait skipifsilent
 
