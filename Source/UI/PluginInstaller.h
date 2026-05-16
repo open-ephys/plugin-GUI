@@ -24,6 +24,9 @@
 #ifndef PLUGININSTALLER_H_INCLUDED
 #define PLUGININSTALLER_H_INCLUDED
 
+#include <functional>
+#include <vector>
+
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 #define WINDOW_TITLE "Plugin Installer"
@@ -82,37 +85,23 @@ struct SelectedPluginInfo
     StringArray dependencies;
     StringArray dependencyVersions;
     String docURL;
+    bool hasUpdate = false;
 };
 
 extern StringArray updatablePlugins;
 
 /**
- *  Create Info Panel for the selected plugin from the table
+ *  Runs install and uninstall actions for the selected plugin.
 */
-class PluginInfoComponent : public Component,
-                            public Button::Listener,
-                            public ComboBox::Listener,
-                            public ThreadWithProgressWindow
+class PluginInstallActionRunner : public ThreadWithProgressWindow
 {
 public:
-    PluginInfoComponent();
+    using OperationCompleteHandler = std::function<void(const SelectedPluginInfo&, bool)>;
 
-    void paint (Graphics&) override;
-    void resized() override;
+    PluginInstallActionRunner();
 
-    /** Called when any of the buttons inside this component is clicked that has a listener **/
-    void buttonClicked (Button* button) override;
-
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
-
-    /** Sets selected plugin's info obtained from bintray**/
-    void setPluginInfo (const SelectedPluginInfo& p, bool shouldUpdateUI = true);
-
-    /** Sets the status message with custom string and makes is visible/hidden **/
-    void updateStatusMessage (const String& str, bool isVisible);
-
-    /** Make the selected plugin's info visible **/
-    void makeInfoVisible (bool isEnabled);
+    /** Sets selected plugin info before running an action. */
+    void setPluginInfo (const SelectedPluginInfo& p);
 
     /** Called when the user hits the 'Download' button for a selected plugin **/
     int downloadPlugin (const String& plugin, const String& version, bool isDependency);
@@ -121,41 +110,18 @@ public:
 
     void setDownloadURL (const String& url);
 
+    void setOperationCompleteHandler (OperationCompleteHandler handler);
+
+    void installSelectedPlugin();
+
+    bool uninstallSelectedPlugin();
+
 private:
-    int selectedPlugin;
     String downloadURL;
-    FontOptions infoFont, infoFontBold;
-
-    Label pluginNameLabel;
-    Label pluginNameText;
-
-    Label developersLabel;
-    Label developersText;
-
-    Label versionLabel;
-    Label installedVerLabel;
-    Label installedVerText;
-
-    Label lastUpdatedLabel;
-    Label lastUpdatedText;
-
-    Label descriptionLabel;
-    Label descriptionText;
-
-    Label dependencyLabel;
-    Label dependencyText;
-
-    Label statusLabel;
-
-    TextButton downloadButton;
-    TextButton documentationButton;
-    TextButton uninstallButton;
-
-    ComboBox versionMenu;
 
     SelectedPluginInfo pInfo;
 
-    enum RetunCode
+    enum ReturnCode
     {
         ZIP_NOTFOUND,
         SUCCESS,
@@ -177,65 +143,99 @@ private:
     /** Updates the UI on the message thread **/
     void updateUIOnMessageThread();
 
-    DropShadower infoCompDropShadower { DropShadow (Colours::black.withAlpha (0.5f), 6, { 2, 2 }) };
+    void notifyOperationComplete (bool isInstalled);
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginInfoComponent);
+    OperationCompleteHandler operationCompleteHandler;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginInstallActionRunner);
 };
 
 /**
  *  Create a Table of all the plugins hosted on JFrong Artifactory
 */
 class PluginListBoxComponent : public Component,
-                               public ListBoxModel,
-                               public Thread
+                               public TableListBoxModel
 {
 public:
-    PluginListBoxComponent();
+    enum Columns
+    {
+        displayNameColumn = 1,
+        typeColumn,
+        developersColumn,
+        installedVersionColumn,
+        updatedColumn,
+        descriptionColumn,
+        dependenciesColumn,
+        versionSelectorColumn,
+        documentationColumn,
+        installColumn,
+        uninstallColumn
+    };
 
-    /* Raw list of plugins available for download */
-    StringArray pluginArray;
-    HashMap<String, String> pluginLabels;
-    HashMap<String, String> displayNames;
-    HashMap<String, String> dependencyVersion;
+    PluginListBoxComponent();
 
     int getNumRows() override;
 
-    void setNumRows (int num)
-    {
-        numRows = num;
-        pluginList.updateContent();
-    }
+    void paintRowBackground (Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
 
-    // This is overloaded from TableListBoxModel, and should fill in the background of the whole row
-    void paintListBoxItem (int rowNumber, Graphics& g, int width, int height, bool rowIsSelected) override;
+    void paintCell (Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
+
+    Component* refreshComponentForCell (int rowNumber,
+                                        int columnId,
+                                        bool isRowSelected,
+                                        Component* existingComponentToUpdate) override;
+
+    String getCellTooltip (int rowNumber, int columnId) override;
+
+    void sortOrderChanged (int newSortColumnId, bool isForwards) override;
+
+    int getColumnAutoSizeWidth (int columnId) override;
 
     void resized() override;
 
-    void returnKeyPressed (int lastRowSelected) override;
+    void setSearchText (const String& text);
+
+    void setShowInstalledOnly (bool shouldShowInstalledOnly);
+
+    void setTypeFilters (bool shouldShowSources,
+                         bool shouldShowFilters,
+                         bool shouldShowSinks,
+                         bool shouldShowOther);
+
+    bool refreshCatalog();
 
 private:
-    ListBox pluginList;
-    FontOptions listFont;
-    int numRows;
-    int maxTextWidth = 0;
+    void applyFilters();
 
-    var pluginData;
+    bool matchesCurrentFilters (const SelectedPluginInfo& pluginInfo) const;
 
-    String lastPluginSelected;
-    Array<String> pluginVersion;
+    bool isOtherType (const String& type) const;
 
-    SelectedPluginInfo selectedPluginInfo;
+    SelectedPluginInfo* getPluginForVisibleRow (int rowNumber);
 
-    PluginInfoComponent pluginInfoPanel;
+    const SelectedPluginInfo* getPluginForVisibleRow (int rowNumber) const;
 
-    void run() override;
+    void setSelectedVersion (int rowNumber, const String& version);
 
-    // Loads selected plugin's info from bintray
-    bool loadPluginInfo (const String& pluginName);
+    void installPluginForRow (int rowNumber);
 
-    void listBoxItemClicked (int row, const MouseEvent&) override;
+    void uninstallPluginForRow (int rowNumber);
 
-    DropShadower listBoxDropShadower { DropShadow (Colours::black.withAlpha (0.5f), 6, { 2, 2 }) };
+    void updatePluginState (const SelectedPluginInfo& pluginInfo, bool isInstalled);
+
+    TableListBox pluginTable;
+    PluginInstallActionRunner actionRunner;
+    std::vector<SelectedPluginInfo> allPlugins;
+    std::vector<int> visibleRows;
+    String searchText;
+    FontOptions tableFont, headerFont;
+    bool showInstalledOnly = false;
+    bool showSources = true;
+    bool showFilters = true;
+    bool showSinks = true;
+    bool showOther = true;
+
+    DropShadower tableDropShadower { DropShadow (Colours::black.withAlpha (0.5f), 6, { 2, 2 }) };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginListBoxComponent);
 };
@@ -245,9 +245,7 @@ private:
 */
 
 class PluginInstallerComponent : public Component,
-                                 public ComboBox::Listener,
-                                 public Button::Listener,
-                                 public ThreadWithProgressWindow
+                                 public Button::Listener
 {
 public:
     PluginInstallerComponent();
@@ -255,20 +253,13 @@ public:
     void paint (Graphics&) override;
     void resized() override;
 
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
-
     void buttonClicked (Button* button) override;
 
 private:
     PluginListBoxComponent pluginListAndInfo;
 
-    StringArray allPlugins;
-    StringArray installedPlugins;
-
-    bool checkForUpdates;
-
-    Label sortingLabel;
-    ComboBox sortByMenu;
+    Label searchLabel;
+    TextEditor searchEditor;
 
     Label viewLabel;
     ToggleButton allButton, installedButton;
@@ -279,7 +270,7 @@ private:
 
     FontOptions font;
 
-    void run() override;
+    void applyTableFilters();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginInstallerComponent);
 };
