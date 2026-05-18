@@ -255,6 +255,8 @@ public:
 
     void buttonClicked (Button* button) override;
 
+    void colourChanged() override;
+
 private:
     PluginListBoxComponent pluginListAndInfo;
 
@@ -263,7 +265,7 @@ private:
 
     Label viewLabel;
     ToggleButton allButton, installedButton;
-    TextButton updatesButton;
+    std::unique_ptr<ShapeButton> updatesButton;
 
     Label typeLabel;
     ToggleButton filterType, sourceType, sinkType, otherType;

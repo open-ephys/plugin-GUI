@@ -615,7 +615,8 @@ public:
         const auto enabled = isEnabled();
 
         auto background = findColour (ThemeColours::widgetBackground);
-        auto outline = findColour (ThemeColours::outline).withAlpha (enabled ? 0.9f : 0.4f);
+        auto outline = hasKeyboardFocus (false) ? findColour (ThemeColours::highlightedFill) : findColour (ThemeColours::outline);
+        outline = outline.withAlpha (enabled ? 0.9f : 0.4f);
         auto iconColour = Colours::dodgerblue;
 
         if (icon == IconType::install)
@@ -771,9 +772,17 @@ PluginInstallerComponent::PluginInstallerComponent()
     installedButton.setRadioGroupId (101, dontSendNotification);
     installedButton.addListener (this);
 
-    addAndMakeVisible (updatesButton);
-    updatesButton.setButtonText ("Refresh Plugins");
-    updatesButton.addListener (this);
+    updatesButton = std::make_unique<ShapeButton> ("Refresh Plugins",
+                                                    Colours::transparentBlack,
+                                                    Colours::transparentBlack,
+                                                    Colours::transparentBlack);
+    String reloadIconPath = "M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747 M20 4v5h-5";
+    updatesButton->setShape (Drawable::parseSVGPath (reloadIconPath).createPathWithRoundedCorners(2.0f), true, true, false);
+    updatesButton->setOutline (findColour (ThemeColours::defaultText), 2.0f);
+    updatesButton->setMouseCursor (MouseCursor::PointingHandCursor);
+    updatesButton->setTooltip ("Refresh Plugins");
+    updatesButton->addListener (this);
+    addAndMakeVisible (updatesButton.get());
 
     addAndMakeVisible (typeLabel);
     typeLabel.setFont (font);
@@ -825,14 +834,14 @@ void PluginInstallerComponent::resized()
     sinkType.setBounds (785, 10, 65, 28);
     otherType.setBounds (855, 10, 75, 28);
 
-    updatesButton.setBounds (getWidth() - 155, 10, 135, 28);
+    updatesButton->setBounds (getWidth() - 44, 10, 20, 20);
 
     pluginListAndInfo.setBounds (10, 64, getWidth() - 20, getHeight() - 94);
 }
 
 void PluginInstallerComponent::buttonClicked (Button* button)
 {
-    if (button == &updatesButton)
+    if (button == updatesButton.get())
     {
         MouseCursor::showWaitCursor();
         pluginListAndInfo.refreshCatalog();
@@ -840,6 +849,11 @@ void PluginInstallerComponent::buttonClicked (Button* button)
     }
 
     applyTableFilters();
+}
+
+void PluginInstallerComponent::colourChanged()
+{
+    updatesButton->setOutline (findColour (ThemeColours::defaultText), 2.0f);
 }
 
 void PluginInstallerComponent::applyTableFilters()
@@ -863,24 +877,24 @@ PluginListBoxComponent::PluginListBoxComponent()
     pluginTable.setModel (this);
     pluginTable.setRowHeight (38);
     pluginTable.setHeaderHeight (30);
-    pluginTable.setMultipleSelectionEnabled (false);
-    pluginTable.getViewport()->setScrollBarThickness (10);
+    pluginTable.getViewport()->setScrollBarThickness (12);
+    pluginTable.grabKeyboardFocus();
 
     auto& header = pluginTable.getHeader();
     constexpr int sortableColumnFlags = TableHeaderComponent::visible | TableHeaderComponent::resizable | TableHeaderComponent::sortable;
     constexpr int regularColumnFlags = TableHeaderComponent::visible | TableHeaderComponent::resizable;
 
     header.addColumn ("Plugin", displayNameColumn, 180, 120, -1, sortableColumnFlags);
-    header.addColumn ("Type", typeColumn, 95, 75, 160, regularColumnFlags);
+    header.addColumn ("Type", typeColumn, 90, 90, 90, TableHeaderComponent::visible);
     header.addColumn ("Developers", developersColumn, 150, 100, 280, regularColumnFlags);
-    header.addColumn ("Installed", installedVersionColumn, 100, 100, 100, TableHeaderComponent::visible);
+    header.addColumn ("Installed", installedVersionColumn, 80, 80, 80, TableHeaderComponent::visible);
     header.addColumn ("Updated", updatedColumn, 90, 90, 90, TableHeaderComponent::visible);
     header.addColumn ("Description", descriptionColumn, 250, 180, 420, regularColumnFlags);
     header.addColumn ("Dependencies", dependenciesColumn, 120, 120, 120, TableHeaderComponent::appearsOnColumnMenu);
-    header.addColumn ("Version", versionSelectorColumn, 130, 130, 220, regularColumnFlags);
-    header.addColumn ("Docs", documentationColumn, 70, 70, 70, TableHeaderComponent::visible);
-    header.addColumn ("Install", installColumn, 70, 70, 70, TableHeaderComponent::visible);
-    header.addColumn ("Remove", uninstallColumn, 70, 70, 70, TableHeaderComponent::visible);
+    header.addColumn ("Version", versionSelectorColumn, 120, 120, 220, regularColumnFlags);
+    header.addColumn ("Docs", documentationColumn, 60, 60, 60, TableHeaderComponent::visible);
+    header.addColumn ("Install", installColumn, 60, 60, 60, TableHeaderComponent::visible);
+    header.addColumn ("Remove", uninstallColumn, 60, 60, 60, TableHeaderComponent::visible);
     header.setSortColumnId (displayNameColumn, true);
 
     tableDropShadower.setOwner (&pluginTable);
@@ -903,9 +917,6 @@ void PluginListBoxComponent::paintRowBackground (Graphics& g, int rowNumber, int
         auto background = rowNumber % 2 == 0
                               ? findColour (ThemeColours::componentBackground)
                               : findColour (ThemeColours::componentBackground).darker (0.12f);
-
-        if (rowIsSelected)
-            background = findColour (ThemeColours::defaultFill).withAlpha (0.2f);
 
         g.fillAll (background);
 
