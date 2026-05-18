@@ -583,10 +583,20 @@ const Path& getRemoveIconPath()
 
 const Path& getDocsIconPath()
 {
-    static const auto path = createSvgPath ({ "M14 3v4a1 1 0 0 0 1 1h4",
-                                              "M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2",
-                                              "M11 14h1v4h1",
-                                              "M12 11h.01" });
+    static const auto path = createSvgPath ({ "M4 8h16",
+                                              "M12.5 20h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v7",
+                                              "M8 4v4",
+                                              "M16 22l5 -5",
+                                              "M21 21.5v-4.5h-4.5" });
+
+    return path;
+}
+
+const Path& getUpdateIndicatorPath()
+{
+    static const auto path = createSvgPath ({ "M16 12l-4 -4l-4 4",
+                                              "M12 16v-8",
+                                              "M12 3c7.2 0 9 1.8 9 9c0 7.2 -1.8 9 -9 9c-7.2 0 -9 -1.8 -9 -9c0 -7.2 1.8 -9 9 -9" });
 
     return path;
 }
@@ -633,10 +643,10 @@ public:
             outline = outline.withAlpha (0.42f);
 
         g.setColour (background);
-        g.fillRoundedRectangle (bounds, 6.0f);
+        g.fillRoundedRectangle (bounds, 4.0f);
 
         g.setColour (outline);
-        g.drawRoundedRectangle (bounds, 6.0f, 1.0f);
+        g.drawRoundedRectangle (bounds, 4.0f, 1.0f);
 
         auto iconBounds = bounds.reduced (7.0f);
         const auto& iconPath = icon == IconType::install ? getInstallIconPath()
@@ -683,7 +693,6 @@ public:
             versionMenu.setSelectedId (selectedIndex + 1, dontSendNotification);
 
         versionMenu.setEnabled (! pluginInfo.versions.isEmpty());
-        versionMenu.setTooltip (selectedVersion);
     }
 
     void resized() override
@@ -778,11 +787,11 @@ PluginInstallerComponent::PluginInstallerComponent()
     addAndMakeVisible (installedButton.get());
 
     updatesButton = std::make_unique<ShapeButton> ("Refresh Plugins",
-                                                    Colours::transparentBlack,
-                                                    Colours::transparentBlack,
-                                                    Colours::transparentBlack);
+                                                   Colours::transparentBlack,
+                                                   Colours::transparentBlack,
+                                                   Colours::transparentBlack);
     String reloadIconPath = "M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747 M20 4v5h-5";
-    updatesButton->setShape (Drawable::parseSVGPath (reloadIconPath).createPathWithRoundedCorners(2.0f), true, true, false);
+    updatesButton->setShape (Drawable::parseSVGPath (reloadIconPath).createPathWithRoundedCorners (2.0f), true, true, false);
     updatesButton->setOutline (findColour (ThemeColours::defaultText), 2.0f);
     updatesButton->setMouseCursor (MouseCursor::PointingHandCursor);
     updatesButton->setTooltip ("Refresh Plugins");
@@ -933,12 +942,6 @@ void PluginListBoxComponent::paintRowBackground (Graphics& g, int rowNumber, int
 
         g.fillAll (background);
 
-        if (pluginInfo->hasUpdate)
-        {
-            g.setColour (Colours::green.withAlpha (0.8f));
-            g.fillRect (0, 0, 4, height);
-        }
-
         g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.08f));
         g.fillRect (0, height - 1, width, 1);
     }
@@ -956,7 +959,6 @@ void PluginListBoxComponent::paintCell (Graphics& g,
     if (pluginInfo == nullptr)
         return;
 
-    g.setColour (findColour (ThemeColours::defaultText));
     g.setFont (tableFont);
 
     juce::Rectangle<int> textBounds (5, 0, width - 10, height);
@@ -966,7 +968,18 @@ void PluginListBoxComponent::paintCell (Graphics& g,
     {
         case displayNameColumn:
             g.setFont (headerFont);
+            textBounds.removeFromLeft (5);
             text = pluginInfo->displayName;
+            if (pluginInfo->hasUpdate)
+            {
+                auto nameWidth = GlyphArrangement::getStringWidthInt (Font (headerFont), pluginInfo->displayName);
+                auto updateIndicatorBounds = Rectangle<int> (textBounds.getX() + nameWidth + 6, textBounds.getCentreY() - 7, 14, 14);
+                auto transform = getUpdateIndicatorPath().getTransformToScaleToFit (updateIndicatorBounds.toFloat(), true);
+                g.setColour (findColour (ThemeColours::widgetBackground));
+                g.fillPath (getUpdateIndicatorPath(), transform);
+                g.setColour (Colours::green);
+                g.strokePath (getUpdateIndicatorPath(), PathStrokeType (1.5f, PathStrokeType::curved, PathStrokeType::rounded), transform);
+            }
             break;
 
         case typeColumn:
@@ -997,6 +1010,7 @@ void PluginListBoxComponent::paintCell (Graphics& g,
             return;
     }
 
+    g.setColour (findColour (ThemeColours::defaultText));
     g.drawText (text.isNotEmpty() ? text : String ("-"), textBounds, Justification::centredLeft, true);
 }
 
@@ -1060,7 +1074,7 @@ Component* PluginListBoxComponent::refreshComponentForCell (int rowNumber,
         {
             actionCell->update (getInstallActionLabel (*pluginInfo),
                                 canInstallPlugin (*pluginInfo),
-                                "Install the selected plugin version",
+                                "",
                                 [this, rowNumber]
                                 {
                                     installPluginForRow (rowNumber);
@@ -1070,7 +1084,7 @@ Component* PluginListBoxComponent::refreshComponentForCell (int rowNumber,
         {
             actionCell->update ("Remove",
                                 pluginInfo->installedVersion.isNotEmpty(),
-                                "Uninstall the currently installed version",
+                                "",
                                 [this, rowNumber]
                                 {
                                     uninstallPluginForRow (rowNumber);
@@ -1124,7 +1138,8 @@ int PluginListBoxComponent::getColumnAutoSizeWidth (int columnId)
     auto maxWidth = GlyphArrangement::getStringWidthInt (Font (headerFont), pluginTable->getHeader().getColumnName (displayNameColumn));
 
     for (const auto& pluginInfo : allPlugins)
-        maxWidth = jmax (maxWidth, GlyphArrangement::getStringWidthInt (Font (headerFont), pluginInfo.displayName));
+        maxWidth = jmax (maxWidth,
+                         GlyphArrangement::getStringWidthInt (Font (headerFont), pluginInfo.displayName) + (pluginInfo.hasUpdate ? 20 : 0));
 
     return maxWidth + 28;
 }
@@ -1293,7 +1308,7 @@ void PluginListBoxComponent::setSelectedVersion (int rowNumber, const String& ve
     if (auto* pluginInfo = getPluginForVisibleRow (rowNumber))
     {
         pluginInfo->selectedVersion = version;
-        pluginTable->repaintRow (rowNumber);
+        pluginTable->updateContent();
     }
 }
 
