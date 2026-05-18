@@ -739,38 +739,43 @@ PluginInstallerComponent::PluginInstallerComponent()
     font = FontOptions ("Inter", "Regular", 17.0f);
     setSize (getWidth() - 10, getHeight() - 10);
 
-    addAndMakeVisible (searchLabel);
-    searchLabel.setFont (font);
-    searchLabel.setText ("Search:", dontSendNotification);
+    searchLabel = std::make_unique<Label>();
+    searchLabel->setFont (font);
+    searchLabel->setText ("Search:", dontSendNotification);
+    addAndMakeVisible (searchLabel.get());
 
-    addAndMakeVisible (searchEditor);
-    searchEditor.setJustification (Justification::centredLeft);
-    searchEditor.setTextToShowWhenEmpty ("Search by display name...", Colours::grey);
-    searchEditor.setFont (FontOptions ("Inter", "Regular", 15.0f));
-    searchEditor.setPopupMenuEnabled (false);
-    searchEditor.onTextChange = [this]
+    searchEditor = std::make_unique<TextEditor>();
+    searchEditor->setJustification (Justification::centredLeft);
+    searchEditor->setTextToShowWhenEmpty ("Search by display name...", Colours::grey);
+    searchEditor->setFont (FontOptions ("Inter", "Regular", 15.0f));
+    searchEditor->setPopupMenuEnabled (false);
+    searchEditor->onTextChange = [this]
     { applyTableFilters(); };
-    searchEditor.onEscapeKey = [this]
+    searchEditor->onEscapeKey = [this]
     {
-        searchEditor.clear();
+        searchEditor->clear();
         applyTableFilters();
-        searchEditor.giveAwayKeyboardFocus();
+        searchEditor->giveAwayKeyboardFocus();
     };
+    addAndMakeVisible (searchEditor.get());
 
-    addAndMakeVisible (viewLabel);
-    viewLabel.setFont (font);
-    viewLabel.setText ("View:", dontSendNotification);
+    viewLabel = std::make_unique<Label>();
+    viewLabel->setFont (font);
+    viewLabel->setText ("View:", dontSendNotification);
+    addAndMakeVisible (viewLabel.get());
 
-    addAndMakeVisible (allButton);
-    allButton.setButtonText ("All");
-    allButton.setRadioGroupId (101, dontSendNotification);
-    allButton.setToggleState (true, dontSendNotification);
-    allButton.addListener (this);
+    allButton = std::make_unique<ToggleButton>();
+    allButton->setButtonText ("All");
+    allButton->setRadioGroupId (101, dontSendNotification);
+    allButton->setToggleState (true, dontSendNotification);
+    allButton->addListener (this);
+    addAndMakeVisible (allButton.get());
 
-    addAndMakeVisible (installedButton);
-    installedButton.setButtonText ("Installed");
-    installedButton.setRadioGroupId (101, dontSendNotification);
-    installedButton.addListener (this);
+    installedButton = std::make_unique<ToggleButton>();
+    installedButton->setButtonText ("Installed");
+    installedButton->setRadioGroupId (101, dontSendNotification);
+    installedButton->addListener (this);
+    addAndMakeVisible (installedButton.get());
 
     updatesButton = std::make_unique<ShapeButton> ("Refresh Plugins",
                                                     Colours::transparentBlack,
@@ -784,31 +789,37 @@ PluginInstallerComponent::PluginInstallerComponent()
     updatesButton->addListener (this);
     addAndMakeVisible (updatesButton.get());
 
-    addAndMakeVisible (typeLabel);
-    typeLabel.setFont (font);
-    typeLabel.setText ("Type:", dontSendNotification);
+    typeLabel = std::make_unique<Label>();
+    typeLabel->setFont (font);
+    typeLabel->setText ("Type:", dontSendNotification);
+    addAndMakeVisible (typeLabel.get());
 
-    addAndMakeVisible (sourceType);
-    sourceType.setButtonText ("Source");
-    sourceType.setToggleState (true, dontSendNotification);
-    sourceType.addListener (this);
+    sourceType = std::make_unique<ToggleButton>();
+    sourceType->setButtonText ("Source");
+    sourceType->setToggleState (true, dontSendNotification);
+    sourceType->addListener (this);
+    addAndMakeVisible (sourceType.get());
 
-    addAndMakeVisible (filterType);
-    filterType.setButtonText ("Filter");
-    filterType.setToggleState (true, dontSendNotification);
-    filterType.addListener (this);
+    filterType = std::make_unique<ToggleButton>();
+    filterType->setButtonText ("Filter");
+    filterType->setToggleState (true, dontSendNotification);
+    filterType->addListener (this);
+    addAndMakeVisible (filterType.get());
 
-    addAndMakeVisible (sinkType);
-    sinkType.setButtonText ("Sink");
-    sinkType.setToggleState (true, dontSendNotification);
-    sinkType.addListener (this);
+    sinkType = std::make_unique<ToggleButton>();
+    sinkType->setButtonText ("Sink");
+    sinkType->setToggleState (true, dontSendNotification);
+    sinkType->addListener (this);
+    addAndMakeVisible (sinkType.get());
 
-    addAndMakeVisible (otherType);
-    otherType.setButtonText ("Other");
-    otherType.setToggleState (true, dontSendNotification);
-    otherType.addListener (this);
+    otherType = std::make_unique<ToggleButton>();
+    otherType->setButtonText ("Other");
+    otherType->setToggleState (true, dontSendNotification);
+    otherType->addListener (this);
+    addAndMakeVisible (otherType.get());
 
-    addAndMakeVisible (pluginListAndInfo);
+    pluginListAndInfo = std::make_unique<PluginListBoxComponent>();
+    addAndMakeVisible (pluginListAndInfo.get());
     applyTableFilters();
 }
 
@@ -821,22 +832,22 @@ void PluginInstallerComponent::paint (Graphics& g)
 
 void PluginInstallerComponent::resized()
 {
-    searchLabel.setBounds (20, 10, 60, 28);
-    searchEditor.setBounds (80, 10, 250, 28);
+    searchLabel->setBounds (20, 10, 60, 28);
+    searchEditor->setBounds (80, 10, 250, 28);
 
-    viewLabel.setBounds (350, 10, 50, 28);
-    allButton.setBounds (400, 10, 55, 28);
-    installedButton.setBounds (460, 10, 95, 28);
+    viewLabel->setBounds (350, 10, 50, 28);
+    allButton->setBounds (400, 10, 55, 28);
+    installedButton->setBounds (460, 10, 95, 28);
 
-    typeLabel.setBounds (570, 10, 50, 28);
-    sourceType.setBounds (625, 10, 80, 28);
-    filterType.setBounds (710, 10, 70, 28);
-    sinkType.setBounds (785, 10, 65, 28);
-    otherType.setBounds (855, 10, 75, 28);
+    typeLabel->setBounds (570, 10, 50, 28);
+    sourceType->setBounds (625, 10, 80, 28);
+    filterType->setBounds (710, 10, 70, 28);
+    sinkType->setBounds (785, 10, 65, 28);
+    otherType->setBounds (855, 10, 75, 28);
 
     updatesButton->setBounds (getWidth() - 44, 10, 20, 20);
 
-    pluginListAndInfo.setBounds (10, 64, getWidth() - 20, getHeight() - 94);
+    pluginListAndInfo->setBounds (10, 64, getWidth() - 20, getHeight() - 94);
 }
 
 void PluginInstallerComponent::buttonClicked (Button* button)
@@ -844,7 +855,7 @@ void PluginInstallerComponent::buttonClicked (Button* button)
     if (button == updatesButton.get())
     {
         MouseCursor::showWaitCursor();
-        pluginListAndInfo.refreshCatalog();
+        pluginListAndInfo->refreshCatalog();
         MouseCursor::hideWaitCursor();
     }
 
@@ -858,12 +869,12 @@ void PluginInstallerComponent::colourChanged()
 
 void PluginInstallerComponent::applyTableFilters()
 {
-    pluginListAndInfo.setSearchText (searchEditor.getText());
-    pluginListAndInfo.setShowInstalledOnly (installedButton.getToggleState());
-    pluginListAndInfo.setTypeFilters (sourceType.getToggleState(),
-                                      filterType.getToggleState(),
-                                      sinkType.getToggleState(),
-                                      otherType.getToggleState());
+    pluginListAndInfo->setSearchText (searchEditor->getText());
+    pluginListAndInfo->setShowInstalledOnly (installedButton->getToggleState());
+    pluginListAndInfo->setTypeFilters (sourceType->getToggleState(),
+                                       filterType->getToggleState(),
+                                       sinkType->getToggleState(),
+                                       otherType->getToggleState());
 }
 
 /* ================================== Plugin Table Component ================================== */
@@ -873,14 +884,14 @@ PluginListBoxComponent::PluginListBoxComponent()
     tableFont = FontOptions ("Inter", "Regular", 14.0f);
     headerFont = FontOptions ("Inter", "Semi Bold", 15.0f);
 
-    addAndMakeVisible (pluginTable);
-    pluginTable.setModel (this);
-    pluginTable.setRowHeight (38);
-    pluginTable.setHeaderHeight (30);
-    pluginTable.getViewport()->setScrollBarThickness (12);
-    pluginTable.grabKeyboardFocus();
+    pluginTable = std::make_unique<TableListBox>();
+    pluginTable->setModel (this);
+    pluginTable->setRowHeight (38);
+    pluginTable->setHeaderHeight (30);
+    pluginTable->getViewport()->setScrollBarThickness (12);
+    addAndMakeVisible (pluginTable.get());
 
-    auto& header = pluginTable.getHeader();
+    auto& header = pluginTable->getHeader();
     constexpr int sortableColumnFlags = TableHeaderComponent::visible | TableHeaderComponent::resizable | TableHeaderComponent::sortable;
     constexpr int regularColumnFlags = TableHeaderComponent::visible | TableHeaderComponent::resizable;
 
@@ -897,10 +908,12 @@ PluginListBoxComponent::PluginListBoxComponent()
     header.addColumn ("Remove", uninstallColumn, 60, 60, 60, TableHeaderComponent::visible);
     header.setSortColumnId (displayNameColumn, true);
 
-    tableDropShadower.setOwner (&pluginTable);
+    tableDropShadower = std::make_unique<DropShadower> (DropShadow (Colours::black.withAlpha (0.5f), 6, { 2, 2 }));
+    tableDropShadower->setOwner (pluginTable.get());
 
-    actionRunner.setOperationCompleteHandler ([this] (const SelectedPluginInfo& pluginInfo, bool isInstalled)
-                                              { updatePluginState (pluginInfo, isInstalled); });
+    actionRunner = std::make_unique<PluginInstallActionRunner>();
+    actionRunner->setOperationCompleteHandler ([this] (const SelectedPluginInfo& pluginInfo, bool isInstalled)
+                                               { updatePluginState (pluginInfo, isInstalled); });
 
     refreshCatalog();
 }
@@ -1108,7 +1121,7 @@ int PluginListBoxComponent::getColumnAutoSizeWidth (int columnId)
     if (columnId != displayNameColumn)
         return 0;
 
-    auto maxWidth = GlyphArrangement::getStringWidthInt (Font (headerFont), pluginTable.getHeader().getColumnName (displayNameColumn));
+    auto maxWidth = GlyphArrangement::getStringWidthInt (Font (headerFont), pluginTable->getHeader().getColumnName (displayNameColumn));
 
     for (const auto& pluginInfo : allPlugins)
         maxWidth = jmax (maxWidth, GlyphArrangement::getStringWidthInt (Font (headerFont), pluginInfo.displayName));
@@ -1118,7 +1131,7 @@ int PluginListBoxComponent::getColumnAutoSizeWidth (int columnId)
 
 void PluginListBoxComponent::resized()
 {
-    pluginTable.setBounds (getLocalBounds().reduced (6));
+    pluginTable->setBounds (getLocalBounds().reduced (6));
 }
 
 void PluginListBoxComponent::setSearchText (const String& text)
@@ -1189,8 +1202,8 @@ bool PluginListBoxComponent::refreshCatalog()
     }
 
     allPlugins = std::move (loadedPlugins);
-    actionRunner.setDownloadURL (catalog.downloadUrl);
-    pluginTable.autoSizeColumn (displayNameColumn);
+    actionRunner->setDownloadURL (catalog.downloadUrl);
+    pluginTable->autoSizeColumn (displayNameColumn);
 
     updatablePlugins.clear();
 
@@ -1226,10 +1239,10 @@ void PluginListBoxComponent::applyFilters()
         if (result == 0)
             return allPlugins[static_cast<size_t> (lhs)].pluginName.compareNatural (allPlugins[static_cast<size_t> (rhs)].pluginName) < 0;
 
-        return pluginTable.getHeader().isSortedForwards() ? result < 0 : result > 0; });
+        return pluginTable->getHeader().isSortedForwards() ? result < 0 : result > 0; });
 
-    pluginTable.updateContent();
-    pluginTable.repaint();
+    pluginTable->updateContent();
+    pluginTable->repaint();
 }
 
 bool PluginListBoxComponent::matchesCurrentFilters (const SelectedPluginInfo& pluginInfo) const
@@ -1280,7 +1293,7 @@ void PluginListBoxComponent::setSelectedVersion (int rowNumber, const String& ve
     if (auto* pluginInfo = getPluginForVisibleRow (rowNumber))
     {
         pluginInfo->selectedVersion = version;
-        pluginTable.repaintRow (rowNumber);
+        pluginTable->repaintRow (rowNumber);
     }
 }
 
@@ -1288,8 +1301,8 @@ void PluginListBoxComponent::installPluginForRow (int rowNumber)
 {
     if (auto* pluginInfo = getPluginForVisibleRow (rowNumber))
     {
-        actionRunner.setPluginInfo (*pluginInfo);
-        actionRunner.installSelectedPlugin();
+        actionRunner->setPluginInfo (*pluginInfo);
+        actionRunner->installSelectedPlugin();
     }
 }
 
@@ -1297,8 +1310,8 @@ void PluginListBoxComponent::uninstallPluginForRow (int rowNumber)
 {
     if (auto* pluginInfo = getPluginForVisibleRow (rowNumber))
     {
-        actionRunner.setPluginInfo (*pluginInfo);
-        actionRunner.uninstallSelectedPlugin();
+        actionRunner->setPluginInfo (*pluginInfo);
+        actionRunner->uninstallSelectedPlugin();
     }
 }
 

@@ -223,8 +223,8 @@ private:
 
     void updatePluginState (const SelectedPluginInfo& pluginInfo, bool isInstalled);
 
-    TableListBox pluginTable;
-    PluginInstallActionRunner actionRunner;
+    std::unique_ptr<TableListBox> pluginTable;
+    std::unique_ptr<PluginInstallActionRunner> actionRunner;
     std::vector<SelectedPluginInfo> allPlugins;
     std::vector<int> visibleRows;
     String searchText;
@@ -235,7 +235,7 @@ private:
     bool showSinks = true;
     bool showOther = true;
 
-    DropShadower tableDropShadower { DropShadow (Colours::black.withAlpha (0.5f), 6, { 2, 2 }) };
+    std::unique_ptr<DropShadower> tableDropShadower;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginListBoxComponent);
 };
@@ -258,17 +258,17 @@ public:
     void colourChanged() override;
 
 private:
-    PluginListBoxComponent pluginListAndInfo;
+    std::unique_ptr<PluginListBoxComponent> pluginListAndInfo;
 
-    Label searchLabel;
-    TextEditor searchEditor;
+    std::unique_ptr<Label> searchLabel;
+    std::unique_ptr<TextEditor> searchEditor;
 
-    Label viewLabel;
-    ToggleButton allButton, installedButton;
+    std::unique_ptr<Label> viewLabel;
+    std::unique_ptr<ToggleButton> allButton, installedButton;
     std::unique_ptr<ShapeButton> updatesButton;
 
-    Label typeLabel;
-    ToggleButton filterType, sourceType, sinkType, otherType;
+    std::unique_ptr<Label> typeLabel;
+    std::unique_ptr<ToggleButton> filterType, sourceType, sinkType, otherType;
 
     FontOptions font;
 
