@@ -616,7 +616,6 @@ public:
                                                 : (iconType == IconType::remove ? "Remove" : "Docs")),
           icon (iconType)
     {
-        setMouseCursor (MouseCursor::PointingHandCursor);
     }
 
     void paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown) override
@@ -626,7 +625,7 @@ public:
 
         auto background = findColour (ThemeColours::widgetBackground);
         auto outline = hasKeyboardFocus (false) ? findColour (ThemeColours::highlightedFill) : findColour (ThemeColours::outline);
-        outline = outline.withAlpha (enabled ? 0.9f : 0.4f);
+        outline = outline.withAlpha (enabled ? 1.0f : 0.4f);
         auto iconColour = Colours::dodgerblue;
 
         if (icon == IconType::install)
@@ -636,11 +635,19 @@ public:
 
         iconColour = iconColour.withAlpha (enabled ? 0.95f : 0.28f);
 
+        float iconScaleDelta = 6.0f;
+
         if (enabled && isMouseOverButton)
+        {
             background = background.brighter (isButtonDown ? 0.08f : 0.16f);
+            iconScaleDelta = 5.0f;
+        }
 
         if (enabled && isButtonDown)
+        {
             outline = outline.withAlpha (0.42f);
+            iconScaleDelta = 7.0f;
+        }
 
         g.setColour (background);
         g.fillRoundedRectangle (bounds, 4.0f);
@@ -648,13 +655,21 @@ public:
         g.setColour (outline);
         g.drawRoundedRectangle (bounds, 4.0f, 1.0f);
 
-        auto iconBounds = bounds.reduced (7.0f);
+        auto iconBounds = bounds.reduced (iconScaleDelta);
         const auto& iconPath = icon == IconType::install ? getInstallIconPath()
                                                          : (icon == IconType::remove ? getRemoveIconPath() : getDocsIconPath());
         auto transform = iconPath.getTransformToScaleToFit (iconBounds, true, Justification::centred);
 
         g.setColour (iconColour);
         g.strokePath (iconPath, PathStrokeType (1.5f, PathStrokeType::curved, PathStrokeType::rounded), transform);
+    }
+
+    MouseCursor getMouseCursor () override
+    {
+        if (isEnabled())
+            return MouseCursor::PointingHandCursor;
+
+        return MouseCursor::NormalCursor;
     }
 
 private:
@@ -745,8 +760,9 @@ private:
 
 PluginInstallerComponent::PluginInstallerComponent()
 {
-    font = FontOptions ("Inter", "Regular", 17.0f);
+    font = FontOptions ("Inter", "Medium", 17.0f);
     setSize (getWidth() - 10, getHeight() - 10);
+    setWantsKeyboardFocus (true);
 
     searchLabel = std::make_unique<Label>();
     searchLabel->setFont (font);
@@ -754,8 +770,9 @@ PluginInstallerComponent::PluginInstallerComponent()
     addAndMakeVisible (searchLabel.get());
 
     searchEditor = std::make_unique<TextEditor>();
-    searchEditor->setJustification (Justification::centredLeft);
-    searchEditor->setTextToShowWhenEmpty ("Search by display name...", Colours::grey);
+    // searchEditor->setJustification (Justification::topLeft);
+    searchEditor->setSelectAllWhenFocused (true);
+    searchEditor->setTextToShowWhenEmpty ("Search by name...", Colours::grey);
     searchEditor->setFont (FontOptions ("Inter", "Regular", 15.0f));
     searchEditor->setPopupMenuEnabled (false);
     searchEditor->onTextChange = [this]
@@ -835,26 +852,37 @@ PluginInstallerComponent::PluginInstallerComponent()
 void PluginInstallerComponent::paint (Graphics& g)
 {
     g.fillAll (findColour (ThemeColours::componentBackground).darker());
-    g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.2f));
+    g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.25f));
     g.fillRect (10, 50, getWidth() - 20, 1);
+
+    // Draw rounded rectangle around the filter buttons
+    juce::Rectangle<float> filtersArea (290.0f, 6.0f, 600.0f, 36.0f);
+    g.setColour (findColour (ThemeColours::componentBackground).withAlpha (0.5f));
+    g.fillRoundedRectangle (filtersArea, 4.0f);
+    g.setColour (findColour (ThemeColours::outline).withAlpha (0.75f));
+    g.drawRoundedRectangle (filtersArea, 4.0f, 1.0f);
+    g.fillRect (512.0f, 6.0f, 1.5f, 36.0f);
+
+    if (pluginListAndInfo != nullptr)
+        g.drawRect (pluginListAndInfo->getBounds().toFloat().reduced (5.0f), 1.0f);
 }
 
 void PluginInstallerComponent::resized()
 {
     searchLabel->setBounds (20, 10, 60, 28);
-    searchEditor->setBounds (80, 10, 250, 28);
+    searchEditor->setBounds (80, 12, 200, 24);
 
-    viewLabel->setBounds (350, 10, 50, 28);
-    allButton->setBounds (400, 10, 55, 28);
-    installedButton->setBounds (460, 10, 95, 28);
+    viewLabel->setBounds (300, 10, 50, 28);
+    allButton->setBounds (350, 12, 55, 24);
+    installedButton->setBounds (410, 12, 95, 24);
 
-    typeLabel->setBounds (570, 10, 50, 28);
-    sourceType->setBounds (625, 10, 80, 28);
-    filterType->setBounds (710, 10, 70, 28);
-    sinkType->setBounds (785, 10, 65, 28);
-    otherType->setBounds (855, 10, 75, 28);
+    typeLabel->setBounds (520, 10, 50, 28);
+    sourceType->setBounds (575, 12, 80, 24);
+    filterType->setBounds (660, 12, 70, 24);
+    sinkType->setBounds (735, 12, 65, 24);
+    otherType->setBounds (805, 12, 75, 24);
 
-    updatesButton->setBounds (getWidth() - 44, 10, 20, 20);
+    updatesButton->setBounds (getWidth() - 44, 14, 20, 20);
 
     pluginListAndInfo->setBounds (10, 64, getWidth() - 20, getHeight() - 94);
 }
@@ -874,6 +902,7 @@ void PluginInstallerComponent::buttonClicked (Button* button)
 void PluginInstallerComponent::colourChanged()
 {
     updatesButton->setOutline (findColour (ThemeColours::defaultText), 2.0f);
+    searchEditor->applyColourToAllText (findColour (ThemeColours::defaultText));
 }
 
 void PluginInstallerComponent::applyTableFilters()
@@ -909,7 +938,7 @@ PluginListBoxComponent::PluginListBoxComponent()
     header.addColumn ("Developers", developersColumn, 150, 100, 280, regularColumnFlags);
     header.addColumn ("Installed", installedVersionColumn, 80, 80, 80, TableHeaderComponent::visible);
     header.addColumn ("Updated", updatedColumn, 90, 90, 90, TableHeaderComponent::visible);
-    header.addColumn ("Description", descriptionColumn, 250, 180, 420, regularColumnFlags);
+    header.addColumn ("Description", descriptionColumn, 250, 180, -1, regularColumnFlags);
     header.addColumn ("Dependencies", dependenciesColumn, 120, 120, 120, TableHeaderComponent::appearsOnColumnMenu);
     header.addColumn ("Version", versionSelectorColumn, 120, 120, 220, regularColumnFlags);
     header.addColumn ("Docs", documentationColumn, 60, 60, 60, TableHeaderComponent::visible);
@@ -973,7 +1002,7 @@ void PluginListBoxComponent::paintCell (Graphics& g,
             if (pluginInfo->hasUpdate)
             {
                 auto nameWidth = GlyphArrangement::getStringWidthInt (Font (headerFont), pluginInfo->displayName);
-                auto updateIndicatorBounds = Rectangle<int> (textBounds.getX() + nameWidth + 6, textBounds.getCentreY() - 7, 14, 14);
+                auto updateIndicatorBounds = juce::Rectangle<int> (textBounds.getX() + nameWidth + 6, textBounds.getCentreY() - 7, 14, 14);
                 auto transform = getUpdateIndicatorPath().getTransformToScaleToFit (updateIndicatorBounds.toFloat(), true);
                 g.setColour (findColour (ThemeColours::widgetBackground));
                 g.fillPath (getUpdateIndicatorPath(), transform);
