@@ -552,6 +552,17 @@ bool canInstallPlugin (const SelectedPluginInfo& pluginInfo)
     return label != "Installed" && label != "Unavailable";
 }
 
+Colour getInstallActionColour (const String& actionLabel)
+{
+    if (actionLabel == "Upgrade")
+        return Colours::green;
+
+    if (actionLabel == "Downgrade")
+        return Colours::orangered.darker (0.1f);
+
+    return Colours::dodgerblue.darker();
+}
+
 Path createSvgPath (std::initializer_list<const char*> svgPathSegments)
 {
     Path path;
@@ -571,21 +582,41 @@ const Path& getInstallIconPath()
     return path;
 }
 
+const Path& getUpgradeIconPath()
+{
+    static const auto path = createSvgPath ({ "M9 12h-3.586a1 1 0 0 1 -.707 -1.707l6.586 -6.586a1 1 0 0 1 1.414 0l6.586 6.586a1 1 0 0 1 -.707 1.707h-3.586v3h-6v-3",
+                                              "M9 21h6",
+                                              "M9 18h6" });
+
+    return path;
+}
+
+const Path& getDowngradeIconPath()
+{
+    static const auto path = createSvgPath ({ "M15 12h3.586a1 1 0 0 1 .707 1.707l-6.586 6.586a1 1 0 0 1 -1.414 0l-6.586 -6.586a1 1 0 0 1 .707 -1.707h3.586v-3h6v3",
+                                              "M15 3h-6",
+                                              "M15 6h-6" });
+
+    return path;
+}
+
+const Path& getInstallActionIconPath (const String& actionLabel)
+{
+    if (actionLabel == "Upgrade")
+        return getUpgradeIconPath();
+
+    if (actionLabel == "Downgrade")
+        return getDowngradeIconPath();
+
+    return getInstallIconPath();
+}
+
 const Path& getRemoveIconPath()
 {
     static const auto path = createSvgPath ({ "M4 7h16",
                                               "M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12",
                                               "M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3",
                                               "M10 12l4 4m0 -4l-4 4" });
-
-    return path;
-}
-
-const Path& getUpdateIndicatorPath()
-{
-    static const auto path = createSvgPath ({ "M16 12l-4 -4l-4 4",
-                                              "M12 16v-8",
-                                              "M12 3c7.2 0 9 1.8 9 9c0 7.2 -1.8 9 -9 9c-7.2 0 -9 -1.8 -9 -9c0 -7.2 1.8 -9 9 -9" });
 
     return path;
 }
@@ -609,6 +640,7 @@ public:
     {
         auto bounds = getLocalBounds().toFloat().reduced (2.0f);
         const auto enabled = isEnabled();
+        const auto actionLabel = getButtonText();
 
         auto background = findColour (ThemeColours::widgetBackground);
         auto outline = hasKeyboardFocus (false) ? findColour (ThemeColours::highlightedFill) : findColour (ThemeColours::outline);
@@ -616,7 +648,7 @@ public:
         auto iconColour = Colours::dodgerblue;
 
         if (icon == IconType::install)
-            iconColour = Colours::green;
+            iconColour = getInstallActionColour (actionLabel);
         else if (icon == IconType::remove)
             iconColour = Colours::red;
 
@@ -643,11 +675,11 @@ public:
         g.drawRoundedRectangle (bounds, 4.0f, 1.0f);
 
         auto iconBounds = bounds.reduced (iconScaleDelta);
-        const auto& iconPath = icon == IconType::install ? getInstallIconPath() : getRemoveIconPath();
+        const auto& iconPath = icon == IconType::install ? getInstallActionIconPath (actionLabel) : getRemoveIconPath();
         auto transform = iconPath.getTransformToScaleToFit (iconBounds, true, Justification::centred);
 
         g.setColour (iconColour);
-        g.strokePath (iconPath, PathStrokeType (1.5f, PathStrokeType::curved, PathStrokeType::rounded), transform);
+        g.strokePath (iconPath, PathStrokeType (2.0f, PathStrokeType::curved, PathStrokeType::rounded), transform);
     }
 
     MouseCursor getMouseCursor() override
@@ -702,20 +734,6 @@ public:
                         getLocalBounds().reduced (5, 0),
                         Justification::centredLeft,
                         true);
-        }
-
-        if (hasUpdate)
-        {
-            const auto& fontToMeasure = hasDocs ? linkFont : plainFont;
-            const auto nameWidth = GlyphArrangement::getStringWidthInt (fontToMeasure, displayName);
-            const auto indicatorX = jmin (getWidth() - 18, 11 + nameWidth);
-            auto updateIndicatorBounds = juce::Rectangle<int> (indicatorX, getHeight() / 2 - 7, 14, 14);
-            auto transform = getUpdateIndicatorPath().getTransformToScaleToFit (updateIndicatorBounds.toFloat(), true);
-
-            g.setColour (findColour (ThemeColours::widgetBackground));
-            g.fillPath (getUpdateIndicatorPath(), transform);
-            g.setColour (Colours::green);
-            g.strokePath (getUpdateIndicatorPath(), PathStrokeType (1.5f, PathStrokeType::curved, PathStrokeType::rounded), transform);
         }
     }
 
@@ -805,13 +823,12 @@ public:
 
     void update (const String& label,
                  bool isEnabled,
-                 String tooltip,
                  std::function<void()> callback)
     {
         onClick = std::move (callback);
         button.setButtonText (label);
         button.setEnabled (isEnabled);
-        button.setTooltip (std::move (tooltip));
+        button.setTooltip (label);
     }
 
     void resized() override
@@ -1150,7 +1167,6 @@ Component* PluginListBoxComponent::refreshComponentForCell (int rowNumber,
         {
             actionCell->update (getInstallActionLabel (*pluginInfo),
                                 canInstallPlugin (*pluginInfo),
-                                "",
                                 [this, rowNumber]
                                 {
                                     installPluginForRow (rowNumber);
@@ -1160,7 +1176,6 @@ Component* PluginListBoxComponent::refreshComponentForCell (int rowNumber,
         {
             actionCell->update ("Remove",
                                 pluginInfo->installedVersion.isNotEmpty(),
-                                "",
                                 [this, rowNumber]
                                 {
                                     uninstallPluginForRow (rowNumber);
@@ -1215,7 +1230,7 @@ int PluginListBoxComponent::getColumnAutoSizeWidth (int columnId)
 
     for (const auto& pluginInfo : allPlugins)
         maxWidth = jmax (maxWidth,
-                         GlyphArrangement::getStringWidthInt (Font (headerFont), pluginInfo.displayName + "↗") + (pluginInfo.hasUpdate ? 20 : 0));
+                         GlyphArrangement::getStringWidthInt (Font (headerFont), pluginInfo.displayName + "↗"));
 
     return maxWidth + 28;
 }
