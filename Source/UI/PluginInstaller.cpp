@@ -275,7 +275,7 @@ PluginInstaller::PluginInstaller (bool loadComponents)
 
     if (loadComponents)
     {
-        setSize (1200, 640);
+        setSize (1140, 640);
 
         if (auto window = getActiveTopLevelWindow())
             setCentrePosition (window->getScreenBounds().getCentre());
@@ -288,7 +288,7 @@ PluginInstaller::PluginInstaller (bool loadComponents)
         setContentOwned (new PluginInstallerComponent(), false);
         setVisible (true);
         setResizable (true, false); // useBottomCornerRisizer -- doesn't work very well
-        setResizeLimits (1200, 640, 8192, 5120);
+        setResizeLimits (1140, 640, 8192, 5120);
 
 #ifdef __APPLE__
         File iconDir = File::getSpecialLocation (File::currentApplicationFile).getChildFile ("Contents/Resources");
@@ -581,17 +581,6 @@ const Path& getRemoveIconPath()
     return path;
 }
 
-const Path& getDocsIconPath()
-{
-    static const auto path = createSvgPath ({ "M4 8h16",
-                                              "M12.5 20h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v7",
-                                              "M8 4v4",
-                                              "M16 22l5 -5",
-                                              "M21 21.5v-4.5h-4.5" });
-
-    return path;
-}
-
 const Path& getUpdateIndicatorPath()
 {
     static const auto path = createSvgPath ({ "M16 12l-4 -4l-4 4",
@@ -607,13 +596,11 @@ public:
     enum class IconType
     {
         install,
-        remove,
-        docs
+        remove
     };
 
     explicit PluginIconButton (IconType iconType)
-        : Button (iconType == IconType::install ? "Install"
-                                                : (iconType == IconType::remove ? "Remove" : "Docs")),
+        : Button (iconType == IconType::install ? "Install" : "Remove"),
           icon (iconType)
     {
     }
@@ -656,15 +643,14 @@ public:
         g.drawRoundedRectangle (bounds, 4.0f, 1.0f);
 
         auto iconBounds = bounds.reduced (iconScaleDelta);
-        const auto& iconPath = icon == IconType::install ? getInstallIconPath()
-                                                         : (icon == IconType::remove ? getRemoveIconPath() : getDocsIconPath());
+        const auto& iconPath = icon == IconType::install ? getInstallIconPath() : getRemoveIconPath();
         auto transform = iconPath.getTransformToScaleToFit (iconBounds, true, Justification::centred);
 
         g.setColour (iconColour);
         g.strokePath (iconPath, PathStrokeType (1.5f, PathStrokeType::curved, PathStrokeType::rounded), transform);
     }
 
-    MouseCursor getMouseCursor () override
+    MouseCursor getMouseCursor() override
     {
         if (isEnabled())
             return MouseCursor::PointingHandCursor;
@@ -674,6 +660,89 @@ public:
 
 private:
     IconType icon;
+};
+
+class PluginNameCell : public Component
+{
+public:
+    PluginNameCell()
+        : plainFont (FontOptions (14.0f)),
+          linkFont (FontOptions (14.0f, Font::underlined))
+    {
+        addAndMakeVisible (linkButton);
+        linkButton.setJustificationType (Justification::centredLeft);
+    }
+
+    void update (const SelectedPluginInfo& pluginInfo, const FontOptions& fontOptions)
+    {
+        hasDocs = pluginInfo.docURL.isNotEmpty();
+        hasUpdate = pluginInfo.hasUpdate;
+        displayName = pluginInfo.displayName + (hasDocs ? " ↗" : "");
+        plainFont = Font (fontOptions);
+        linkFont = Font (fontOptions.withUnderline (true));
+
+        linkButton.setVisible (hasDocs);
+        linkButton.setEnabled (hasDocs);
+        linkButton.setButtonText (displayName);
+        linkButton.setURL (hasDocs ? URL (pluginInfo.docURL) : URL());
+        linkButton.setFont (linkFont, false, Justification::centredLeft);
+
+        updateColours();
+        resized();
+        repaint();
+    }
+
+    void paint (Graphics& g) override
+    {
+        if (! hasDocs)
+        {
+            g.setColour (findColour (ThemeColours::defaultText));
+            g.setFont (plainFont);
+            g.drawText (displayName.isNotEmpty() ? displayName : String ("-"),
+                        getLocalBounds().reduced (5, 0),
+                        Justification::centredLeft,
+                        true);
+        }
+
+        if (hasUpdate)
+        {
+            const auto& fontToMeasure = hasDocs ? linkFont : plainFont;
+            const auto nameWidth = GlyphArrangement::getStringWidthInt (fontToMeasure, displayName);
+            const auto indicatorX = jmin (getWidth() - 18, 11 + nameWidth);
+            auto updateIndicatorBounds = juce::Rectangle<int> (indicatorX, getHeight() / 2 - 7, 14, 14);
+            auto transform = getUpdateIndicatorPath().getTransformToScaleToFit (updateIndicatorBounds.toFloat(), true);
+
+            g.setColour (findColour (ThemeColours::widgetBackground));
+            g.fillPath (getUpdateIndicatorPath(), transform);
+            g.setColour (Colours::green);
+            g.strokePath (getUpdateIndicatorPath(), PathStrokeType (1.5f, PathStrokeType::curved, PathStrokeType::rounded), transform);
+        }
+    }
+
+    void resized() override
+    {
+        auto bounds = getLocalBounds().reduced (5, 0);
+        linkButton.setBounds (bounds);
+        linkButton.changeWidthToFitText();
+    }
+
+    void colourChanged() override
+    {
+        updateColours();
+    }
+
+private:
+    void updateColours()
+    {
+        linkButton.setColour (HyperlinkButton::textColourId, findColour (ThemeColours::defaultText));
+    }
+
+    HyperlinkButton linkButton;
+    String displayName;
+    Font plainFont;
+    Font linkFont;
+    bool hasDocs = false;
+    bool hasUpdate = false;
 };
 
 class PluginVersionCell : public Component
@@ -936,13 +1005,12 @@ PluginListBoxComponent::PluginListBoxComponent()
     header.addColumn ("Plugin", displayNameColumn, 180, 120, -1, sortableColumnFlags);
     header.addColumn ("Type", typeColumn, 90, 90, 90, TableHeaderComponent::visible);
     header.addColumn ("Developers", developersColumn, 150, 100, 280, regularColumnFlags);
-    header.addColumn ("Installed", installedVersionColumn, 80, 80, 80, TableHeaderComponent::visible);
     header.addColumn ("Updated", updatedColumn, 90, 90, 90, TableHeaderComponent::visible);
     header.addColumn ("Description", descriptionColumn, 250, 180, -1, regularColumnFlags);
     header.addColumn ("Dependencies", dependenciesColumn, 120, 120, 120, TableHeaderComponent::appearsOnColumnMenu);
+    header.addColumn ("Installed", installedVersionColumn, 80, 80, 80, TableHeaderComponent::visible);
     header.addColumn ("Version", versionSelectorColumn, 120, 120, 220, regularColumnFlags);
-    header.addColumn ("Docs", documentationColumn, 60, 60, 60, TableHeaderComponent::visible);
-    header.addColumn ("Install", installColumn, 60, 60, 60, TableHeaderComponent::visible);
+    header.addColumn ("Action", installColumn, 60, 60, 60, TableHeaderComponent::visible);
     header.addColumn ("Remove", uninstallColumn, 60, 60, 60, TableHeaderComponent::visible);
     header.setSortColumnId (displayNameColumn, true);
 
@@ -996,19 +1064,6 @@ void PluginListBoxComponent::paintCell (Graphics& g,
     switch (columnId)
     {
         case displayNameColumn:
-            g.setFont (headerFont);
-            textBounds.removeFromLeft (5);
-            text = pluginInfo->displayName;
-            if (pluginInfo->hasUpdate)
-            {
-                auto nameWidth = GlyphArrangement::getStringWidthInt (Font (headerFont), pluginInfo->displayName);
-                auto updateIndicatorBounds = juce::Rectangle<int> (textBounds.getX() + nameWidth + 6, textBounds.getCentreY() - 7, 14, 14);
-                auto transform = getUpdateIndicatorPath().getTransformToScaleToFit (updateIndicatorBounds.toFloat(), true);
-                g.setColour (findColour (ThemeColours::widgetBackground));
-                g.fillPath (getUpdateIndicatorPath(), transform);
-                g.setColour (Colours::green);
-                g.strokePath (getUpdateIndicatorPath(), PathStrokeType (1.5f, PathStrokeType::curved, PathStrokeType::rounded), transform);
-            }
             break;
 
         case typeColumn:
@@ -1017,10 +1072,6 @@ void PluginListBoxComponent::paintCell (Graphics& g,
 
         case developersColumn:
             text = pluginInfo->developers;
-            break;
-
-        case installedVersionColumn:
-            text = pluginInfo->installedVersion.isEmpty() ? "No" : pluginInfo->installedVersion;
             break;
 
         case updatedColumn:
@@ -1033,6 +1084,10 @@ void PluginListBoxComponent::paintCell (Graphics& g,
 
         case dependenciesColumn:
             text = getDependenciesText (*pluginInfo);
+            break;
+
+        case installedVersionColumn:
+            text = pluginInfo->installedVersion.isEmpty() ? "No" : pluginInfo->installedVersion;
             break;
 
         default:
@@ -1069,23 +1124,15 @@ Component* PluginListBoxComponent::refreshComponentForCell (int rowNumber,
         return versionCell;
     }
 
-    if (columnId == documentationColumn)
+    if (columnId == displayNameColumn)
     {
-        auto* docsCell = dynamic_cast<PluginIconButtonCell*> (existingComponentToUpdate);
+        auto* nameCell = dynamic_cast<PluginNameCell*> (existingComponentToUpdate);
 
-        if (docsCell == nullptr)
-            docsCell = new PluginIconButtonCell (PluginIconButton::IconType::docs);
+        if (nameCell == nullptr)
+            nameCell = new PluginNameCell();
 
-        const auto docsUrl = pluginInfo->docURL;
-        docsCell->update ("Docs",
-                          docsUrl.isNotEmpty(),
-                          docsUrl,
-                          [docsUrl]
-                          {
-                              if (docsUrl.isNotEmpty())
-                                  URL (docsUrl).launchInDefaultBrowser();
-                          });
-        return docsCell;
+        nameCell->update (*pluginInfo, headerFont);
+        return nameCell;
     }
 
     if (columnId == installColumn || columnId == uninstallColumn)
@@ -1137,7 +1184,7 @@ String PluginListBoxComponent::getCellTooltip (int rowNumber, int columnId)
     switch (columnId)
     {
         case displayNameColumn:
-            return pluginInfo->hasUpdate ? pluginInfo->displayName + " has an update available." : pluginInfo->displayName;
+            return pluginInfo->docURL.isNotEmpty() ? pluginInfo->docURL : pluginInfo->displayName;
 
         case developersColumn:
             return pluginInfo->developers;
@@ -1168,7 +1215,7 @@ int PluginListBoxComponent::getColumnAutoSizeWidth (int columnId)
 
     for (const auto& pluginInfo : allPlugins)
         maxWidth = jmax (maxWidth,
-                         GlyphArrangement::getStringWidthInt (Font (headerFont), pluginInfo.displayName) + (pluginInfo.hasUpdate ? 20 : 0));
+                         GlyphArrangement::getStringWidthInt (Font (headerFont), pluginInfo.displayName + "↗") + (pluginInfo.hasUpdate ? 20 : 0));
 
     return maxWidth + 28;
 }

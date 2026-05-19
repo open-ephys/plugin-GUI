@@ -162,12 +162,11 @@ public:
         displayNameColumn = 1,
         typeColumn,
         developersColumn,
-        installedVersionColumn,
         updatedColumn,
         descriptionColumn,
         dependenciesColumn,
+        installedVersionColumn,
         versionSelectorColumn,
-        documentationColumn,
         installColumn,
         uninstallColumn
     };
