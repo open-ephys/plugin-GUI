@@ -179,6 +179,8 @@ public:
 
     void paintCell (Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
 
+    void cellClicked (int rowNumber, int columnId, const MouseEvent& event) override;
+
     Component* refreshComponentForCell (int rowNumber,
                                         int columnId,
                                         bool isRowSelected,

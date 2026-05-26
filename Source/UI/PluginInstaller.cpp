@@ -809,6 +809,42 @@ private:
     std::function<void (const String&)> onVersionChanged;
 };
 
+class PluginDescriptionCalloutComponent : public Component
+{
+public:
+    PluginDescriptionCalloutComponent (String descriptionToShow, Font descriptionFont)
+        : font (std::move (descriptionFont))
+    {
+        descriptionText.append (std::move (descriptionToShow),
+                                font,
+                                findColour (ThemeColours::defaultText));
+        descriptionText.setJustification (Justification::topLeft);
+        descriptionText.setWordWrap (AttributedString::WordWrap::byWord);
+        descriptionLayout.createLayout (descriptionText, static_cast<float> (contentWidth - padding * 2));
+        setSize (contentWidth, getPreferredHeight());
+    }
+
+    void paint (Graphics& g) override
+    {
+        g.setColour (findColour (ThemeColours::widgetBackground));
+        g.fillRoundedRectangle (getLocalBounds().toFloat().reduced (1.0f), 5.0f);
+        descriptionLayout.draw (g, getLocalBounds().reduced (padding).toFloat());
+    }
+
+private:
+    int getPreferredHeight() const
+    {
+        return jlimit (40, 500, roundToInt (descriptionLayout.getHeight()) + padding * 2);
+    }
+
+    static constexpr int contentWidth = 360;
+    static constexpr int padding = 12;
+
+    AttributedString descriptionText;
+    TextLayout descriptionLayout;
+    Font font;
+};
+
 class PluginIconButtonCell : public Component
 {
 public:
@@ -1117,6 +1153,23 @@ void PluginListBoxComponent::paintCell (Graphics& g,
     g.drawText (text.isNotEmpty() ? text : String ("-"), textBounds, Justification::centredLeft, true);
 }
 
+void PluginListBoxComponent::cellClicked (int rowNumber, int columnId, const MouseEvent&)
+{
+    if (columnId != descriptionColumn)
+        return;
+
+    const auto* pluginInfo = getPluginForVisibleRow (rowNumber);
+
+    if (pluginInfo == nullptr || pluginInfo->description.trim().isEmpty() || pluginTable == nullptr)
+        return;
+
+    auto anchorBounds = pluginTable->getCellPosition (descriptionColumn, rowNumber, true);
+    auto content = std::make_unique<PluginDescriptionCalloutComponent> (pluginInfo->description.trim(),
+                                                                        Font (FontOptions ("Inter", "Regular", 15.0f)));
+    auto& callOut = CallOutBox::launchAsynchronously (std::move (content), anchorBounds, this);
+    callOut.setDismissalMouseClicksAreAlwaysConsumed (true);
+}
+
 Component* PluginListBoxComponent::refreshComponentForCell (int rowNumber,
                                                             int columnId,
                                                             bool /*isRowSelected*/,
@@ -1207,7 +1260,7 @@ String PluginListBoxComponent::getCellTooltip (int rowNumber, int columnId)
             return pluginInfo->developers;
 
         case descriptionColumn:
-            return pluginInfo->description;
+            return pluginInfo->description.isNotEmpty() ? "Click to view full description" : String();
 
         case dependenciesColumn:
             return getDependenciesText (*pluginInfo);
