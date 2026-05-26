@@ -255,6 +255,8 @@ void CustomLookAndFeel::setTheme (ColourTheme theme)
 
     setColour (BubbleComponent::backgroundColourId, currentThemeColours[ThemeColours::widgetBackground]);
     setColour (BubbleComponent::outlineColourId, currentThemeColours[ThemeColours::outline]);
+
+    setColour (HyperlinkButton::textColourId, theme == ColourTheme::DARK ? Colours::dodgerblue : Colour (0xff1a0dab));
 }
 
 //==============================================================================
