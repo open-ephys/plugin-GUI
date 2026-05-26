@@ -97,6 +97,11 @@ String getLatestCompatibleVersionOrDefault (const var& versions)
     return "0.0.0-API" + String (PLUGIN_API_VER);
 }
 
+String getDisplayVersion (const String& version)
+{
+    return version.upToFirstOccurrenceOf ("-API", false, false);
+}
+
 bool parseGatewayCatalog (PluginCatalog& catalog, String& errorMessage)
 {
     const auto response = URL (pluginGatewayUrl).readEntireTextStream();
@@ -719,7 +724,6 @@ public:
         linkButton.setURL (hasDocs ? URL (pluginInfo.docURL) : URL());
         linkButton.setFont (linkFont, false, Justification::centredLeft);
 
-        updateColours();
         resized();
         repaint();
     }
@@ -744,16 +748,7 @@ public:
         linkButton.changeWidthToFitText();
     }
 
-    void colourChanged() override
-    {
-        updateColours();
-    }
-
 private:
-    void updateColours()
-    {
-        linkButton.setColour (HyperlinkButton::textColourId, findColour (ThemeColours::defaultText));
-    }
 
     HyperlinkButton linkButton;
     String displayName;
@@ -773,8 +768,13 @@ public:
         versionMenu.setTextWhenNoChoicesAvailable ("- N/A -");
         versionMenu.onChange = [this]
         {
-            if (onVersionChanged != nullptr)
-                onVersionChanged (versionMenu.getText());
+            if (onVersionChanged == nullptr)
+                return;
+
+            const auto selectedIndex = versionMenu.getSelectedId() - 1;
+
+            if (isPositiveAndBelow (selectedIndex, versions.size()))
+                onVersionChanged (versions[selectedIndex]);
         };
     }
 
@@ -782,11 +782,12 @@ public:
                  std::function<void (const String&)> callback)
     {
         onVersionChanged = std::move (callback);
+        versions = pluginInfo.versions;
 
         versionMenu.clear (dontSendNotification);
 
         for (int index = 0; index < pluginInfo.versions.size(); ++index)
-            versionMenu.addItem (pluginInfo.versions[index], index + 1);
+            versionMenu.addItem (getDisplayVersion (pluginInfo.versions[index]), index + 1);
 
         const auto selectedVersion = getSelectedVersionOrFallback (pluginInfo);
         const auto selectedIndex = pluginInfo.versions.indexOf (selectedVersion);
@@ -804,6 +805,7 @@ public:
 
 private:
     ComboBox versionMenu;
+    StringArray versions;
     std::function<void (const String&)> onVersionChanged;
 };
 
@@ -1023,10 +1025,10 @@ PluginListBoxComponent::PluginListBoxComponent()
     header.addColumn ("Type", typeColumn, 90, 90, 90, TableHeaderComponent::visible);
     header.addColumn ("Developers", developersColumn, 150, 100, 280, regularColumnFlags);
     header.addColumn ("Updated", updatedColumn, 90, 90, 90, TableHeaderComponent::visible);
-    header.addColumn ("Description", descriptionColumn, 250, 180, -1, regularColumnFlags);
+    header.addColumn ("Description", descriptionColumn, 310, 180, -1, regularColumnFlags);
     header.addColumn ("Dependencies", dependenciesColumn, 120, 120, 120, TableHeaderComponent::appearsOnColumnMenu);
-    header.addColumn ("Installed", installedVersionColumn, 80, 80, 80, TableHeaderComponent::visible);
-    header.addColumn ("Version", versionSelectorColumn, 120, 120, 220, regularColumnFlags);
+    header.addColumn ("Installed", installedVersionColumn, 60, 60, 60, TableHeaderComponent::visible);
+    header.addColumn ("Version", versionSelectorColumn, 80, 80, 120, regularColumnFlags);
     header.addColumn ("Action", installColumn, 60, 60, 60, TableHeaderComponent::visible);
     header.addColumn ("Remove", uninstallColumn, 60, 60, 60, TableHeaderComponent::visible);
     header.setSortColumnId (displayNameColumn, true);
@@ -1104,7 +1106,7 @@ void PluginListBoxComponent::paintCell (Graphics& g,
             break;
 
         case installedVersionColumn:
-            text = pluginInfo->installedVersion.isEmpty() ? "No" : pluginInfo->installedVersion;
+            text = pluginInfo->installedVersion.isEmpty() ? "No" : getDisplayVersion (pluginInfo->installedVersion);
             break;
 
         default:
@@ -1645,11 +1647,9 @@ void PluginInstallActionRunner::run()
     {
         LOGC ("Download Successful!");
 
-        String pluginVer = pInfo.selectedVersion.substring (0, pInfo.selectedVersion.indexOf ("-API"));
-
         showAlertOnMessageThread (AlertWindow::InfoIcon,
                                   "[Plugin Installer] " + pInfo.displayName,
-                                  pInfo.displayName + " v" + pluginVer + " Installed Successfully!");
+                                  pInfo.displayName + " v" + getDisplayVersion (pInfo.selectedVersion) + " Installed Successfully!");
 
         updateUIOnMessageThread();
     }
@@ -1689,7 +1689,7 @@ void PluginInstallActionRunner::run()
 
         showAlertOnMessageThread (AlertWindow::WarningIcon,
                                   "[Plugin Installer] " + pInfo.displayName,
-                                  pInfo.displayName + " v" + pInfo.selectedVersion
+                                  pInfo.displayName + " v" + getDisplayVersion (pInfo.selectedVersion)
                                       + " already exists. Please download another version.");
     }
     else if (dlReturnCode == XML_WRITE_ERR)
