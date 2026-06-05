@@ -97,6 +97,7 @@ RecordNode::RecordNode()
 
 RecordNode::~RecordNode()
 {
+    editor.reset();
 }
 
 void RecordNode::registerParameters()
