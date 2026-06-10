@@ -1344,10 +1344,10 @@ void LfpDisplay::mouseDown (const MouseEvent& event)
     {
         if (event.getNumberOfClicks() == 2)
         {
+            drawableChannels[closest].channelInfo->updateXY (0, 0); // reset mouse-selected point
             toggleSingleChannel (drawableChannels[closest]);
         }
-
-        if (getSingleChannelState()) // show info for point that was selected
+        else if (getSingleChannelState()) // show info for point that was selected
         {
             drawableChannels[0].channelInfo->updateXY (
                 float (x) / getWidth() * canvasSplit->timebase,

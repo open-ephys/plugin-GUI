@@ -762,7 +762,7 @@ void LfpDisplaySplitter::refreshLeftMargin()
 
     if (displayBuffer != nullptr)
     {
-        const auto labelFont = Font (FontOptions (14.0f));
+        const auto labelFont = Font (FontOptions (16.0f));
         constexpr int padding = 20;
 
         for (int i = 0; i < displayBuffer->channelMetadata.size(); ++i)

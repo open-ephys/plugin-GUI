@@ -41,6 +41,23 @@
 
 using namespace LfpViewer;
 
+namespace
+{
+String formatRangeMarkerValue (float value)
+{
+    if (std::abs (value) < 0.005f)
+    {
+        return "0";
+    }
+
+    const float magnitude = std::abs (value);
+    const int decimals = magnitude >= 100.0f ? 0 : magnitude >= 10.0f ? 1
+                                                                  : 2;
+
+    return String (value, decimals);
+}
+} // namespace
+
 LfpChannelDisplay::LfpChannelDisplay (LfpDisplaySplitter* c, LfpDisplay* d, LfpDisplayOptions* o, int channelNumber)
     : canvasSplit (c), display (d), options (o), isSelected (false), isRecorded (false), recordingIsActive (false), chan (channelNumber), name (""), drawableChan (channelNumber), channelOverlap (300), channelHeight (30), range (250.0f), isEnabled (true), inputInverted (false), canBeInverted (true), drawMethod (false), isHidden (false), ifrom (0), ito (0), ifrom_local (0), ito_local (0)
 {
@@ -178,6 +195,8 @@ void LfpChannelDisplay::pxPaint()
 
     LfpBitmapPlotterInfo plotterInfo; // hold and pass plotting info for each plotting method class
 
+    const bool showRangeMarkers = isSelected || display->getSingleChannelState();
+
     for (int ii = ifrom; ii <= endIndex; ii++)
     {
         int i = (ifrom_local + ii - ifrom) % getWidth();
@@ -192,7 +211,7 @@ void LfpChannelDisplay::pxPaint()
         }
 
         //draw range markers
-        if (isSelected)
+        if (showRangeMarkers)
         {
             int start = getY() + center - channelHeight / 2;
             int jump = channelHeight / 4;
@@ -433,6 +452,8 @@ void LfpChannelDisplay::pxPaintHistory (int playhead, int rightEdge, int maxScre
 
     LfpBitmapPlotterInfo plotterInfo; // hold and pass plotting info for each plotting method class
 
+    const bool showRangeMarkers = isSelected || display->getSingleChannelState();
+
     for (int ii = 0; ii < rightEdge; ii++)
     {
         int i = ii;
@@ -478,7 +499,7 @@ void LfpChannelDisplay::pxPaintHistory (int playhead, int rightEdge, int maxScre
         }
 
         //draw range markers
-        if (isSelected)
+        if (showRangeMarkers)
         {
             int start = getY() + center - channelHeight / 2;
             int jump = channelHeight / 4;
@@ -675,7 +696,43 @@ void LfpChannelDisplay::drawEventOverlay (const int rawEventState, int x, int yf
     }
 }
 
-void LfpChannelDisplay::paint (Graphics& g) {}
+void LfpChannelDisplay::paint (Graphics& g)
+{
+    if (! display->getSingleChannelState() || getWidth() < 80 || getHeight() == 0)
+    {
+        return;
+    }
+
+    const int center = getHeight() / 2;
+    const int start = center - channelHeight / 2;
+    const int jump = channelHeight / 4;
+
+    if (jump <= 0)
+    {
+        return;
+    }
+
+    const int labelWidth = 50;
+    const int textHeight = 16;
+    const int labelX = getWidth() - labelWidth - 8;
+    const float markerSign = inputInverted ? -1.0f : 1.0f;
+
+    g.setFont (FontOptions (12.0f));
+
+    for (const int markerIndex : { 1, 3 })
+    {
+        const int markerY = start + jump * markerIndex;
+        const float markerValue = markerSign * range * (0.5f - 0.25f * markerIndex);
+        const String markerText = formatRangeMarkerValue (markerValue);
+        const int textY = jlimit (0, jmax (0, getHeight() - textHeight), markerY - textHeight / 2);
+
+        g.setColour (Colours::black.withAlpha (0.55f));
+        g.fillRoundedRectangle ((float) labelX, (float) textY, (float) labelWidth, (float) textHeight, 3.0f);
+
+        g.setColour (Colours::lightgrey.withAlpha (0.95f));
+        g.drawFittedText (markerText, labelX + 4, textY, labelWidth - 8, textHeight, Justification::centredRight, 1, 0.8f);
+    }
+}
 
 PopupMenu LfpChannelDisplay::getOptions()
 {
@@ -702,6 +759,7 @@ void LfpChannelDisplay::changeParameter (int id)
 void LfpChannelDisplay::setRange (float r)
 {
     range = r;
+    repaint();
 }
 
 float LfpChannelDisplay::getRange()
@@ -742,6 +800,7 @@ void LfpChannelDisplay::setChannelHeight (int c)
         channelHeightFloat = -channelHeightFloat;
 
     channelOverlap = channelHeight * 2;
+    repaint();
 }
 
 int LfpChannelDisplay::getChannelHeight()
