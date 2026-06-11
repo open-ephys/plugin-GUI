@@ -26,9 +26,28 @@
 #include "LfpDisplay.h"
 #include "LfpDisplayCanvas.h"
 
-#include <math.h>
+#include <cmath>
 
 using namespace LfpViewer;
+
+namespace
+{
+String formatTimescaleLabel (float timeInSeconds, float timebase, float stepSize)
+{
+    if (timebase < 2.0f)
+    {
+        return String (static_cast<int> (std::lround (timeInSeconds * 1000.0f)));
+    }
+
+    const double stepInSeconds = static_cast<double> (stepSize);
+    const double snappedTime = stepInSeconds > 0.0
+                                   ? std::round (static_cast<double> (timeInSeconds) / stepInSeconds) * stepInSeconds
+                                   : static_cast<double> (timeInSeconds);
+    const int decimalPlaces = stepSize < 1.0f ? 1 : 0;
+
+    return String (snappedTime, decimalPlaces);
+}
+}
 
 #pragma mark - LfpTimescale -
 // -------------------------------------------------------------
@@ -254,8 +273,7 @@ void LfpTimescale::setTimebase (float timebase_, float offset_)
 
     while ((time + offset) < timebase)
     {
-        String labelString = String (time * ((timebase >= 2) ? (1) : (1000.0f)));
-        labels.add (labelString.substring (0, 6));
+        labels.add (formatTimescaleLabel (time, timebase, stepSize));
 
         fractionWidth.add ((time + offset) / timebase);
 
