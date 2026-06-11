@@ -97,6 +97,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     setTimebaseAndSelectionText (selectedTimebaseValue.getFloatValue());
 
     // Channel height
+    spreads.add ("2");
     spreads.add ("6");
     spreads.add ("10");
     spreads.add ("20");
@@ -108,7 +109,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     spreads.add ("80");
     spreads.add ("90");
     spreads.add ("100");
-    selectedSpread = 5;
+    selectedSpread = 6;
     selectedSpreadValue = spreads[selectedSpread - 1];
 
     spreadSelection = std::make_unique<ComboBox> ("Spread");
@@ -1072,12 +1073,7 @@ void LfpDisplayOptions::setShowChannelNumbers (bool state)
 {
     showChannelNumberButton->setToggleState (state, dontSendNotification);
 
-    int numChannels = lfpDisplay->channelInfo.size();
-
-    for (int i = 0; i < numChannels; ++i)
-    {
-        lfpDisplay->channelInfo[i]->repaint();
-    }
+    lfpDisplay->channelInfo->repaint();
 
     if (state)
     {
