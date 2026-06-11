@@ -215,15 +215,8 @@ public:
     /** Sets playhead back to left edge*/
     void sync();
 
-    /** Convenience struct for holding a channel and its info in drawableChannels */
-    struct LfpChannelTrack
-    {
-        LfpChannelDisplay* channel;
-        LfpChannelDisplayInfo* channelInfo;
-    };
-
     /** Holds the channels that are being drawn */
-    Array<LfpChannelTrack> drawableChannels;
+    Array<LfpChannelDisplay*> drawableChannels;
 
     /** Set the viewport's channel focus behavior.
      
@@ -237,7 +230,7 @@ public:
                         Note: this parameter is NOT the index in channel[], but
                         the index of the channel in drawableChannels[].
      */
-    void toggleSingleChannel (LfpChannelTrack drawableChannel);
+    void toggleSingleChannel (LfpChannelDisplay* drawableChannel);
 
     /** Reconstructs the list of drawableChannels based on ordering and filterning parameters */
     void rebuildDrawableChannelsList();
@@ -257,8 +250,8 @@ public:
     /** All available channels (even ones that are not drawn) */
     OwnedArray<LfpChannelDisplay> channels;
 
-    /** All available display info objects (even ones that are not drawn) */
-    OwnedArray<LfpChannelDisplayInfo> channelInfo;
+    /** Shared overlay for channel labels and controls */
+    std::unique_ptr<LfpChannelDisplayInfo> channelInfo;
 
     /** Holds state of event display for first 8 ttl lines */
     bool eventDisplayEnabled[8];

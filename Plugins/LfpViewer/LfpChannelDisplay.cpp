@@ -690,7 +690,7 @@ void LfpChannelDisplay::drawEventOverlay (const int rawEventState, int x, int yf
     {
         if (display->getEventDisplayState (ev_ch) && (rawEventState & (1 << ev_ch)))
         {
-            g.setColour (display->channelColours[ev_ch * 2].withAlpha (0.3f));
+            g.setColour (display->channelColours[ev_ch * 2].withAlpha (0.5f));
             g.fillRect (x, yfrom, 1, yto - yfrom + 1);
         }
     }

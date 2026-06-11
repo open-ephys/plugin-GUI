@@ -40,28 +40,35 @@
 
 using namespace LfpViewer;
 
+namespace
+{
+constexpr int channelLabelHeight = 12;
+constexpr int channelButtonSize = 10;
+constexpr int singleChannelInfoOffset = 75;
+
+bool shouldDrawDenseChannelLabel (const int channelHeight, const int drawableChannelNumber, bool isSingleChannel)
+{
+    if (isSingleChannel || channelHeight >= 15)
+        return true;
+
+    return (drawableChannelNumber + 1) % 10 == 0;
+}
+} // namespace
+
 #pragma mark - LfpChannelDisplayInfo -
 // -------------------------------
 
-LfpChannelDisplayInfo::LfpChannelDisplayInfo (LfpDisplaySplitter* canvas_, LfpDisplay* display_, LfpDisplayOptions* options_, int ch)
-    : LfpChannelDisplay (canvas_, display_, options_, ch),
+LfpChannelDisplayInfo::LfpChannelDisplayInfo (LfpDisplaySplitter* canvas_, LfpDisplay* display_)
+    : canvasSplit (canvas_),
+      display (display_),
+      recordingIsActive (false),
       x (-1.0f),
       y (-1.0f),
       rms (0.0f),
       mean (0.0f),
+      samplerate (0),
       isSingleChannel (false)
 {
-    enableButton = std::make_unique<UtilityButton> ("");
-    enableButton->setRadius (5.0f);
-
-    enableButton->setEnabledState (true);
-    enableButton->setCorners (true, true, true, true);
-    enableButton->addListener (this);
-    enableButton->setClickingTogglesState (true);
-    enableButton->setToggleState (true, dontSendNotification);
-
-    addAndMakeVisible (enableButton.get());
-
     String svgString = "M302.189 329.126H196.105l55.831 135.993c3.889 9.428-.555 19.999-9.444 23.999l-49.165 21.427c-9.165 \
                        4-19.443-.571-23.332-9.714l-53.053-129.136-86.664 89.138C18.729 472.71 0 463.554 0 447.977V18.299C0 \
                        1.899 19.921-6.096 30.277 5.443l284.412 292.542c11.472 11.179 3.007 31.141-12.5 31.141z";
@@ -69,28 +76,22 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo (LfpDisplaySplitter* canvas_, LfpDi
     pointerPath = Drawable::parseSVGPath (svgString);
 }
 
-void LfpChannelDisplayInfo::updateType (ContinuousChannel::Type type_)
-{
-    type = type_;
-    typeStr = options->getTypeName (type);
-    repaint();
-}
-
 void LfpChannelDisplayInfo::buttonClicked (Button* button)
 {
+    if (button == nullptr)
+        return;
+
     bool state = button->getToggleState();
+    const int channelNumber = button->getComponentID().getIntValue();
 
-    display->setEnabledState (state, chan, true);
-}
-
-void LfpChannelDisplayInfo::setEnabledState (bool state)
-{
-    enableButton->setToggleState (state, dontSendNotification);
+    display->setEnabledState (state, channelNumber, true);
 }
 
 void LfpChannelDisplayInfo::setSingleChannelState (bool state)
 {
     isSingleChannel = state;
+    syncEnableButtons();
+    repaint();
 }
 
 int LfpChannelDisplayInfo::getChannelSampleRate()
@@ -115,7 +116,7 @@ void LfpChannelDisplayInfo::mouseDrag (const MouseEvent& e)
                 auto& zoomInfo = display->trackZoomInfo;
 
                 zoomInfo.isScrollingY = true;
-                zoomInfo.componentStartHeight = getChannelHeight();
+                zoomInfo.componentStartHeight = display->getChannelHeight();
                 zoomInfo.zoomPivotRatioY = (getY() + e.getMouseDownY()) / (float) display->getHeight();
                 zoomInfo.zoomPivotRatioX = (getX() + e.getMouseDownX()) / (float) display->getWidth();
                 zoomInfo.zoomPivotViewportOffset = getPosition() + e.getMouseDownPosition() - canvasSplit->viewport->getViewPosition();
@@ -155,19 +156,15 @@ void LfpChannelDisplayInfo::mouseDrag (const MouseEvent& e)
             }
 
             // return early if there is nothing to update
-            if (newHeight == getChannelHeight())
+            if (newHeight == display->getChannelHeight())
             {
                 return;
             }
 
             // set channel heights for all channels
-            for (int i = 0; i < display->getNumChannels(); ++i)
-            {
-                display->channels[i]->setChannelHeight (newHeight);
-                display->channelInfo[i]->setChannelHeight (newHeight);
-            }
+            display->setChannelHeight (newHeight);
 
-            options->setSpreadSelection (newHeight, false, true); // update combobox
+            display->options->setSpreadSelection (newHeight, false, true); // update combobox
 
             canvasSplit->fullredraw = true; //issue full redraw - scrolling without modifier doesnt require a full redraw
 
@@ -208,66 +205,86 @@ void LfpChannelDisplayInfo::recordingStopped()
 
 void LfpChannelDisplayInfo::paint (Graphics& g)
 {
-    int center = getHeight() / 2 - (isSingleChannel ? (75) : (0));
-    const bool showChannelNumbers = options->getChannelNameState();
+    if (display->options == nullptr)
+        return;
 
-    // Draw the channel numbers
-    if (isRecorded && recordingIsActive)
-        g.setColour (Colours::red);
-    else
-        g.setColour (Colours::grey);
+    const bool showChannelNumbers = display->options->getChannelNameState();
+    const int channelHeight = display->getChannelHeight();
+    const bool isCentered = ! isSingleChannel && channelHeight < 15;
 
-    const String channelString = (isChannelNumberHidden() ? ("--") : showChannelNumbers ? String (getChannelNumber() + 1)
-                                                                                        : getName());
-    bool isCentered = ! getEnabledButtonVisibility();
-
-    if (isSingleChannel)
-        g.setFont (FontOptions (16.0f).withStyle ("SemiBold"));
-    else
-        g.setFont (FontOptions (14.0f));
-
-    g.drawText (channelString,
-                showChannelNumbers ? 6 : 3,
-                center - 4,
-                getWidth(),
-                12,
-                isCentered ? Justification::centred : Justification::centredLeft,
-                false);
-
-    g.setColour (lineColour);
-    g.fillRect (0, 0, 2, getHeight());
-
-    if (getChannelTypeStringVisibility())
+    for (int i = 0; i < display->drawableChannels.size(); ++i)
     {
-        constexpr int textHeight = 14;
-        constexpr int textStartX = 5;
-        const int textY = center + 10;
+        auto* channel = display->drawableChannels[i];
+        const int center = getTrackCenterY (*channel);
+        const bool drawChannelLabel = shouldDrawDenseChannelLabel (channelHeight, channel->getDrawableChannelNumber(), isSingleChannel);
+        const bool showTypeString = isSingleChannel || channel->getChannelHeight() > 34;
 
-        g.setFont (FontOptions (13.0f));
-        g.setColour (lineColour);
-        const auto currentFont = g.getCurrentFont();
+        g.setColour (channel->getRecorded() && recordingIsActive ? Colours::red : Colours::grey);
+        g.setFont (isSingleChannel ? FontOptions (16.0f).withStyle ("SemiBold")
+                                   : FontOptions (14.0f));
 
-        const int typeWidth = currentFont.getStringWidth (typeStr);
-        const int typeBoundsWidth = typeWidth + 2;
-        g.drawText (typeStr, textStartX, textY, typeBoundsWidth, textHeight, Justification::centredLeft, false);
+        String channelString = drawChannelLabel ? (showChannelNumbers ? String (channel->getChannelNumber() + 1)
+                                                                            : channel->getName())
+                                                      : "--";
 
-        const String& unitsText = getUnits();
-        if (unitsText.isNotEmpty())
+        if (drawChannelLabel)
         {
-            const int unitsX = textStartX + typeWidth + 5;
-            const int unitsWidth = getWidth() - unitsX - 4;
+            if (showChannelNumbers)
+                channelString = String (channel->getChannelNumber() + 1);
+            else
+                channelString = channel->getName();
+        }
+        else
+        {
+            channelString = channelHeight >= 10 ? "--" : "";
+        }
 
-            if (unitsWidth > 0)
+        g.drawText (channelString,
+                    showChannelNumbers ? 6 : 3,
+                    center - (channelLabelHeight / 2),
+                    getWidth() - (showChannelNumbers ? 6 : 3),
+                    channelLabelHeight,
+                    isCentered ? Justification::centred : Justification::centredLeft,
+                    false);
+
+        g.setColour (channel->getColour());
+        g.fillRect (0, channel->getY(), 2, channel->getHeight());
+
+        if (showTypeString)
+        {
+            constexpr int textHeight = 14;
+            constexpr int textStartX = 5;
+            const int textY = center + 10;
+            const String typeStr = display->options->getTypeName (channel->getType());
+
+            g.setFont (FontOptions (13.0f));
+            g.setColour (channel->getColour());
+            const auto currentFont = g.getCurrentFont();
+
+            const int typeWidth = currentFont.getStringWidth (typeStr);
+            const int typeBoundsWidth = typeWidth + 2;
+            g.drawText (typeStr, textStartX, textY, typeBoundsWidth, textHeight, Justification::centredLeft, false);
+
+            const String& unitsText = channel->getUnits();
+            if (unitsText.isNotEmpty())
             {
-                g.setColour (Colours::grey.withAlpha (0.8f));
-                g.setFont (FontOptions (12.0f));
-                g.drawFittedText (unitsText, unitsX, textY, unitsWidth, textHeight, Justification::centredLeft, 1, 0.8f);
+                const int unitsX = textStartX + typeWidth + 5;
+                const int unitsWidth = getWidth() - unitsX - 4;
+
+                if (unitsWidth > 0)
+                {
+                    g.setColour (Colours::grey.withAlpha (0.8f));
+                    g.setFont (FontOptions (12.0f));
+                    g.drawFittedText (unitsText, unitsX, textY, unitsWidth, textHeight, Justification::centredLeft, 1, 0.8f);
+                }
             }
         }
     }
 
-    if (isSingleChannel)
+    if (isSingleChannel && display->drawableChannels.size() > 0)
     {
+        const int center = getTrackCenterY (*display->drawableChannels[0]);
+
         g.setColour (Colours::grey);
         g.setFont (FontOptions (13.0f));
 
@@ -294,61 +311,103 @@ void LfpChannelDisplayInfo::updateXY (float x_, float y_)
 
 void LfpChannelDisplayInfo::updateMeanAndRMS()
 {
-    rms = canvasSplit->getRMS (chan);
-    mean = canvasSplit->getDisplayBufferMean (chan);
+    const int currentChannel = display->getSingleChannelShown();
+
+    if (currentChannel < 0)
+        return;
+
+    rms = canvasSplit->getRMS (currentChannel);
+    mean = canvasSplit->getDisplayBufferMean (currentChannel);
 
     repaint();
 }
 
 void LfpChannelDisplayInfo::resized()
 {
-    int center = getHeight() / 2 - (isSingleChannel ? (75) : (0));
-    setEnabledButtonVisibility (getHeight() >= 16);
+    syncEnableButtons();
+}
 
-    if (getEnabledButtonVisibility())
+int LfpChannelDisplayInfo::getTrackCenterY (const LfpChannelDisplay& channel) const
+{
+    return channel.getY() + channel.getHeight() / 2 - (isSingleChannel ? singleChannelInfoOffset : 0);
+}
+
+int LfpChannelDisplayInfo::getClosestDrawableTrackIndex (int y) const
+{
+    int closest = -1;
+    int minDistance = std::numeric_limits<int>::max();
+
+    for (int i = 0; i < display->drawableChannels.size(); ++i)
     {
-        enableButton->setBounds (getWidth() - 13, center - 5, 10, 10);
+        const int distance = abs (y - getTrackCenterY (*display->drawableChannels[i]));
+
+        if (distance < minDistance)
+        {
+            minDistance = distance;
+            closest = i;
+        }
     }
 
-    setChannelNumberIsHidden (getHeight() < 16 && (getDrawableChannelNumber() + 1) % 10 != 0);
-
-    setChannelTypeStringVisibility (getHeight() > 34);
+    return closest;
 }
 
-void LfpChannelDisplayInfo::setEnabledButtonVisibility (bool shouldBeVisible)
+void LfpChannelDisplayInfo::syncEnableButtons()
 {
-    enableButton->setVisible (shouldBeVisible);
-}
+    const int numDrawableChannels = display->drawableChannels.size();
 
-bool LfpChannelDisplayInfo::getEnabledButtonVisibility()
-{
-    return enableButton->isVisible();
-}
+    if (enableButtons.size() != numDrawableChannels)
+    {
+        enableButtons.clear (true);
 
-void LfpChannelDisplayInfo::setChannelTypeStringVisibility (bool shouldBeVisible)
-{
-    channelTypeStringIsVisible = shouldBeVisible;
-}
+        for (int i = 0; i < numDrawableChannels; ++i)
+        {
+            auto* button = new UtilityButton ("");
+            button->setRadius (5.0f);
+            button->setEnabledState (true);
+            button->setCorners (true, true, true, true);
+            button->addListener (this);
+            button->setClickingTogglesState (true);
 
-bool LfpChannelDisplayInfo::getChannelTypeStringVisibility()
-{
-    return channelTypeStringIsVisible || isSingleChannel;
-}
+            addAndMakeVisible (button);
+            enableButtons.add (button);
+        }
+    }
 
-void LfpChannelDisplayInfo::setChannelNumberIsHidden (bool shouldBeHidden)
-{
-    channelNumberHidden = shouldBeHidden;
-}
+    for (int i = 0; i < numDrawableChannels; ++i)
+    {
+        auto* channel = display->drawableChannels[i];
+        auto* button = enableButtons[i];
+        const bool shouldBeVisible = isSingleChannel || channel->getChannelHeight() >= 15;
+        const int center = getTrackCenterY (*channel);
 
-bool LfpChannelDisplayInfo::isChannelNumberHidden()
-{
-    return channelNumberHidden;
+        button->setComponentID (String (channel->getChannelNumber()));
+        button->setToggleState (channel->getEnabledState(), dontSendNotification);
+        button->setVisible (shouldBeVisible);
+
+        if (shouldBeVisible)
+        {
+            button->setBounds (getWidth() - 13,
+                               center - (channelButtonSize / 2),
+                               channelButtonSize,
+                               channelButtonSize);
+        }
+    }
 }
 
 String LfpChannelDisplayInfo::getTooltip()
 {
-    const bool showChannelNumbers = options->getChannelNameState();
-    const String channelString = showChannelNumbers ? String (getChannelNumber() + 1) : getName();
+    if (display->options == nullptr)
+        return {};
+
+    const int trackIndex = getClosestDrawableTrackIndex (getMouseXYRelative().getY());
+
+    if (trackIndex < 0)
+        return {};
+
+    const bool showChannelNumbers = display->options->getChannelNameState();
+    auto* channel = display->drawableChannels[trackIndex];
+    const String channelString = showChannelNumbers ? String (channel->getChannelNumber() + 1)
+                                                    : channel->getName();
 
     return channelString;
 }

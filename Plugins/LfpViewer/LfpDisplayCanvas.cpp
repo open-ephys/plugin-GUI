@@ -907,18 +907,12 @@ void LfpDisplaySplitter::deselect()
 
 void LfpDisplaySplitter::recordingStarted()
 {
-    for (int i = 0; i < lfpDisplay->getNumChannels(); i++) // update channel metadata
-    {
-        lfpDisplay->channelInfo[i]->recordingStarted();
-    }
+    lfpDisplay->channelInfo->recordingStarted();
 }
 
 void LfpDisplaySplitter::recordingStopped()
 {
-    for (int i = 0; i < lfpDisplay->getNumChannels(); i++) // update channel metadata
-    {
-        lfpDisplay->channelInfo[i]->recordingStopped();
-    }
+    lfpDisplay->channelInfo->recordingStopped();
 }
 
 void LfpDisplaySplitter::updateSettings()
@@ -1014,17 +1008,6 @@ void LfpDisplaySplitter::updateSettings()
         lfpDisplay->channels[i]->updateType (displayBuffer->channelMetadata[i].type);
         lfpDisplay->channels[i]->setUnits (displayBuffer->channelMetadata[i].units);
 
-        lfpDisplay->channelInfo[i]->setName (displayBuffer->channelMetadata[i].name);
-        lfpDisplay->channelInfo[i]->setGroup (displayBuffer->channelMetadata[i].group);
-        lfpDisplay->channelInfo[i]->setDepth (displayBuffer->channelMetadata[i].ypos);
-        lfpDisplay->channelInfo[i]->setXpos (displayBuffer->channelMetadata[i].xpos);
-        lfpDisplay->channelInfo[i]->setMetadataPresence (displayBuffer->channelMetadata[i].hasGroupMetadata,
-                                                         displayBuffer->channelMetadata[i].hasYposMetadata,
-                                                         displayBuffer->channelMetadata[i].hasXposMetadata);
-        lfpDisplay->channelInfo[i]->setRecorded (displayBuffer->channelMetadata[i].isRecorded);
-        lfpDisplay->channelInfo[i]->updateType (displayBuffer->channelMetadata[i].type);
-        lfpDisplay->channelInfo[i]->setUnits (displayBuffer->channelMetadata[i].units);
-
         lfpDisplay->updateRange (i);
 
         if (i == 0)
@@ -1052,6 +1035,7 @@ void LfpDisplaySplitter::updateSettings()
     options->updateCARLabel();
 
     lfpDisplay->rebuildDrawableChannelsList(); // calls setColours(), which calls refresh
+    lfpDisplay->channelInfo->repaint();
 
     isLoading = false;
 

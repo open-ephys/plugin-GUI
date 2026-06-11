@@ -101,6 +101,9 @@ public:
     /** Sets the colour for this channel's trace */
     void setColour (Colour c);
 
+    /** Returns the colour used for this channel's trace */
+    Colour getColour() const { return lineColour; }
+
     /** Sets the height for this channel */
     void setChannelHeight (int);
 
@@ -162,6 +165,9 @@ public:
 
     /** Returns the enabled state for this channel*/
     bool getEnabledState() { return isEnabled; }
+
+    /** Returns whether this channel is recorded */
+    bool getRecorded() const { return isRecorded; }
 
     /** Set the isHidden flag, indicates whether this channel display
         should render to screen or not */

@@ -37,12 +37,9 @@ namespace LfpViewer
 {
 
 /**
-    Displays meta data pertaining to an associated channel, such as channel number.
- 
-    The enableButton displays the channel number and toggles the drawing of the
-    associated LfpChannelDisplay waveform on or off.
+    Displays channel labels and controls for all visible channels.
  */
-class LfpChannelDisplayInfo : public LfpChannelDisplay,
+class LfpChannelDisplayInfo : public Component,
                               public Button::Listener,
                               public TooltipClient
 {
@@ -50,9 +47,9 @@ class LfpChannelDisplayInfo : public LfpChannelDisplay,
 
 public:
     /** Constructor */
-    LfpChannelDisplayInfo (LfpDisplaySplitter*, LfpDisplay*, LfpDisplayOptions*, int channelNumber);
+    LfpChannelDisplayInfo (LfpDisplaySplitter*, LfpDisplay*);
 
-    /** Draws this info for one channel */
+    /** Draws channel info for all visible channels */
     void paint (Graphics& g) override;
 
     /** Responds to button clicks (toggles channel on and off)*/
@@ -67,13 +64,7 @@ public:
     /** Reverts the colour changes from start of recording */
     void recordingStopped();
 
-    /** Sets whether this channel is enabled */
-    void setEnabledState (bool);
-
-    /** Updates the channel type (DATA, ADC, AUX) */
-    void updateType (ContinuousChannel::Type) override;
-
-    /** Updates the position of this component*/
+    /** Updates the position of the selected point in single-channel mode */
     void updateXY (float, float);
 
     /** Updates the mean and RMS values of the channel */
@@ -95,6 +86,14 @@ public:
     virtual void mouseUp (const MouseEvent& event) override;
 
 private:
+    int getTrackCenterY (const LfpChannelDisplay& channel) const;
+    int getClosestDrawableTrackIndex (int y) const;
+    void syncEnableButtons();
+
+    LfpDisplaySplitter* canvasSplit;
+    LfpDisplay* display;
+
+    bool recordingIsActive;
     bool isSingleChannel;
     float x, y;
 
@@ -102,26 +101,9 @@ private:
     float mean;
 
     int samplerate;
-    int subProcessorIdx;
-
-    std::unique_ptr<UtilityButton> enableButton;
-
-    bool channelTypeStringIsVisible;
-    bool channelNumberHidden;
+    OwnedArray<UtilityButton> enableButtons;
 
     Path pointerPath;
-
-    /** Get/set whether enabled button is visible*/
-    void setEnabledButtonVisibility (bool shouldBeVisible);
-    bool getEnabledButtonVisibility();
-
-    /** Get/set whether channel type string is visible*/
-    void setChannelTypeStringVisibility (bool shouldBeVisible);
-    bool getChannelTypeStringVisibility();
-
-    /** Get/set whether channel number is hidden */
-    void setChannelNumberIsHidden (bool shouldBeHidden);
-    bool isChannelNumberHidden();
 
     String getTooltip() override;
 };
