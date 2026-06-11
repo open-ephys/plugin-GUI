@@ -130,6 +130,7 @@ private:
     int64 sampleNumber = 0;
     double timestamp = -1.0;
 
+    OwnedArray<MemoryBlock> timestampBuffers;
     OwnedArray<MemoryBlock> eventCodeBuffers;
     Array<uint64> eventStates;
     Array<EventChannel*> ttlChannels;

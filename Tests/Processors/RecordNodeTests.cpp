@@ -23,7 +23,8 @@ protected:
             numChannels,
             sampleRate,
             bitVolts
-        }));
+        }), 
+        ProcessorTesterMode::FullApp);
 
         parentRecordingDir = std::filesystem::temp_directory_path() / "record_node_tests";
         if (std::filesystem::exists(parentRecordingDir)) {
@@ -56,8 +57,8 @@ protected:
         return inputBuffer;
     }
 
-    void writeBlock(AudioBuffer<float> &buffer, TTLEvent* maybeTtlEvent = nullptr) {
-        auto outBuffer = tester->processBlock(processor, buffer, maybeTtlEvent);
+    void writeBlock(AudioBuffer<float> &buffer, TTLEvent* maybeTtlEvent = nullptr, const double* sampleTimestamps = nullptr) {
+        auto outBuffer = tester->processBlock(processor, buffer, maybeTtlEvent, sampleTimestamps);
         // Assert the buffer hasn't changed after process()
         ASSERT_EQ(outBuffer.getNumSamples(), buffer.getNumSamples());
         ASSERT_EQ(outBuffer.getNumChannels(), buffer.getNumChannels());
@@ -179,6 +180,55 @@ protected:
         *output = loadNpyFileBinaryFullpath(npyFilePath.string());
     }
 
+    template <typename T>
+    std::vector<T> parseNpyPayload(const std::vector<char>& binary) {
+        if (binary.size() < static_cast<size_t>(10)) {
+            ADD_FAILURE() << "NPY payload is too small to contain a valid header";
+            return {};
+        }
+
+        const uint16_t headerLength = static_cast<uint8_t>(binary[8])
+                                      | (static_cast<uint16_t>(static_cast<uint8_t>(binary[9])) << 8);
+        const size_t payloadOffset = 10 + headerLength;
+
+        if (payloadOffset > binary.size()) {
+            ADD_FAILURE() << "NPY payload header exceeds file size";
+            return {};
+        }
+
+        if (((binary.size() - payloadOffset) % sizeof(T)) != static_cast<size_t>(0)) {
+            ADD_FAILURE() << "NPY payload size is not aligned to element size";
+            return {};
+        }
+
+        std::vector<T> values((binary.size() - payloadOffset) / sizeof(T));
+
+        if (!values.empty()) {
+            memcpy(values.data(), binary.data() + payloadOffset, values.size() * sizeof(T));
+        }
+
+        return values;
+    }
+
+    template <typename T>
+    std::vector<T> loadNpyData(const std::string& basename) {
+        bool success = false;
+        std::vector<char> binary;
+        loadNpyFileBinary(basename, &binary, &success);
+
+        if (!success) {
+            ADD_FAILURE() << "Failed to load NPY file: " << basename;
+            return {};
+        }
+
+        return parseNpyPayload<T>(binary);
+    }
+
+    template <typename T>
+    std::vector<T> loadNpyDataFullpath(const std::filesystem::path& path) {
+        return parseNpyPayload<T>(loadNpyFileBinaryFullpath(path.string()));
+    }
+
 
     void compareBinaryFilesHex(const std::string& filename, const std::vector<char> binData, const std::string& expectedBinDataHex) {
         std::vector<char> expectedBinData;
@@ -221,6 +271,33 @@ protected:
     std::unique_ptr<ProcessorTester> tester;
     std::filesystem::path parentRecordingDir;
     float sampleRate = 1.0;
+};
+
+class HardwareSynced_RecordNodeTests : public RecordNodeTests {
+protected:
+    void SetUp() override {
+        sampleRate = 100.0f;
+        numChannels = 8;
+        tester = std::make_unique<ProcessorTester>(TestSourceNodeBuilder
+                                                   (FakeSourceNodeParams{
+            numChannels,
+            sampleRate,
+            bitVolts,
+            1,
+            0,
+            true
+        }),
+        ProcessorTesterMode::FullApp);
+
+        parentRecordingDir = std::filesystem::temp_directory_path() / "record_node_hardware_sync_tests";
+        if (std::filesystem::exists(parentRecordingDir)) {
+            std::filesystem::remove_all(parentRecordingDir);
+        }
+        std::filesystem::create_directory(parentRecordingDir);
+
+        tester->setRecordingParentDirectory(parentRecordingDir.string());
+        processor = tester->createProcessor<RecordNode>(Plugin::Processor::RECORD_NODE);
+    }
 };
 
 TEST_F(RecordNodeTests, TestInputOutput_Continuous_Single) {
@@ -421,6 +498,32 @@ TEST_F(RecordNodeTests, Test_PersistsSampleNumbersAndTimestamps) {
     compareBinaryFilesHex("timestamps.npy", timeStampsBin, expectedTimeStampsHex);
 }
 
+TEST_F(HardwareSynced_RecordNodeTests, Test_PersistsPerSampleHardwareTimestamps) {
+    tester->startAcquisition(true);
+
+    const int numSamples = 5;
+    auto firstBuffer = createBuffer(1000.0f, 20.0f, numChannels, numSamples);
+    std::vector<double> firstTimestamps { 10.000, 10.011, 10.021, 10.034, 10.048 };
+    writeBlock(firstBuffer, nullptr, firstTimestamps.data());
+
+    auto secondBuffer = createBuffer(2000.0f, 20.0f, numChannels, numSamples);
+    std::vector<double> secondTimestamps { 10.061, 10.073, 10.084, 10.098, 10.113 };
+    writeBlock(secondBuffer, nullptr, secondTimestamps.data());
+
+    tester->stopAcquisition();
+
+    auto persistedTimestamps = loadNpyData<double>("timestamps.npy");
+
+    std::vector<double> expectedTimestamps = firstTimestamps;
+    expectedTimestamps.insert(expectedTimestamps.end(), secondTimestamps.begin(), secondTimestamps.end());
+
+    ASSERT_EQ(persistedTimestamps.size(), expectedTimestamps.size());
+
+    for (size_t index = 0; index < expectedTimestamps.size(); ++index) {
+        EXPECT_DOUBLE_EQ(persistedTimestamps[index], expectedTimestamps[index]);
+    }
+}
+
 TEST_F(RecordNodeTests, Test_PersistsStructureOeBin) {
     tester->startAcquisition(true);
 
@@ -528,6 +631,37 @@ TEST_F(RecordNodeTests, Test_PersistsEvents) {
         "7065273a2028312c292c207d20202020202020202020202020202020202020202020202020202020202020202020202020202020202020"
         "20202020202020202020202020202020200a0400000000000000";
     compareBinaryFilesHex("full_words.npy", fullWordsBin, expectedFullWordsHex);
+}
+
+TEST_F(HardwareSynced_RecordNodeTests, Test_PersistsHardwareEventTimestampFromBlockArray) {
+    processor->setRecordEvents(true);
+    processor->updateSettings();
+
+    tester->startAcquisition(true);
+
+    const int numSamples = 5;
+    auto streamId = processor->getDataStreams()[0]->getStreamId();
+    auto eventChannels = tester->getSourceNodeDataStream(streamId)->getEventChannels();
+    ASSERT_GE(eventChannels.size(), 1);
+
+    TTLEventPtr eventPtr = TTLEvent::createTTLEvent(
+        eventChannels[0],
+        1,
+        2,
+        true);
+
+    auto inputBuffer = createBuffer(1000.0f, 20.0f, numChannels, numSamples);
+    std::vector<double> blockTimestamps { 20.000, 20.031, 20.047, 20.062, 20.081 };
+    writeBlock(inputBuffer, eventPtr.get(), blockTimestamps.data());
+
+    tester->stopAcquisition();
+
+    std::filesystem::path timestampPath;
+    ASSERT_TRUE(eventsPathFor("timestamps.npy", &timestampPath));
+    auto eventTimestamps = loadNpyDataFullpath<double>(timestampPath);
+
+    ASSERT_EQ(eventTimestamps.size(), static_cast<size_t>(1));
+    EXPECT_DOUBLE_EQ(eventTimestamps[0], blockTimestamps[1]);
 }
 
 // ============================================================================
@@ -741,7 +875,8 @@ class SingleChannel_RecordNodeTests : public RecordNodeTests {
             numChannels,
             sampleRate,
             bitVolts
-        }));
+        }),
+        ProcessorTesterMode::FullApp);
 
         parentRecordingDir = std::filesystem::temp_directory_path() / "record_node_single_ch_tests";
         if (std::filesystem::exists(parentRecordingDir)) {
@@ -829,7 +964,8 @@ protected:
             30000,  // sample rate
             1.0f,   // bitVolts
             3       // streams
-        }));
+        }),
+        ProcessorTesterMode::FullApp);
 
         parentRecordingDir = std::filesystem::temp_directory_path() / "record_node_multi_stream_tests";
         if (std::filesystem::exists(parentRecordingDir)) {
@@ -923,7 +1059,8 @@ class BufferResize_RecordNodeTests : public RecordNodeTests {
             numChannels,
             sampleRate,
             bitVolts
-        }));
+        }),
+        ProcessorTesterMode::FullApp);
 
         parentRecordingDir = std::filesystem::temp_directory_path() / "record_node_buffer_resize_tests";
         if (std::filesystem::exists(parentRecordingDir)) {
@@ -988,7 +1125,8 @@ class ManyChannels_RecordNodeTests : public RecordNodeTests {
             numChannels,
             sampleRate,
             bitVolts
-        }));
+        }),
+        ProcessorTesterMode::FullApp);
 
         parentRecordingDir = std::filesystem::temp_directory_path() / "record_node_many_ch_tests";
         if (std::filesystem::exists(parentRecordingDir)) {

@@ -10,11 +10,18 @@
 #include <UI/ControlPanel.h>
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <Processors/GenericProcessor/GenericProcessor.h>
+#include <stdexcept>
 
 enum class TestSourceNodeType
 {
     Fake,
     Base
+};
+
+enum class ProcessorTesterMode
+{
+    GraphOnly,
+    FullApp
 };
 
 class TestSourceNodeBuilder
@@ -64,7 +71,8 @@ private:
 class ProcessorTester
 {
 public:
-    ProcessorTester (TestSourceNodeBuilder sourceNodeBuilder)
+    ProcessorTester (TestSourceNodeBuilder sourceNodeBuilder,
+                     ProcessorTesterMode mode = ProcessorTesterMode::GraphOnly)
     {
         // Singletons...
         MessageManager::deleteInstance();
@@ -79,10 +87,14 @@ public:
         customLookAndFeel = std::make_unique<CustomLookAndFeel>();
         LookAndFeel::setDefaultLookAndFeel (customLookAndFeel.get());
 
-        // All of these sets the global state in AccessClass in their constructors
-        audioComponent = std::make_unique<AudioComponent>();
         processorGraph = std::make_unique<ProcessorGraph> (true);
-        controlPanel = std::make_unique<ControlPanel> (processorGraph.get(), audioComponent.get(), true);
+
+        if (mode == ProcessorTesterMode::FullApp)
+        {
+            // These set global state in AccessClass and require a real audio-capable test environment.
+            audioComponent = std::make_unique<AudioComponent>();
+            controlPanel = std::make_unique<ControlPanel> (processorGraph.get(), audioComponent.get(), true);
+        }
 
         SourceNode* snTemp = sourceNodeBuilder.buildSourceNode();
         sourceNodeId = nextProcessorId++;
@@ -98,12 +110,14 @@ public:
         sn->initialize (false);
         sn->setDestNode (nullptr);
 
-        controlPanel->updateRecordEngineList();
+        if (controlPanel != nullptr)
+            controlPanel->updateRecordEngineList();
 
         // Refresh everything
         processorGraph->updateSettings (sn);
 
-        controlPanel->colourChanged();
+        if (controlPanel != nullptr)
+            controlPanel->colourChanged();
     }
 
     virtual ~ProcessorTester()
@@ -159,6 +173,9 @@ public:
 
     void startAcquisition (bool startRecording, bool forceRecording = false)
     {
+        if (controlPanel == nullptr)
+            throw std::logic_error ("ProcessorTester::startAcquisition requires FullApp mode");
+
         if (startRecording)
         {
             // Do it this way to ensure the GUI elements (which apparently control logic) are set properly
@@ -196,6 +213,9 @@ public:
 
     void stopAcquisition()
     {
+        if (controlPanel == nullptr)
+            throw std::logic_error ("ProcessorTester::stopAcquisition requires FullApp mode");
+
         controlPanel->stopAcquisition();
     }
 
@@ -230,26 +250,42 @@ public:
     AudioBuffer<float> processBlock (
         GenericProcessor* processor,
         const AudioBuffer<float>& buffer,
-        TTLEvent* maybeTtlEvent = nullptr)
+        TTLEvent* maybeTtlEvent = nullptr,
+        const double* sampleTimestamps = nullptr)
     {
         auto audioProcessor = (AudioProcessor*) processor;
         auto dataStreams = processor->getDataStreams();
+        auto* sourceProcessor = getSourceNode();
 
         MidiBuffer eventBuffer;
         for (const auto* datastream : dataStreams)
         {
             HeapBlock<char> data;
             auto streamId = datastream->getStreamId();
+            double startTimestamp = sampleTimestamps != nullptr ? sampleTimestamps[0] : 0.0;
             size_t dataSize = SystemEvent::fillTimestampAndSamplesData (
                 data,
-                processor,
+                sourceProcessor,
                 streamId,
                 currentSampleIndex,
-                // NOTE: this timestamp is actually ignored in the current implementation?
-                0,
+                startTimestamp,
                 buffer.getNumSamples(),
                 0);
             eventBuffer.addEvent (data, dataSize, 0);
+
+            if (sampleTimestamps != nullptr)
+            {
+                HeapBlock<char> timestampData;
+                size_t timestampDataSize = SystemEvent::fillTimestampArrayData (
+                    timestampData,
+                    sourceProcessor,
+                    streamId,
+                    currentSampleIndex,
+                    sampleTimestamps,
+                    buffer.getNumSamples(),
+                    0);
+                eventBuffer.addEvent (timestampData, timestampDataSize, 0);
+            }
 
             if (maybeTtlEvent != nullptr)
             {
@@ -288,7 +324,7 @@ class DataThreadTester : public ProcessorTester
 {
 public:
     DataThreadTester (TestSourceNodeBuilder sourceNodeBuilder) : 
-        ProcessorTester (sourceNodeBuilder)
+        ProcessorTester (sourceNodeBuilder, ProcessorTesterMode::GraphOnly)
     {}
 
     template <

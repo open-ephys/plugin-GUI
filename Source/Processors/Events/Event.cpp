@@ -218,6 +218,36 @@ size_t SystemEvent::fillTimestampAndSamplesData (HeapBlock<char>& data,
     return eventSize;
 }
 
+size_t SystemEvent::fillTimestampArrayData (HeapBlock<char>& data,
+                                            const GenericProcessor* proc,
+                                            uint16 streamId,
+                                            int64 startSampleForBlock,
+                                            const double* timestamps,
+                                            uint32 nSamplesInBlock,
+                                            int64 processStartTime,
+                                            uint16 syncStreamId)
+{
+    const size_t timestampDataSize = (size_t) nSamplesInBlock * sizeof (double);
+    const size_t eventSize = EVENT_BASE_SIZE + 4 + 8 + timestampDataSize;
+    const double startTimestampForBlock = nSamplesInBlock > 0 && timestamps != nullptr ? timestamps[0] : -1.0;
+
+    data.allocate (eventSize, true);
+    data[0] = SYSTEM_EVENT;
+    data[1] = TIMESTAMP_ARRAY;
+    *reinterpret_cast<uint16*> (data.getData() + 2) = proc->getNodeId();
+    *reinterpret_cast<uint16*> (data.getData() + 4) = streamId;
+    *reinterpret_cast<uint16*> (data.getData() + 6) = syncStreamId;
+    *reinterpret_cast<int64*> (data.getData() + 8) = startSampleForBlock;
+    *reinterpret_cast<double*> (data.getData() + 16) = startTimestampForBlock;
+    *reinterpret_cast<uint32*> (data.getData() + EVENT_BASE_SIZE) = nSamplesInBlock;
+    *reinterpret_cast<int64*> (data.getData() + EVENT_BASE_SIZE + 4) = processStartTime;
+
+    if (timestampDataSize > 0 && timestamps != nullptr)
+        memcpy (data.getData() + EVENT_BASE_SIZE + 12, timestamps, timestampDataSize);
+
+    return eventSize;
+}
+
 size_t SystemEvent::fillTimestampSyncTextData (
     HeapBlock<char>& data,
     const GenericProcessor* proc,
@@ -277,7 +307,12 @@ size_t SystemEvent::fillReferenceSampleEvent (HeapBlock<char>& data,
 
 uint32 SystemEvent::getNumSamples (const EventPacket& packet)
 {
-    if (getBaseType (packet) != SYSTEM_EVENT && getSystemEventType (packet) != TIMESTAMP_AND_SAMPLES)
+    if (getBaseType (packet) != SYSTEM_EVENT)
+        return 0;
+
+    Type type = getSystemEventType (packet);
+
+    if (type != TIMESTAMP_AND_SAMPLES && type != TIMESTAMP_ARRAY)
         return 0;
 
     return *reinterpret_cast<const uint32*> (packet.getRawData() + EVENT_BASE_SIZE);
@@ -285,7 +320,12 @@ uint32 SystemEvent::getNumSamples (const EventPacket& packet)
 
 int64 SystemEvent::getHiResTicks (const EventPacket& packet)
 {
-    if (getBaseType (packet) != SYSTEM_EVENT && getSystemEventType (packet) != TIMESTAMP_AND_SAMPLES)
+    if (getBaseType (packet) != SYSTEM_EVENT)
+        return 0;
+
+    Type type = getSystemEventType (packet);
+
+    if (type != TIMESTAMP_AND_SAMPLES && type != TIMESTAMP_ARRAY)
         return 0;
 
     return *reinterpret_cast<const int64*> (packet.getRawData() + EVENT_BASE_SIZE + 4);

@@ -88,6 +88,9 @@ public:
     /** Writes an array of timestamps for one stream */
     float writeSynchronizedTimestamps (double start, double step, int destChannel, int nSamples);
 
+    /** Writes explicit per-sample timestamps for one stream */
+    float writeSynchronizedTimestamps (const double* timestamps, int destChannel, int nSamples);
+
     /** Returns the number of samples available to read (minimum across all channels) */
     int getNumSamplesReady() const;
 

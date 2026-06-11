@@ -80,6 +80,7 @@ DataThread* SourceNode::getThread() const
 void SourceNode::resizeBuffers()
 {
     inputBuffers.clear();
+    timestampBuffers.clear();
     eventCodeBuffers.clear();
     eventStates.clear();
 
@@ -90,6 +91,7 @@ void SourceNode::resizeBuffers()
         for (int i = 0; i < dataStreams.size(); i++)
         {
             inputBuffers.add (dataThread->getBufferAddress (i));
+            timestampBuffers.add (new MemoryBlock (10000 * sizeof (double)));
             eventCodeBuffers.add (new MemoryBlock (10000 * sizeof (uint64)));
             eventStates.add (0);
         }
@@ -302,10 +304,12 @@ void SourceNode::process (AudioBuffer<float>& buffer)
     for (int streamIdx = 0; streamIdx < inputBuffers.size(); streamIdx++)
     {
         int channelsToCopy = getNumOutputsForStream (streamIdx);
+        double* streamTimestamps = static_cast<double*> (timestampBuffers[streamIdx]->getData());
+        uint16 streamId = dataStreams[streamIdx]->getStreamId();
 
         int nSamples = inputBuffers[streamIdx]->readAllFromBuffer (buffer,
                                                                    &sampleNumber,
-                                                                   &timestamp,
+                                                                   streamTimestamps,
                                                                    static_cast<uint64*> (eventCodeBuffers[streamIdx]->getData()),
                                                                    buffer.getNumSamples(),
                                                                    copiedChannels,
@@ -313,10 +317,15 @@ void SourceNode::process (AudioBuffer<float>& buffer)
 
         copiedChannels += channelsToCopy;
 
+        timestamp = streamTimestamps[0];
+
         setTimestampAndSamples (sampleNumber,
                                 timestamp,
                                 nSamples,
-                                dataStreams[streamIdx]->getStreamId());
+                                streamId);
+
+        if (nSamples > 0 && streamTimestamps[0] >= 0.0f)
+            setTimestampArrayForBlock (sampleNumber, streamTimestamps, (uint32) nSamples, streamId);
 
         if (eventChannels[streamIdx])
         {

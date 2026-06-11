@@ -623,12 +623,13 @@ void RecordNodeEditor::updateFifoMonitors()
     {
         for (auto& monitor : monitors)
         {
-            for (auto& ed : this->parameterEditors)
+            for (int i = 0; i < this->parameterEditors.size(); ++i)
             {
-                if (ed == monitor)
+                if (this->parameterEditors[i] == monitor)
                 {
                     removeChildComponent (monitor);
                     parameterEditors.removeObject (monitor);
+                    break;
                 }
             }
         }

@@ -73,9 +73,6 @@ public:
     /** Constructor */
     AudioNode();
 
-    /** Destructor */
-    ~AudioNode() {}
-
     /** Handle incoming data and decide which channels to monitor
     */
     void process (AudioBuffer<float>& buffer) override;

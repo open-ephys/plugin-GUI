@@ -46,6 +46,65 @@
 
 #define MS_FROM_START Time::highResolutionTicksToSeconds (Time::getHighResolutionTicks() - start) * 1000
 
+namespace
+{
+using TimestampArraysByStream = std::unordered_map<uint16, std::vector<double>>;
+
+class TimestampArrayRegistry
+{
+public:
+    void clearProcessor (const GenericProcessor* processor)
+    {
+        arrays.erase (processor);
+    }
+
+    void clearStream (const GenericProcessor* processor, uint16 streamId)
+    {
+        auto processorIt = arrays.find (processor);
+
+        if (processorIt == arrays.end())
+            return;
+
+        processorIt->second.erase (streamId);
+
+        if (processorIt->second.empty())
+            arrays.erase (processorIt);
+    }
+
+    void store (const GenericProcessor* processor, uint16 streamId, const double* timestamps, uint32 nSamples)
+    {
+        auto& streamTimestamps = arrays[processor][streamId];
+        streamTimestamps.assign (timestamps, timestamps + nSamples);
+    }
+
+    const std::vector<double>* find (const GenericProcessor* processor, uint16 streamId) const
+    {
+        auto processorIt = arrays.find (processor);
+
+        if (processorIt == arrays.end())
+            return nullptr;
+
+        auto streamIt = processorIt->second.find (streamId);
+
+        if (streamIt == processorIt->second.end() || streamIt->second.empty())
+            return nullptr;
+
+        return &streamIt->second;
+    }
+
+private:
+    std::unordered_map<const GenericProcessor*, TimestampArraysByStream> arrays;
+};
+
+TimestampArrayRegistry& getTimestampArrayRegistry()
+{
+    static TimestampArrayRegistry registry;
+    return registry;
+}
+
+constexpr int timestampArrayOffset = EVENT_BASE_SIZE + 12;
+} // namespace
+
 LatencyMeter::LatencyMeter (GenericProcessor* processor_)
     : processor (processor_),
       counter (0)
@@ -141,6 +200,7 @@ GenericProcessor::GenericProcessor (const String& name, bool headlessMode_)
 
 GenericProcessor::~GenericProcessor()
 {
+    getTimestampArrayRegistry().clearProcessor (this);
     editor.reset(); // remove parameter editors before parameters
 
     dataStreamParameters.clear (true);
@@ -663,6 +723,7 @@ void GenericProcessor::clearSettings()
 
     ttlEventChannel = nullptr;
 
+    getTimestampArrayRegistry().clearProcessor (this);
     startTimestampsForBlock.clear();
     startSamplesForBlock.clear();
     syncStreamIds.clear();
@@ -1256,12 +1317,46 @@ double GenericProcessor::getFirstTimestampForBlock (uint16 streamId) const
     return startTimestampsForBlock.at (streamId);
 }
 
+const double* GenericProcessor::getTimestampsForBlock (uint16 streamId) const
+{
+    const std::vector<double>* timestamps = getTimestampArrayRegistry().find (this, streamId);
+
+    return timestamps != nullptr ? timestamps->data() : nullptr;
+}
+
+bool GenericProcessor::getTimestampForSample (uint16 streamId, int64 sampleNumber, double& timestamp) const
+{
+    const std::vector<double>* timestamps = getTimestampArrayRegistry().find (this, streamId);
+
+    if (timestamps == nullptr)
+        return false;
+
+    auto sampleIt = startSamplesForBlock.find (streamId);
+    auto countIt = numSamplesInBlock.find (streamId);
+
+    if (sampleIt == startSamplesForBlock.end() || countIt == numSamplesInBlock.end())
+        return false;
+
+    if (sampleNumber < sampleIt->second)
+        return false;
+
+    const uint32 sampleOffset = static_cast<uint32> (sampleNumber - sampleIt->second);
+
+    if (sampleOffset >= countIt->second || sampleOffset >= timestamps->size())
+        return false;
+
+    timestamp = (*timestamps)[sampleOffset];
+    return true;
+}
+
 void GenericProcessor::setTimestampAndSamples (int64 sampleNumber,
                                                double timestamp,
                                                uint32 nSamples,
                                                uint16 streamId,
                                                uint16 syncStreamId)
 {
+    getTimestampArrayRegistry().clearStream (this, streamId);
+
     HeapBlock<char> data;
     size_t dataSize = SystemEvent::fillTimestampAndSamplesData (data,
                                                                 this,
@@ -1278,7 +1373,39 @@ void GenericProcessor::setTimestampAndSamples (int64 sampleNumber,
     startTimestampsForBlock[streamId] = timestamp;
     startSamplesForBlock[streamId] = sampleNumber;
     syncStreamIds[streamId] = syncStreamId;
+    numSamplesInBlock[streamId] = nSamples;
     processStartTimes[streamId] = m_initialProcessTime;
+}
+
+void GenericProcessor::setTimestampArrayForBlock (int64 sampleNumber,
+                                                  const double* timestamps,
+                                                  uint32 nSamples,
+                                                  uint16 streamId,
+                                                  uint16 syncStreamId)
+{
+    getTimestampArrayRegistry().clearStream (this, streamId);
+
+    if (timestamps == nullptr || nSamples == 0)
+        return;
+
+    HeapBlock<char> data;
+    size_t dataSize = SystemEvent::fillTimestampArrayData (data,
+                                                           this,
+                                                           streamId,
+                                                           sampleNumber,
+                                                           timestamps,
+                                                           nSamples,
+                                                           m_initialProcessTime,
+                                                           syncStreamId);
+
+    m_currentMidiBuffer->addEvent (data, int (dataSize), 0);
+
+    startTimestampsForBlock[streamId] = timestamps[0];
+    startSamplesForBlock[streamId] = sampleNumber;
+    syncStreamIds[streamId] = syncStreamId;
+    numSamplesInBlock[streamId] = nSamples;
+    processStartTimes[streamId] = m_initialProcessTime;
+    getTimestampArrayRegistry().store (this, streamId, timestamps, nSamples);
 }
 
 int GenericProcessor::getGlobalChannelIndex (uint16 streamId, int localIndex) const
@@ -1303,26 +1430,39 @@ int GenericProcessor::processEventBuffer()
         for (const auto meta : *m_currentMidiBuffer)
         {
             const uint8* dataptr = meta.data;
+            const Event::Type baseType = static_cast<Event::Type> (*dataptr);
 
-            if (static_cast<Event::Type> (*dataptr) == Event::Type::SYSTEM_EVENT
-                && static_cast<SystemEvent::Type> (*(dataptr + 1) == SystemEvent::Type::TIMESTAMP_AND_SAMPLES))
+            if (baseType == Event::Type::SYSTEM_EVENT)
             {
-                uint16 sourceProcessorId = *reinterpret_cast<const uint16*> (dataptr + 2);
-                uint16 sourceStreamId = *reinterpret_cast<const uint16*> (dataptr + 4);
-                uint16 syncStreamId = *reinterpret_cast<const uint16*> (dataptr + 6);
+                const SystemEvent::Type systemEventType = static_cast<SystemEvent::Type> (*(dataptr + 1));
 
-                int64 startSample = *reinterpret_cast<const int64*> (dataptr + 8);
-                double startTimestamp = *reinterpret_cast<const double*> (dataptr + 16);
-                uint32 nSamples = *reinterpret_cast<const uint32*> (dataptr + 24);
-                int64 initialTicks = *reinterpret_cast<const int64*> (dataptr + 28);
+                if (systemEventType == SystemEvent::Type::TIMESTAMP_AND_SAMPLES
+                    || systemEventType == SystemEvent::Type::TIMESTAMP_ARRAY)
+                {
+                    uint16 sourceStreamId = *reinterpret_cast<const uint16*> (dataptr + 4);
+                    uint16 syncStreamId = *reinterpret_cast<const uint16*> (dataptr + 6);
 
-                startSamplesForBlock[sourceStreamId] = startSample;
-                startTimestampsForBlock[sourceStreamId] = startTimestamp;
-                syncStreamIds[sourceStreamId] = syncStreamId;
-                numSamplesInBlock[sourceStreamId] = nSamples;
-                processStartTimes[sourceStreamId] = initialTicks;
+                    int64 startSample = *reinterpret_cast<const int64*> (dataptr + 8);
+                    double startTimestamp = *reinterpret_cast<const double*> (dataptr + 16);
+                    uint32 nSamples = *reinterpret_cast<const uint32*> (dataptr + 24);
+                    int64 initialTicks = *reinterpret_cast<const int64*> (dataptr + 28);
+
+                    getTimestampArrayRegistry().clearStream (this, sourceStreamId);
+
+                    startSamplesForBlock[sourceStreamId] = startSample;
+                    startTimestampsForBlock[sourceStreamId] = startTimestamp;
+                    syncStreamIds[sourceStreamId] = syncStreamId;
+                    numSamplesInBlock[sourceStreamId] = nSamples;
+                    processStartTimes[sourceStreamId] = initialTicks;
+
+                    if (systemEventType == SystemEvent::Type::TIMESTAMP_ARRAY && nSamples > 0)
+                    {
+                        const double* timestamps = reinterpret_cast<const double*> (dataptr + timestampArrayOffset);
+                        getTimestampArrayRegistry().store (this, sourceStreamId, timestamps, nSamples);
+                    }
+                }
             }
-            else if (static_cast<Event::Type> (*dataptr) == Event::Type::PROCESSOR_EVENT
+            else if (baseType == Event::Type::PROCESSOR_EVENT
                      && static_cast<EventChannel::Type> (*(dataptr + 1) == EventChannel::Type::TTL))
             {
                 uint16 sourceStreamId = *reinterpret_cast<const uint16*> (dataptr + 4);
@@ -1334,7 +1474,7 @@ int GenericProcessor::processEventBuffer()
                     getEditor()->setTTLState (sourceStreamId, eventBit, eventState);
                 }
             }
-            else if (static_cast<Event::Type> (*dataptr) == Event::Type::PROCESSOR_EVENT
+            else if (baseType == Event::Type::PROCESSOR_EVENT
                      && static_cast<EventChannel::Type> (*(dataptr + 1) == EventChannel::Type::TEXT))
             {
                 TextEventPtr textEvent = TextEvent::deserialize (dataptr, getMessageChannel());

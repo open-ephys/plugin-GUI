@@ -185,6 +185,30 @@ float DataQueue::writeSynchronizedTimestamps (double start, double step, int des
     return 1.0f - (float) m_FTSFifos[destChannel]->getFreeSpace() / (float) m_FTSFifos[destChannel]->getTotalSize();
 }
 
+float DataQueue::writeSynchronizedTimestamps (const double* timestamps, int destChannel, int nSamples)
+{
+    int index1, size1, index2, size2;
+
+    m_FTSFifos[destChannel]->prepareToWrite (nSamples, index1, size1, index2, size2);
+
+    if ((size1 + size2) < nSamples)
+    {
+        LOGE (__FUNCTION__, " Recording Data Queue Overflow: sz1: ", size1, " sz2: ", size2, " nSamples: ", nSamples);
+    }
+
+    double* writePtr = m_FTSBuffer.getWritePointer (destChannel);
+
+    if (size1 > 0)
+        memcpy (writePtr + index1, timestamps, (size_t) size1 * sizeof (double));
+
+    if (size2 > 0)
+        memcpy (writePtr + index2, timestamps + size1, (size_t) size2 * sizeof (double));
+
+    m_FTSFifos[destChannel]->finishedWrite (size1 + size2);
+
+    return 1.0f - (float) m_FTSFifos[destChannel]->getFreeSpace() / (float) m_FTSFifos[destChannel]->getTotalSize();
+}
+
 float DataQueue::writeChannel (const AudioBuffer<float>& buffer,
                                int srcChannel,
                                int destChannel,

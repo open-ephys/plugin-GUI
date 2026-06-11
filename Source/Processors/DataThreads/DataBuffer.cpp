@@ -107,7 +107,7 @@ int DataBuffer::getNumSamples() const { return abstractFifo.getNumReady(); }
 
 int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
                                    int64* blockSampleNumber,
-                                   double* blockTimestamp,
+                                   double* blockTimestamps,
                                    uint64* eventCodes,
                                    int maxSize,
                                    int dstStartChannel,
@@ -134,15 +134,15 @@ int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
                            blockSize1); // numSamples
         }
 
-        memcpy (blockSampleNumber, sampleNumberBuffer + startIndex1, 8);
-        memcpy (blockTimestamp, timestampBuffer + startIndex1, 8);
-        memcpy (eventCodes, eventCodeBuffer + startIndex1, blockSize1 * 8);
+        memcpy (blockSampleNumber, sampleNumberBuffer + startIndex1, sizeof (int64));
+        memcpy (blockTimestamps, timestampBuffer + startIndex1, (size_t) blockSize1 * sizeof (double));
+        memcpy (eventCodes, eventCodeBuffer + startIndex1, (size_t) blockSize1 * sizeof (uint64));
     }
     else
     {
         // std::cout << "NO SAMPLES" << std::endl;
-        memcpy (blockSampleNumber, &lastSampleNumber, 8);
-        memcpy (blockTimestamp, &lastTimestamp, 8);
+        memcpy (blockSampleNumber, &lastSampleNumber, sizeof (int64));
+        memcpy (blockTimestamps, &lastTimestamp, sizeof (double));
     }
 
     if (blockSize2 > 0)
@@ -156,7 +156,8 @@ int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
                            startIndex2, // sourceStartSample
                            blockSize2); // numSamples
         }
-        memcpy (eventCodes + blockSize1, eventCodeBuffer + startIndex2, blockSize2 * 8);
+        memcpy (blockTimestamps + blockSize1, timestampBuffer + startIndex2, (size_t) blockSize2 * sizeof (double));
+        memcpy (eventCodes + blockSize1, eventCodeBuffer + startIndex2, (size_t) blockSize2 * sizeof (uint64));
     }
 
     // std::cout << "START SAMPLE FOR READ: " << *blockSampleNumber << std::endl;
@@ -164,7 +165,7 @@ int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
     if (numItems > 0)
     {
         lastSampleNumber = *blockSampleNumber;
-        lastTimestamp = *blockTimestamp;
+        lastTimestamp = *blockTimestamps;
 
         // std::cout << "Updating last sample number: " << lastSampleNumber << std::endl;
     }

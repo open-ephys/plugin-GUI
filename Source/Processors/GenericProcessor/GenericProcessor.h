@@ -614,12 +614,25 @@ protected:
     /** Used to get the current timestamp for a given stream.*/
     double getFirstTimestampForBlock (uint16 streamId) const;
 
+    /** Returns per-sample timestamps for the current block, or nullptr if unavailable. */
+    const double* getTimestampsForBlock (uint16 streamId) const;
+
+    /** Resolves a sample number within the current block to a timestamp. */
+    bool getTimestampForSample (uint16 streamId, int64 sampleNumber, double& timestamp) const;
+
     /** Used to set the timestamp for a given buffer, for a given DataStream. */
     void setTimestampAndSamples (int64 startSampleForBlock,
                                  double startTimestampForBlock,
                                  uint32 nSamples,
                                  uint16 streamId,
                                  uint16 syncStreamId = 0);
+
+    /** Emits per-sample timestamps for the current buffer. */
+    void setTimestampArrayForBlock (int64 startSampleForBlock,
+                                    const double* timestampsForBlock,
+                                    uint32 nSamples,
+                                    uint16 streamId,
+                                    uint16 syncStreamId = 0);
 
     // --------------------------------------------
     //     CHANNEL INDEXING

@@ -12,6 +12,7 @@ struct FakeSourceNodeParams
     float bitVolts = 1.0f;
     int streams = 1;
     uint32_t metadataSizeBytes = 0;
+    bool generatesTimestamps = false;
 };
 
 class TESTABLE FakeSourceNode : public GenericProcessor
