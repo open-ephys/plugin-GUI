@@ -214,7 +214,7 @@ void LfpChannelDisplay::pxPaint()
         if (showRangeMarkers)
         {
             int start = getY() + center - channelHeight / 2;
-            int jump = channelHeight / 4;
+            int jump = jmax (1, channelHeight / 4);
 
             for (m = start; m <= start + jump * 4; m += jump)
             {
@@ -502,7 +502,7 @@ void LfpChannelDisplay::pxPaintHistory (int playhead, int rightEdge, int maxScre
         if (showRangeMarkers)
         {
             int start = getY() + center - channelHeight / 2;
-            int jump = channelHeight / 4;
+            int jump = jmax (1, channelHeight / 4);
 
             for (m = start; m <= start + jump * 4; m += jump)
             {
@@ -705,12 +705,7 @@ void LfpChannelDisplay::paint (Graphics& g)
 
     const int center = getHeight() / 2;
     const int start = center - channelHeight / 2;
-    const int jump = channelHeight / 4;
-
-    if (jump <= 0)
-    {
-        return;
-    }
+    const int jump = jmax (1, channelHeight / 4);
 
     const int labelWidth = 50;
     const int textHeight = 16;
