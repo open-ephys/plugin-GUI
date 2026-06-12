@@ -460,7 +460,7 @@ void DraggableTabComponent::popupMenuClickOnTab (int tabIndex, const String& tab
 void DraggableTabComponent::showTabNameEditor (int tabIndex, const String& tabName)
 {
     auto* tabButton = getTabbedButtonBar().getTabButton (tabIndex);
-    int nodeId = tabNodeIds[tabIndex];
+    const int nodeId = tabNodeIds[tabIndex];
 
     // create a label to edit the name
     Label* editNameLabel = new Label ("EditName", tabName);
@@ -468,25 +468,26 @@ void DraggableTabComponent::showTabNameEditor (int tabIndex, const String& tabNa
     editNameLabel->setEditable (true, false, true);
     editNameLabel->setSize (100, 20);
     editNameLabel->setColour (Label::backgroundColourId, findColour (ThemeColours::widgetBackground));
-    editNameLabel->showEditor();
 
-    // set the text change callback
-    editNameLabel->onTextChange = [this, tabIndex, nodeId, editNameLabel]()
+    editNameLabel->onEditorHide = [this, nodeId, editNameLabel]()
     {
-        setTabName (tabIndex, editNameLabel->getText());
-        getTabbedButtonBar().getTabButton (tabIndex)->setName (editNameLabel->getText());
+        const int currentTabIndex = tabNodeIds.indexOf (nodeId);
+
+        if (currentTabIndex < 0)
+        {
+            return;
+        }
+
+        const String newTabName = editNameLabel->getText();
+        setTabName (currentTabIndex, newTabName);
 
         // update the tab text in the VisualizerEditor
         GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId (nodeId);
         if (processor != nullptr && processor->getEditor()->isVisualizerEditor())
         {
             VisualizerEditor* editor = (VisualizerEditor*) processor->getEditor();
-            editor->tabText = editNameLabel->getText();
+            editor->tabText = newTabName;
         }
-
-        // dismiss the callout box
-        if (auto* parent = editNameLabel->getParentComponent())
-            parent->exitModalState (0);
     };
 
     auto tabBounds = tabButton->getScreenBounds().withTrimmedBottom (tabButton->getHeight() / 2);
@@ -494,6 +495,18 @@ void DraggableTabComponent::showTabNameEditor (int tabIndex, const String& tabNa
     // launch the callout box at the tab button's center position
     auto& editBox = CallOutBox::launchAsynchronously (std::unique_ptr<Component> (editNameLabel), tabBounds, nullptr);
     editBox.setDismissalMouseClicksAreAlwaysConsumed (true);
+
+    Component::SafePointer<Label> safeEditNameLabel (editNameLabel);
+    MessageManager::callAsync ([safeEditNameLabel]()
+                               {
+                                   if (safeEditNameLabel != nullptr)
+                                   {
+                                       safeEditNameLabel->showEditor();
+
+                                       if (auto* editor = safeEditNameLabel->getCurrentTextEditor())
+                                           editor->selectAll();
+                                   }
+                               });
 }
 
 void DraggableTabComponent::takeComponentSnapshot (int tabIndex, const String& tabName)
