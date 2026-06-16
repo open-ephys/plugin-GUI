@@ -280,7 +280,7 @@ PluginInstaller::PluginInstaller (bool loadComponents)
 
     if (loadComponents)
     {
-        setSize (1140, 640);
+        setSize (1180, 640);
 
         if (auto window = getActiveTopLevelWindow())
             setCentrePosition (window->getScreenBounds().getCentre());
@@ -293,7 +293,7 @@ PluginInstaller::PluginInstaller (bool loadComponents)
         setContentOwned (new PluginInstallerComponent(), false);
         setVisible (true);
         setResizable (true, false); // useBottomCornerRisizer -- doesn't work very well
-        setResizeLimits (1140, 640, 8192, 5120);
+        setResizeLimits (1180, 640, 8192, 5120);
 
 #ifdef __APPLE__
         File iconDir = File::getSpecialLocation (File::currentApplicationFile).getChildFile ("Contents/Resources");
@@ -749,7 +749,6 @@ public:
     }
 
 private:
-
     HyperlinkButton linkButton;
     String displayName;
     Font plainFont;
@@ -800,7 +799,7 @@ public:
 
     void resized() override
     {
-        versionMenu.setBounds (getLocalBounds().reduced (2, 6));
+        versionMenu.setBounds (getLocalBounds().reduced (2, 20));
     }
 
 private:
@@ -871,7 +870,7 @@ public:
 
     void resized() override
     {
-        button.setBounds (getLocalBounds().reduced (2, 4));
+        button.setBounds (getLocalBounds().reduced (2, 18));
     }
 
 private:
@@ -1043,13 +1042,13 @@ void PluginInstallerComponent::applyTableFilters()
 
 PluginListBoxComponent::PluginListBoxComponent()
 {
-    tableFont = FontOptions ("Inter", "Regular", 14.0f);
-    headerFont = FontOptions ("Inter", "Semi Bold", 15.0f);
+    tableFont = FontOptions ("Inter", "Regular", 17.0f);
+    nameFont = FontOptions ("Inter", "Semi Bold", 17.0f);
 
     pluginTable = std::make_unique<TableListBox>();
     pluginTable->setModel (this);
-    pluginTable->setRowHeight (38);
-    pluginTable->setHeaderHeight (30);
+    pluginTable->setRowHeight (70);
+    pluginTable->setHeaderHeight (36);
     pluginTable->getViewport()->setScrollBarThickness (12);
     addAndMakeVisible (pluginTable.get());
 
@@ -1058,15 +1057,15 @@ PluginListBoxComponent::PluginListBoxComponent()
     constexpr int regularColumnFlags = TableHeaderComponent::visible | TableHeaderComponent::resizable;
 
     header.addColumn ("Plugin", displayNameColumn, 180, 120, -1, sortableColumnFlags);
-    header.addColumn ("Type", typeColumn, 90, 90, 90, TableHeaderComponent::visible);
+    header.addColumn ("Type", typeColumn, 80, 80, 80, TableHeaderComponent::visible);
     header.addColumn ("Developers", developersColumn, 150, 100, 280, regularColumnFlags);
-    header.addColumn ("Updated", updatedColumn, 90, 90, 90, TableHeaderComponent::visible);
+    header.addColumn ("Updated", updatedColumn, 100, 100, 100, TableHeaderComponent::visible);
     header.addColumn ("Description", descriptionColumn, 310, 180, -1, regularColumnFlags);
     header.addColumn ("Dependencies", dependenciesColumn, 120, 120, 120, TableHeaderComponent::appearsOnColumnMenu);
-    header.addColumn ("Installed", installedVersionColumn, 60, 60, 60, TableHeaderComponent::visible);
+    header.addColumn ("Installed", installedVersionColumn, 75, 75, 75, TableHeaderComponent::visible);
     header.addColumn ("Version", versionSelectorColumn, 80, 80, 120, regularColumnFlags);
     header.addColumn ("Action", installColumn, 60, 60, 60, TableHeaderComponent::visible);
-    header.addColumn ("Remove", uninstallColumn, 60, 60, 60, TableHeaderComponent::visible);
+    header.addColumn ("Delete", uninstallColumn, 60, 60, 60, TableHeaderComponent::visible);
     header.setSortColumnId (displayNameColumn, true);
 
     tableDropShadower = std::make_unique<DropShadower> (DropShadow (Colours::black.withAlpha (0.5f), 6, { 2, 2 }));
@@ -1113,8 +1112,12 @@ void PluginListBoxComponent::paintCell (Graphics& g,
 
     g.setFont (tableFont);
 
-    juce::Rectangle<int> textBounds (5, 0, width - 10, height);
+    juce::Rectangle<int> textBounds (5, 5, width - 10, height - 10);
     String text;
+    AttributedString attributedStr;
+    TextLayout layout;
+    attributedStr.setJustification (Justification::centredLeft);
+    attributedStr.setWordWrap (AttributedString::WordWrap::byWord);
 
     switch (columnId)
     {
@@ -1127,7 +1130,15 @@ void PluginListBoxComponent::paintCell (Graphics& g,
 
         case developersColumn:
             text = pluginInfo->developers;
-            break;
+            attributedStr.append (text, tableFont, findColour (ThemeColours::defaultText));
+            layout.createLayout (attributedStr, textBounds.getWidth());
+            if (layout.getNumLines() > 3)
+            {
+                attributedStr.setJustification (Justification::topLeft);
+                layout.createLayout (attributedStr, textBounds.getWidth());
+            }
+            layout.draw (g, textBounds.toFloat());
+            return;
 
         case updatedColumn:
             text = pluginInfo->lastUpdated;
@@ -1135,7 +1146,15 @@ void PluginListBoxComponent::paintCell (Graphics& g,
 
         case descriptionColumn:
             text = pluginInfo->description;
-            break;
+            attributedStr.append (text, tableFont.withHeight (15.0f), findColour (ThemeColours::defaultText));
+            layout.createLayout (attributedStr, textBounds.getWidth());
+            if (layout.getNumLines() > 4)
+            {
+                attributedStr.setJustification (Justification::topLeft);
+                layout.createLayout (attributedStr, textBounds.getWidth());
+            }
+            layout.draw (g, textBounds.toFloat());
+            return;
 
         case dependenciesColumn:
             text = getDependenciesText (*pluginInfo);
@@ -1203,7 +1222,7 @@ Component* PluginListBoxComponent::refreshComponentForCell (int rowNumber,
         if (nameCell == nullptr)
             nameCell = new PluginNameCell();
 
-        nameCell->update (*pluginInfo, headerFont);
+        nameCell->update (*pluginInfo, nameFont);
         return nameCell;
     }
 
@@ -1281,11 +1300,11 @@ int PluginListBoxComponent::getColumnAutoSizeWidth (int columnId)
     if (columnId != displayNameColumn)
         return 0;
 
-    auto maxWidth = GlyphArrangement::getStringWidthInt (Font (headerFont), pluginTable->getHeader().getColumnName (displayNameColumn));
+    auto maxWidth = GlyphArrangement::getStringWidthInt (Font (nameFont), pluginTable->getHeader().getColumnName (displayNameColumn));
 
     for (const auto& pluginInfo : allPlugins)
         maxWidth = jmax (maxWidth,
-                         GlyphArrangement::getStringWidthInt (Font (headerFont), pluginInfo.displayName + "↗"));
+                         GlyphArrangement::getStringWidthInt (Font (nameFont), pluginInfo.displayName + "↗"));
 
     return maxWidth + 28;
 }

@@ -229,7 +229,7 @@ private:
     std::vector<SelectedPluginInfo> allPlugins;
     std::vector<int> visibleRows;
     String searchText;
-    FontOptions tableFont, headerFont;
+    FontOptions tableFont, nameFont;
     bool showInstalledOnly = false;
     bool showSources = true;
     bool showFilters = true;
