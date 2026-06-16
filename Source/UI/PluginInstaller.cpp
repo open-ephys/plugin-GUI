@@ -1479,6 +1479,14 @@ void PluginListBoxComponent::setSelectedVersion (int rowNumber, const String& ve
 
 void PluginListBoxComponent::installPluginForRow (int rowNumber)
 {
+    if (CoreServices::getAcquisitionStatus())
+    {
+        AlertWindow::showMessageBoxAsync (AlertWindow::InfoIcon,
+                                          "Plugin Installation Unavailable",
+                                          "Plugin installation is currently unavailable while acquisition is in progress.");
+        return;
+    }
+
     if (auto* pluginInfo = getPluginForVisibleRow (rowNumber))
     {
         actionRunner->setPluginInfo (*pluginInfo);
@@ -1488,6 +1496,14 @@ void PluginListBoxComponent::installPluginForRow (int rowNumber)
 
 void PluginListBoxComponent::uninstallPluginForRow (int rowNumber)
 {
+    if (CoreServices::getAcquisitionStatus())
+    {
+        AlertWindow::showMessageBoxAsync (AlertWindow::InfoIcon,
+                                          "Plugin Removal Unavailable",
+                                          "Plugin removal is currently unavailable while acquisition is in progress.");
+        return;
+    }
+
     if (auto* pluginInfo = getPluginForVisibleRow (rowNumber))
     {
         actionRunner->setPluginInfo (*pluginInfo);

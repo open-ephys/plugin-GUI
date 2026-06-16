@@ -841,6 +841,7 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
         case openPluginInstaller:
             result.setInfo ("Plugin Installer", "Launch the plugin installer.", "General", 0);
             result.addDefaultKeypress ('P', ModifierKeys::commandModifier);
+            result.setActive (! acquisitionStarted);
             break;
 
         case openDefaultConfigWindow:
