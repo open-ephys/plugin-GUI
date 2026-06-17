@@ -25,12 +25,14 @@ SetupLogging=yes
 
 [Tasks]
 Name: desktopicon; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
-Name: install_usb1; Description: "Install FTDI D3XX driver (Open Ephys FPGA board)"; GroupDescription: "Acquisition Board drivers:";
-Name: install_usb2; Description: "Install Opal Kelly Front Panel USB driver (Opal Kelly FPGA board)"; GroupDescription: "Acquisition Board drivers:"; Flags: unchecked;
+Name: install_ftdi_14001; Description: "Install FTDI D3XX driver v1.4.0.1 (Open Ephys FPGA Acquisition board)"; GroupDescription: "FTDI D3XX driver version:"; Flags: exclusive;
+Name: install_ftdi_13010; Description: "Install FTDI D3XX driver v1.3.0.10 (Neuropixels OneBox)"; GroupDescription: "FTDI D3XX driver version:"; Flags: exclusive unchecked;
+Name: install_ok_usb; Description: "Install Opal Kelly Front Panel USB driver"; GroupDescription: "Opal Kelly FPGA Acquisition Board drivers:"; Flags: unchecked;
 
 [Files]
 Source: "..\..\..\Build\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; BeforeInstall: UpdateProgress(0);
-Source: "https://ftdichip.com/wp-content/uploads/2025/08/WU_Driver_Installers.7z"; DestDir: "{tmp}"; DestName: "WU_Driver_Installers.7z"; ExternalSize: 206_075_224; Flags: external download extractarchive recursesubdirs ignoreversion; Tasks: install_usb1; BeforeInstall: UpdateProgress(50);
+Source: "..\..\DLLs\FTD3XXDriver_WHQLCertified_1.3.0.10_Installer.exe"; DestDir: {tmp}; Flags: deleteafterinstall; Tasks: install_ftdi_13010; BeforeInstall: UpdateProgress(80);
+Source: "https://github.com/open-ephys-plugins/ftdi-drivers/raw/refs/heads/main/installers/FTDI_DriverInstaller_1.4.0.1_x64.exe"; DestDir: "{tmp}"; DestName: "FTDI_DriverInstaller_1.4.0.1_x64.exe"; ExternalSize: 71_818_824; Flags: external download ignoreversion; Tasks: install_ftdi_14001; BeforeInstall: UpdateProgress(50);
 Source: "..\..\DLLs\FrontPanelUSB-DriverOnly-4.5.5.exe"; DestDir: {tmp}; Flags: deleteafterinstall; BeforeInstall: UpdateProgress(90);
 
 [Icons]
@@ -38,8 +40,9 @@ Name: "{autodesktop}\Open Ephys GUI"; Filename: "{app}\open-ephys.exe"; Tasks: d
 Name: "{autoprograms}\Open Ephys GUI"; Filename: "{app}\open-ephys.exe"
 
 [Run]
-Filename: "{tmp}\WU_Driver_Installers\FTDI_DriverInstaller_WU_x64.exe"; StatusMsg: "Installing FTDI D3XX driver..."; Tasks: install_usb1; Flags: skipifsilent
-Filename: "{tmp}\FrontPanelUSB-DriverOnly-4.5.5.exe"; StatusMsg: "Installing Front Panel USB driver..."; Tasks: install_usb2; Flags: skipifsilent
+Filename: "{tmp}\FTD3XXDriver_WHQLCertified_1.3.0.10_Installer.exe"; StatusMsg: "Installing FTDI D3XX driver v1.3.0.10..."; Tasks: install_ftdi_13010; Flags: skipifsilent
+Filename: "{tmp}\FTDI_DriverInstaller_1.4.0.1_x64.exe"; StatusMsg: "Installing FTDI D3XX driver v1.4.0.1..."; Tasks: install_ftdi_14001; Flags: skipifsilent
+Filename: "{tmp}\FrontPanelUSB-DriverOnly-4.5.5.exe"; StatusMsg: "Installing Front Panel USB driver..."; Tasks: install_ok_usb; Flags: skipifsilent
 Filename: "{app}\open-ephys.exe"; Description: "Launch Open Ephys GUI"; Flags: postinstall nowait skipifsilent
 
 [InstallDelete]
