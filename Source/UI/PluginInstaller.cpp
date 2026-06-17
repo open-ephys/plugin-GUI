@@ -35,7 +35,202 @@
 #include <Windows.h>
 #endif
 
+#include <vector>
+
 namespace fs = std::filesystem;
+
+static inline File getPluginsDirectory();
+static inline File getSharedDirectory();
+
+namespace
+{
+constexpr auto pluginGatewayUrl = "https://open-ephys-plugin-gateway.herokuapp.com/";
+
+struct InstalledPluginState
+{
+    HashMap<String, String> versions;
+    HashMap<String, String> dllNames;
+};
+
+struct PluginCatalog
+{
+    String downloadUrl;
+    var pluginData;
+    HashMap<String, String> dependencyVersions;
+};
+
+StringArray getCompatibleVersions (const var& versions)
+{
+    StringArray compatibleVersions;
+
+    if (auto* allVersions = versions.getArray())
+    {
+        for (const auto& value : *allVersions)
+        {
+            const auto version = value.toString();
+            const auto apiVer = version.fromLastOccurrenceOf ("API", false, false);
+
+            if (apiVer.equalsIgnoreCase (String (PLUGIN_API_VER)))
+                compatibleVersions.add (version);
+        }
+    }
+
+    return compatibleVersions;
+}
+
+String getLatestCompatibleVersion (const var& versions)
+{
+    auto compatibleVersions = getCompatibleVersions (versions);
+
+    if (compatibleVersions.isEmpty())
+        return {};
+
+    compatibleVersions.sort (true);
+    return compatibleVersions[compatibleVersions.size() - 1];
+}
+
+String getLatestCompatibleVersionOrDefault (const var& versions)
+{
+    if (const auto latest = getLatestCompatibleVersion (versions); latest.isNotEmpty())
+        return latest;
+
+    return "0.0.0-API" + String (PLUGIN_API_VER);
+}
+
+String getDisplayVersion (const String& version)
+{
+    return version.upToFirstOccurrenceOf ("-API", false, false);
+}
+
+bool parseGatewayCatalog (PluginCatalog& catalog, String& errorMessage)
+{
+    const auto response = URL (pluginGatewayUrl).readEntireTextStream();
+
+    if (response.isEmpty())
+    {
+        errorMessage = "Unable to fetch plugins! Please check your internet connection and try again.";
+        return false;
+    }
+
+    var gatewayData;
+    if (const auto result = JSON::parse (response, gatewayData); result.failed())
+    {
+        errorMessage = result.getErrorMessage();
+        return false;
+    }
+
+    catalog.downloadUrl = gatewayData.getProperty ("download_url", {}).toString();
+    catalog.pluginData = gatewayData.getProperty ("plugins", {});
+    catalog.dependencyVersions.clear();
+
+    if (const auto* plugins = catalog.pluginData.getArray())
+    {
+        for (const auto& entry : *plugins)
+        {
+            const auto pluginName = entry.getProperty ("name", {}).toString();
+            const auto pluginType = entry.getProperty ("type", {}).toString();
+
+            if (! pluginType.equalsIgnoreCase ("CommonLib"))
+                continue;
+
+            if (const auto latestVersion = getLatestCompatibleVersion (entry.getProperty ("versions", {})); latestVersion.isNotEmpty())
+                catalog.dependencyVersions.set (pluginName, latestVersion);
+        }
+    }
+
+    return true;
+}
+
+bool readInstalledPluginState (InstalledPluginState& installedState)
+{
+    const auto xmlFile = getPluginsDirectory().getChildFile ("installedPlugins.xml");
+    XmlDocument doc (xmlFile);
+    std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
+
+    if (xml == nullptr || ! xml->hasTagName ("PluginInstaller"))
+        return false;
+
+    installedState.versions.clear();
+    installedState.dllNames.clear();
+
+    if (auto* child = xml->getFirstChildElement())
+    {
+        for (auto* pluginElement : child->getChildIterator())
+        {
+            const auto pluginName = pluginElement->getTagName();
+            installedState.versions.set (pluginName, pluginElement->getStringAttribute ("version"));
+            installedState.dllNames.set (pluginName, pluginElement->getStringAttribute ("dllName"));
+        }
+    }
+
+    return true;
+}
+
+int findPluginIndexByProperty (const var& pluginData, const Identifier& property, const String& value)
+{
+    if (const auto* plugins = pluginData.getArray())
+    {
+        for (int index = 0; index < plugins->size(); ++index)
+        {
+            if ((*plugins)[index].getProperty (property, {}).toString().equalsIgnoreCase (value))
+                return index;
+        }
+    }
+
+    return -1;
+}
+
+SelectedPluginInfo createSelectedPluginInfo (const var& entry,
+                                             const InstalledPluginState& installedState,
+                                             const HashMap<String, String>& dependencyVersions)
+{
+    SelectedPluginInfo pluginInfo;
+    pluginInfo.pluginName = entry.getProperty ("name", {}).toString();
+    pluginInfo.displayName = entry.getProperty ("display_name", pluginInfo.pluginName).toString();
+    pluginInfo.type = entry.getProperty ("type", {}).toString();
+    pluginInfo.developers = entry.getProperty ("developers", {}).toString();
+
+    const auto updated = entry.getProperty ("updated", {}).toString();
+    pluginInfo.lastUpdated = updated.upToFirstOccurrenceOf ("T", false, false);
+    pluginInfo.description = entry.getProperty ("desc", {}).toString();
+    pluginInfo.docURL = entry.getProperty ("docs", {}).toString();
+    pluginInfo.versions = getCompatibleVersions (entry.getProperty ("versions", {}));
+    pluginInfo.versions.sort (true);
+    pluginInfo.selectedVersion = {};
+    pluginInfo.latestVersion = {};
+
+    if (! pluginInfo.versions.isEmpty())
+        pluginInfo.latestVersion = pluginInfo.versions[pluginInfo.versions.size() - 1];
+    pluginInfo.installedVersion = installedState.versions[pluginInfo.pluginName];
+    pluginInfo.dependencies.clear();
+    pluginInfo.dependencyVersions.clear();
+
+    if (auto* dependencies = entry.getProperty ("dependencies", {}).getArray())
+    {
+        for (const auto& dependencyValue : *dependencies)
+        {
+            const auto dependency = dependencyValue.toString();
+
+            if (dependency.equalsIgnoreCase ("None"))
+                continue;
+
+            pluginInfo.dependencies.add (dependency);
+            pluginInfo.dependencyVersions.add (dependencyVersions[dependency]);
+        }
+    }
+
+    if (pluginInfo.selectedVersion.isEmpty())
+        pluginInfo.selectedVersion = pluginInfo.latestVersion;
+
+    if (pluginInfo.selectedVersion.isEmpty() && ! pluginInfo.versions.isEmpty())
+        pluginInfo.selectedVersion = pluginInfo.versions[pluginInfo.versions.size() - 1];
+
+    if (pluginInfo.selectedVersion.isEmpty())
+        pluginInfo.selectedVersion = pluginInfo.installedVersion;
+
+    return pluginInfo;
+}
+} // namespace
 
 //-----------------------------------------------------------------------
 static inline File getPluginsDirectory()
@@ -85,7 +280,7 @@ PluginInstaller::PluginInstaller (bool loadComponents)
 
     if (loadComponents)
     {
-        setSize (910, 480);
+        setSize (1180, 640);
 
         if (auto window = getActiveTopLevelWindow())
             setCentrePosition (window->getScreenBounds().getCentre());
@@ -98,7 +293,7 @@ PluginInstaller::PluginInstaller (bool loadComponents)
         setContentOwned (new PluginInstallerComponent(), false);
         setVisible (true);
         setResizable (true, false); // useBottomCornerRisizer -- doesn't work very well
-        setResizeLimits (910, 480, 8192, 5120);
+        setResizeLimits (1180, 640, 8192, 5120);
 
 #ifdef __APPLE__
         File iconDir = File::getSpecialLocation (File::currentApplicationFile).getChildFile ("Contents/Resources");
@@ -175,73 +370,40 @@ int PluginInstaller::checkForPluginUpdates()
 {
     LOGD ("Checking for plugin updates...");
 
-    File xmlFile = getPluginsDirectory().getChildFile ("installedPlugins.xml");
-
-    XmlDocument doc (xmlFile);
-    std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
-
-    if (xml == 0 || ! xml->hasTagName ("PluginInstaller"))
+    InstalledPluginState installedState;
+    if (! readInstalledPluginState (installedState))
     {
         LOGD ("[PluginInstaller] installedPlugins.xml not found.");
         return 0;
     }
 
-    auto child = xml->getFirstChildElement();
-
-    String baseUrl = "https://open-ephys-plugin-gateway.herokuapp.com/";
-    String response = URL (baseUrl).readEntireTextStream();
-
-    if (response.isEmpty())
+    PluginCatalog catalog;
+    String errorMessage;
+    if (! parseGatewayCatalog (catalog, errorMessage))
     {
         LOGE ("Unable to fetch plugin updates! Please check your internet connection.");
         return 0;
     }
 
-    var gatewayData;
-    Result result = JSON::parse (response, gatewayData);
-    gatewayData = gatewayData.getProperty ("plugins", var());
-
     updatablePlugins.clear();
 
-    for (auto* e : child->getChildIterator())
+    if (const auto* plugins = catalog.pluginData.getArray())
     {
-        String pName = e->getTagName();
-        String latestVer;
-
-        // Get latest compatible version for this plugin
-        for (int i = 0; i < gatewayData.size(); i++)
+        for (const auto& plugin : *plugins)
         {
-            if (gatewayData[i].getProperty ("name", "NULL").toString().equalsIgnoreCase (pName))
+            const auto pluginName = plugin.getProperty ("name", {}).toString();
+            const auto installedVersion = installedState.versions[pluginName];
+
+            if (installedVersion.isEmpty())
+                continue;
+
+            const auto latestVersion = getLatestCompatibleVersionOrDefault (plugin.getProperty ("versions", {}));
+
+            if (latestVersion.compareNatural (installedVersion) > 0)
             {
-                auto allVersions = gatewayData[i].getProperty ("versions", "NULL").getArray();
-                StringArray compatibleVersions;
-
-                for (String depVersion : *allVersions)
-                {
-                    String apiVer = depVersion.substring (depVersion.indexOf ("I") + 1);
-
-                    if (apiVer.equalsIgnoreCase (String (PLUGIN_API_VER)))
-                        compatibleVersions.add (depVersion);
-                }
-
-                if (! compatibleVersions.isEmpty())
-                {
-                    compatibleVersions.sort (false);
-                    latestVer = compatibleVersions[compatibleVersions.size() - 1];
-                }
-                else
-                {
-                    latestVer = "0.0.0-API" + String (PLUGIN_API_VER);
-                }
-
-                break;
+                updatablePlugins.add (pluginName);
+                LOGD ("Plugin update available: ", pluginName);
             }
-        }
-
-        if (latestVer.isNotEmpty() && latestVer.compareNatural (e->getAttributeValue (0)) > 0)
-        {
-            updatablePlugins.add (pName);
-            LOGD ("Plugin update available: ", pName);
         }
     }
 
@@ -251,45 +413,30 @@ int PluginInstaller::checkForPluginUpdates()
 
 void PluginInstaller::installPluginAndDependency (const String& plugin, String version)
 {
-    PluginInfoComponent tempInfoComponent;
+    PluginInstallActionRunner actionRunner;
 
-    /** Get list of plugins uploaded to Artifactory */
-    String baseUrl = "https://open-ephys-plugin-gateway.herokuapp.com/";
-    String response = URL (baseUrl).readEntireTextStream();
-
-    if (response.isEmpty())
-        LOGE ("Unable to fetch plugins! Please check your internet connection and try again.")
-
-    var gatewayData;
-    Result result = JSON::parse (response, gatewayData);
-
-    String url = gatewayData.getProperty ("download_url", var()).toString();
-    tempInfoComponent.setDownloadURL (url);
-
-    var pluginData = gatewayData.getProperty ("plugins", var());
-
-    int pIndex;
-    bool pluginFound = false;
-
-    for (int i = 0; i < pluginData.size(); i++)
+    PluginCatalog catalog;
+    String errorMessage;
+    if (! parseGatewayCatalog (catalog, errorMessage))
     {
-        if (pluginData[i].getProperty ("display_name", "NULL").toString().equalsIgnoreCase (plugin))
-        {
-            pIndex = i;
-            pluginFound = true;
-            break;
-        }
+        LOGE (errorMessage)
+        return;
     }
 
-    if (! pluginFound)
+    actionRunner.setDownloadURL (catalog.downloadUrl);
+
+    const auto pluginIndex = findPluginIndexByProperty (catalog.pluginData, "display_name", plugin);
+
+    if (pluginIndex < 0)
     {
         LOGE ("Automated Plugin Installation Failed! Plugin not found!")
         return;
     }
 
-    auto platforms = pluginData[pIndex].getProperty ("platforms", "none").getArray();
+    const auto selectedEntry = catalog.pluginData[pluginIndex];
+    auto* platforms = selectedEntry.getProperty ("platforms", {}).getArray();
 
-    if (! platforms->contains (osType))
+    if (platforms == nullptr || ! platforms->contains (osType))
     {
         LOGD ("No platform specific package found for ", plugin);
         return;
@@ -299,68 +446,43 @@ void PluginInstaller::installPluginAndDependency (const String& plugin, String v
 
     SelectedPluginInfo requiredPluginInfo;
 
-    requiredPluginInfo.pluginName = pluginData[pIndex].getProperty ("name", "NULL").toString();
+    requiredPluginInfo.pluginName = selectedEntry.getProperty ("name", {}).toString();
     requiredPluginInfo.displayName = plugin;
-    requiredPluginInfo.type = pluginData[pIndex].getProperty ("type", "NULL").toString();
-
-    auto allVersions = pluginData[pIndex].getProperty ("versions", "NULL").getArray();
-
-    requiredPluginInfo.versions.clear();
-
-    for (String v : *allVersions)
-    {
-        String apiVer = v.substring (v.indexOf ("I") + 1);
-
-        if (apiVer.equalsIgnoreCase (String (PLUGIN_API_VER)))
-            requiredPluginInfo.versions.add (v);
-    }
+    requiredPluginInfo.type = selectedEntry.getProperty ("type", {}).toString();
+    requiredPluginInfo.versions = getCompatibleVersions (selectedEntry.getProperty ("versions", {}));
 
     requiredPluginInfo.dependencies.clear();
-    auto dependencies = pluginData[pIndex].getProperty ("dependencies", "NULL").getArray();
-    for (String dependency : *dependencies)
+    requiredPluginInfo.dependencyVersions.clear();
+
+    if (auto* dependencies = selectedEntry.getProperty ("dependencies", {}).getArray())
     {
-        if (! dependency.equalsIgnoreCase ("None"))
+        for (const auto& dependencyValue : *dependencies)
         {
+            const auto dependency = dependencyValue.toString();
+
+            if (dependency.equalsIgnoreCase ("None"))
+                continue;
+
             requiredPluginInfo.dependencies.add (dependency);
-            for (int i = 0; i < pluginData.size(); i++)
+
+            if (const auto dependencyVersion = catalog.dependencyVersions[dependency]; dependencyVersion.isNotEmpty())
             {
-                if (pluginData[i].getProperty ("name", "NULL").toString().equalsIgnoreCase (dependency))
-                {
-                    // Get the latest compatible version of the dependency
-                    auto allDepVersions = pluginData[i].getProperty ("versions", "NULL").getArray();
-                    StringArray compatibleVersions;
-                    for (String depVersion : *allDepVersions)
-                    {
-                        String apiVer = depVersion.substring (depVersion.indexOf ("I") + 1);
-
-                        if (apiVer.equalsIgnoreCase (String (PLUGIN_API_VER)))
-                            compatibleVersions.add (depVersion);
-                    }
-
-                    if (! compatibleVersions.isEmpty())
-                    {
-                        compatibleVersions.sort (false);
-                        requiredPluginInfo.dependencyVersions.add (compatibleVersions[compatibleVersions.size() - 1]);
-                    }
-                    else
-                    {
-                        LOGE ("Automated Plugin Installation Failed! Compatible plugin version not found!")
-                        return;
-                    }
-
-                    break;
-                }
+                requiredPluginInfo.dependencyVersions.add (dependencyVersion);
+                continue;
             }
+
+            LOGE ("Automated Plugin Installation Failed! Compatible plugin version not found!")
+            return;
         }
     }
 
-    tempInfoComponent.setPluginInfo (requiredPluginInfo, false);
+    actionRunner.setPluginInfo (requiredPluginInfo);
 
     for (int i = 0; i < requiredPluginInfo.dependencies.size(); i++)
     {
-        tempInfoComponent.downloadPlugin (requiredPluginInfo.dependencies[i],
-                                          requiredPluginInfo.dependencyVersions[i],
-                                          true);
+        actionRunner.downloadPlugin (requiredPluginInfo.dependencies[i],
+                                     requiredPluginInfo.dependencyVersions[i],
+                                     true);
     }
 
     // download the plugin
@@ -379,7 +501,7 @@ void PluginInstaller::installPluginAndDependency (const String& plugin, String v
         }
     }
 
-    int code = tempInfoComponent.downloadPlugin (requiredPluginInfo.pluginName, version, false);
+    int code = actionRunner.downloadPlugin (requiredPluginInfo.pluginName, version, false);
 
     if (code == 1)
         LOGC ("Install successful!!")
@@ -387,761 +509,1107 @@ void PluginInstaller::installPluginAndDependency (const String& plugin, String v
         LOGC ("Install failed!!");
 }
 
+namespace
+{
+String getDependenciesText (const SelectedPluginInfo& pluginInfo)
+{
+    return pluginInfo.dependencies.isEmpty() ? "None" : pluginInfo.dependencies.joinIntoString (", ");
+}
+
+String getSelectedVersionOrFallback (const SelectedPluginInfo& pluginInfo)
+{
+    if (pluginInfo.selectedVersion.isNotEmpty())
+        return pluginInfo.selectedVersion;
+
+    if (pluginInfo.latestVersion.isNotEmpty())
+        return pluginInfo.latestVersion;
+
+    if (! pluginInfo.versions.isEmpty())
+        return pluginInfo.versions[pluginInfo.versions.size() - 1];
+
+    return {};
+}
+
+String getInstallActionLabel (const SelectedPluginInfo& pluginInfo)
+{
+    if (pluginInfo.versions.isEmpty())
+        return "Unavailable";
+
+    const auto selectedVersion = getSelectedVersionOrFallback (pluginInfo);
+
+    if (selectedVersion.isEmpty())
+        return "Unavailable";
+
+    if (pluginInfo.installedVersion.isEmpty())
+        return "Install";
+
+    const auto result = selectedVersion.compareNatural (pluginInfo.installedVersion);
+
+    if (result == 0)
+        return "Installed";
+
+    return result > 0 ? "Upgrade" : "Downgrade";
+}
+
+bool canInstallPlugin (const SelectedPluginInfo& pluginInfo)
+{
+    const auto label = getInstallActionLabel (pluginInfo);
+    return label != "Installed" && label != "Unavailable";
+}
+
+Colour getInstallActionColour (const String& actionLabel)
+{
+    if (actionLabel == "Upgrade")
+        return Colours::green;
+
+    if (actionLabel == "Downgrade")
+        return Colours::orangered.darker (0.1f);
+
+    return Colours::dodgerblue.darker();
+}
+
+Path createSvgPath (std::initializer_list<const char*> svgPathSegments)
+{
+    Path path;
+
+    for (const auto* segment : svgPathSegments)
+        path.addPath (Drawable::parseSVGPath (segment));
+
+    return path;
+}
+
+const Path& getInstallIconPath()
+{
+    static const auto path = createSvgPath ({ "M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2",
+                                              "M7 11l5 5l5 -5",
+                                              "M12 4l0 12" });
+
+    return path;
+}
+
+const Path& getUpgradeIconPath()
+{
+    static const auto path = createSvgPath ({ "M9 12h-3.586a1 1 0 0 1 -.707 -1.707l6.586 -6.586a1 1 0 0 1 1.414 0l6.586 6.586a1 1 0 0 1 -.707 1.707h-3.586v3h-6v-3",
+                                              "M9 21h6",
+                                              "M9 18h6" });
+
+    return path;
+}
+
+const Path& getDowngradeIconPath()
+{
+    static const auto path = createSvgPath ({ "M15 12h3.586a1 1 0 0 1 .707 1.707l-6.586 6.586a1 1 0 0 1 -1.414 0l-6.586 -6.586a1 1 0 0 1 .707 -1.707h3.586v-3h6v3",
+                                              "M15 3h-6",
+                                              "M15 6h-6" });
+
+    return path;
+}
+
+const Path& getInstallActionIconPath (const String& actionLabel)
+{
+    if (actionLabel == "Upgrade")
+        return getUpgradeIconPath();
+
+    if (actionLabel == "Downgrade")
+        return getDowngradeIconPath();
+
+    return getInstallIconPath();
+}
+
+const Path& getRemoveIconPath()
+{
+    static const auto path = createSvgPath ({ "M4 7h16",
+                                              "M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12",
+                                              "M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3",
+                                              "M10 12l4 4m0 -4l-4 4" });
+
+    return path;
+}
+
+class PluginIconButton : public Button
+{
+public:
+    enum class IconType
+    {
+        install,
+        remove
+    };
+
+    explicit PluginIconButton (IconType iconType)
+        : Button (iconType == IconType::install ? "Install" : "Remove"),
+          icon (iconType)
+    {
+    }
+
+    void paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown) override
+    {
+        auto bounds = getLocalBounds().toFloat().reduced (2.0f);
+        const auto enabled = isEnabled();
+        const auto actionLabel = getButtonText();
+
+        auto background = findColour (ThemeColours::widgetBackground);
+        auto outline = hasKeyboardFocus (false) ? findColour (ThemeColours::highlightedFill) : findColour (ThemeColours::outline);
+        outline = outline.withAlpha (enabled ? 1.0f : 0.4f);
+        auto iconColour = Colours::dodgerblue;
+
+        if (icon == IconType::install)
+            iconColour = getInstallActionColour (actionLabel);
+        else if (icon == IconType::remove)
+            iconColour = Colours::red;
+
+        iconColour = iconColour.withAlpha (enabled ? 0.95f : 0.28f);
+
+        float iconScaleDelta = 6.0f;
+
+        if (enabled && isMouseOverButton)
+        {
+            background = background.brighter (isButtonDown ? 0.08f : 0.16f);
+            iconScaleDelta = 5.0f;
+        }
+
+        if (enabled && isButtonDown)
+        {
+            outline = outline.withAlpha (0.42f);
+            iconScaleDelta = 7.0f;
+        }
+
+        g.setColour (background);
+        g.fillRoundedRectangle (bounds, 4.0f);
+
+        g.setColour (outline);
+        g.drawRoundedRectangle (bounds, 4.0f, 1.0f);
+
+        auto iconBounds = bounds.reduced (iconScaleDelta);
+        const auto& iconPath = icon == IconType::install ? getInstallActionIconPath (actionLabel) : getRemoveIconPath();
+        auto transform = iconPath.getTransformToScaleToFit (iconBounds, true, Justification::centred);
+
+        g.setColour (iconColour);
+        g.strokePath (iconPath, PathStrokeType (2.0f, PathStrokeType::curved, PathStrokeType::rounded), transform);
+    }
+
+    MouseCursor getMouseCursor() override
+    {
+        if (isEnabled())
+            return MouseCursor::PointingHandCursor;
+
+        return MouseCursor::NormalCursor;
+    }
+
+private:
+    IconType icon;
+};
+
+class PluginNameCell : public Component
+{
+public:
+    PluginNameCell()
+        : plainFont (FontOptions (14.0f)),
+          linkFont (FontOptions (14.0f, Font::underlined))
+    {
+        addAndMakeVisible (linkButton);
+        linkButton.setJustificationType (Justification::centredLeft);
+    }
+
+    void update (const SelectedPluginInfo& pluginInfo, const FontOptions& fontOptions)
+    {
+        hasDocs = pluginInfo.docURL.isNotEmpty();
+        hasUpdate = pluginInfo.hasUpdate;
+        displayName = pluginInfo.displayName + (hasDocs ? " ↗" : "");
+        plainFont = Font (fontOptions);
+        linkFont = Font (fontOptions.withUnderline (true));
+
+        linkButton.setVisible (hasDocs);
+        linkButton.setEnabled (hasDocs);
+        linkButton.setButtonText (displayName);
+        linkButton.setURL (hasDocs ? URL (pluginInfo.docURL) : URL());
+        linkButton.setFont (linkFont, false, Justification::centredLeft);
+
+        resized();
+        repaint();
+    }
+
+    void paint (Graphics& g) override
+    {
+        if (! hasDocs)
+        {
+            g.setColour (findColour (ThemeColours::defaultText));
+            g.setFont (plainFont);
+            g.drawText (displayName.isNotEmpty() ? displayName : String ("-"),
+                        getLocalBounds().reduced (5, 0),
+                        Justification::centredLeft,
+                        true);
+        }
+    }
+
+    void resized() override
+    {
+        auto bounds = getLocalBounds().reduced (5, 0);
+        linkButton.setBounds (bounds);
+        linkButton.changeWidthToFitText();
+    }
+
+private:
+    HyperlinkButton linkButton;
+    String displayName;
+    Font plainFont;
+    Font linkFont;
+    bool hasDocs = false;
+    bool hasUpdate = false;
+};
+
+class PluginVersionCell : public Component
+{
+public:
+    PluginVersionCell()
+    {
+        addAndMakeVisible (versionMenu);
+        versionMenu.setJustificationType (Justification::centred);
+        versionMenu.setTextWhenNoChoicesAvailable ("- N/A -");
+        versionMenu.onChange = [this]
+        {
+            if (onVersionChanged == nullptr)
+                return;
+
+            const auto selectedIndex = versionMenu.getSelectedId() - 1;
+
+            if (isPositiveAndBelow (selectedIndex, versions.size()))
+                onVersionChanged (versions[selectedIndex]);
+        };
+    }
+
+    void update (const SelectedPluginInfo& pluginInfo,
+                 std::function<void (const String&)> callback)
+    {
+        onVersionChanged = std::move (callback);
+        versions = pluginInfo.versions;
+
+        versionMenu.clear (dontSendNotification);
+
+        for (int index = 0; index < pluginInfo.versions.size(); ++index)
+            versionMenu.addItem (getDisplayVersion (pluginInfo.versions[index]), index + 1);
+
+        const auto selectedVersion = getSelectedVersionOrFallback (pluginInfo);
+        const auto selectedIndex = pluginInfo.versions.indexOf (selectedVersion);
+
+        if (selectedIndex >= 0)
+            versionMenu.setSelectedId (selectedIndex + 1, dontSendNotification);
+
+        versionMenu.setEnabled (! pluginInfo.versions.isEmpty());
+    }
+
+    void resized() override
+    {
+        versionMenu.setBounds (getLocalBounds().reduced (2, 20));
+    }
+
+private:
+    ComboBox versionMenu;
+    StringArray versions;
+    std::function<void (const String&)> onVersionChanged;
+};
+
+class PluginDescriptionCalloutComponent : public Component
+{
+public:
+    PluginDescriptionCalloutComponent (String descriptionToShow, Font descriptionFont)
+        : font (std::move (descriptionFont))
+    {
+        descriptionText.append (std::move (descriptionToShow),
+                                font,
+                                findColour (ThemeColours::defaultText));
+        descriptionText.setJustification (Justification::topLeft);
+        descriptionText.setWordWrap (AttributedString::WordWrap::byWord);
+        descriptionLayout.createLayout (descriptionText, static_cast<float> (contentWidth - padding * 2));
+        setSize (contentWidth, getPreferredHeight());
+    }
+
+    void paint (Graphics& g) override
+    {
+        g.setColour (findColour (ThemeColours::widgetBackground));
+        g.fillRoundedRectangle (getLocalBounds().toFloat().reduced (1.0f), 5.0f);
+        descriptionLayout.draw (g, getLocalBounds().reduced (padding).toFloat());
+    }
+
+private:
+    int getPreferredHeight() const
+    {
+        return jlimit (40, 500, roundToInt (descriptionLayout.getHeight()) + padding * 2);
+    }
+
+    static constexpr int contentWidth = 360;
+    static constexpr int padding = 12;
+
+    AttributedString descriptionText;
+    TextLayout descriptionLayout;
+    Font font;
+};
+
+class PluginIconButtonCell : public Component
+{
+public:
+    explicit PluginIconButtonCell (PluginIconButton::IconType iconType)
+        : button (iconType)
+    {
+        addAndMakeVisible (button);
+        button.onClick = [this]
+        {
+            if (onClick != nullptr)
+                onClick();
+        };
+    }
+
+    void update (const String& label,
+                 bool isEnabled,
+                 std::function<void()> callback)
+    {
+        onClick = std::move (callback);
+        button.setButtonText (label);
+        button.setEnabled (isEnabled);
+        button.setTooltip (label);
+    }
+
+    void resized() override
+    {
+        button.setBounds (getLocalBounds().reduced (2, 18));
+    }
+
+private:
+    PluginIconButton button;
+    std::function<void()> onClick;
+};
+} // namespace
+
 /* ================================== Plugin Installer Component ================================== */
 
-PluginInstallerComponent::PluginInstallerComponent() : ThreadWithProgressWindow ("Plugin Installer", false, false),
-                                                       checkForUpdates (false)
+PluginInstallerComponent::PluginInstallerComponent()
 {
-    font = FontOptions ("Inter", "Regular", 18.0f);
+    font = FontOptions ("Inter", "Medium", 17.0f);
     setSize (getWidth() - 10, getHeight() - 10);
+    setWantsKeyboardFocus (true);
 
-    addAndMakeVisible (pluginListAndInfo);
+    searchLabel = std::make_unique<Label>();
+    searchLabel->setFont (font);
+    searchLabel->setText ("Search:", dontSendNotification);
+    addAndMakeVisible (searchLabel.get());
 
-    //Auto check for updates on startup
-    checkForUpdates = true;
-    this->run();
+    searchEditor = std::make_unique<TextEditor>();
+    // searchEditor->setJustification (Justification::topLeft);
+    searchEditor->setSelectAllWhenFocused (true);
+    searchEditor->setTextToShowWhenEmpty ("Search by name...", Colours::grey);
+    searchEditor->setFont (FontOptions ("Inter", "Regular", 15.0f));
+    searchEditor->setPopupMenuEnabled (false);
+    searchEditor->onTextChange = [this]
+    { applyTableFilters(); };
+    searchEditor->onEscapeKey = [this]
+    {
+        searchEditor->clear();
+        applyTableFilters();
+        searchEditor->giveAwayKeyboardFocus();
+    };
+    addAndMakeVisible (searchEditor.get());
 
-    addAndMakeVisible (sortingLabel);
-    sortingLabel.setFont (font);
-    sortingLabel.setText ("Sort By:", dontSendNotification);
+    viewLabel = std::make_unique<Label>();
+    viewLabel->setFont (font);
+    viewLabel->setText ("View:", dontSendNotification);
+    addAndMakeVisible (viewLabel.get());
 
-    addAndMakeVisible (sortByMenu);
-    sortByMenu.setJustificationType (Justification::centred);
-    sortByMenu.addItem ("A - Z", 1);
-    sortByMenu.addItem ("Z - A", 2);
-    sortByMenu.setTextWhenNothingSelected ("-----");
-    sortByMenu.addListener (this);
+    allButton = std::make_unique<ToggleButton>();
+    allButton->setButtonText ("All");
+    allButton->setRadioGroupId (101, dontSendNotification);
+    allButton->setToggleState (true, dontSendNotification);
+    allButton->addListener (this);
+    addAndMakeVisible (allButton.get());
 
-    addAndMakeVisible (viewLabel);
-    viewLabel.setFont (font);
-    viewLabel.setText ("View:", dontSendNotification);
+    installedButton = std::make_unique<ToggleButton>();
+    installedButton->setButtonText ("Installed");
+    installedButton->setRadioGroupId (101, dontSendNotification);
+    installedButton->addListener (this);
+    addAndMakeVisible (installedButton.get());
 
-    addAndMakeVisible (allButton);
-    allButton.setButtonText ("All");
-    allButton.setRadioGroupId (101, dontSendNotification);
-    allButton.addListener (this);
-    allButton.setToggleState (true, dontSendNotification);
+    updatesButton = std::make_unique<ShapeButton> ("Refresh Plugins",
+                                                   Colours::transparentBlack,
+                                                   Colours::transparentBlack,
+                                                   Colours::transparentBlack);
+    String reloadIconPath = "M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747 M20 4v5h-5";
+    updatesButton->setShape (Drawable::parseSVGPath (reloadIconPath).createPathWithRoundedCorners (2.0f), true, true, false);
+    updatesButton->setOutline (findColour (ThemeColours::defaultText), 2.0f);
+    updatesButton->setMouseCursor (MouseCursor::PointingHandCursor);
+    updatesButton->setTooltip ("Refresh Plugins");
+    updatesButton->addListener (this);
+    addAndMakeVisible (updatesButton.get());
 
-    addAndMakeVisible (installedButton);
-    installedButton.setButtonText ("Installed");
-    installedButton.setClickingTogglesState (true);
-    installedButton.setRadioGroupId (101, dontSendNotification);
-    installedButton.addListener (this);
+    typeLabel = std::make_unique<Label>();
+    typeLabel->setFont (font);
+    typeLabel->setText ("Type:", dontSendNotification);
+    addAndMakeVisible (typeLabel.get());
 
-    addAndMakeVisible (updatesButton);
-    updatesButton.setButtonText ("Fetch Updates");
-    updatesButton.changeWidthToFitText();
-    updatesButton.addListener (this);
+    sourceType = std::make_unique<ToggleButton>();
+    sourceType->setButtonText ("Source");
+    sourceType->setToggleState (true, dontSendNotification);
+    sourceType->addListener (this);
+    addAndMakeVisible (sourceType.get());
 
-    addAndMakeVisible (typeLabel);
-    typeLabel.setFont (font);
-    typeLabel.setText ("Type:", dontSendNotification);
+    filterType = std::make_unique<ToggleButton>();
+    filterType->setButtonText ("Filter");
+    filterType->setToggleState (true, dontSendNotification);
+    filterType->addListener (this);
+    addAndMakeVisible (filterType.get());
 
-    addAndMakeVisible (filterType);
-    filterType.setButtonText ("Filter");
-    filterType.addListener (this);
-    filterType.setToggleState (true, dontSendNotification);
+    sinkType = std::make_unique<ToggleButton>();
+    sinkType->setButtonText ("Sink");
+    sinkType->setToggleState (true, dontSendNotification);
+    sinkType->addListener (this);
+    addAndMakeVisible (sinkType.get());
 
-    addAndMakeVisible (sourceType);
-    sourceType.setButtonText ("Source");
-    sourceType.addListener (this);
-    sourceType.setToggleState (true, dontSendNotification);
+    otherType = std::make_unique<ToggleButton>();
+    otherType->setButtonText ("Other");
+    otherType->setToggleState (true, dontSendNotification);
+    otherType->addListener (this);
+    addAndMakeVisible (otherType.get());
 
-    addAndMakeVisible (sinkType);
-    sinkType.setButtonText ("Sink");
-    sinkType.addListener (this);
-    sinkType.setToggleState (true, dontSendNotification);
-
-    addAndMakeVisible (otherType);
-    otherType.setButtonText ("Other");
-    otherType.addListener (this);
-    otherType.setToggleState (true, dontSendNotification);
+    pluginListAndInfo = std::make_unique<PluginListBoxComponent>();
+    addAndMakeVisible (pluginListAndInfo.get());
+    applyTableFilters();
 }
 
 void PluginInstallerComponent::paint (Graphics& g)
 {
     g.fillAll (findColour (ThemeColours::componentBackground).darker());
-    g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
-    g.fillRect (195, 5, 2, 38);
-    g.fillRect (405, 5, 2, 38);
+    g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.25f));
+    g.fillRect (10, 50, getWidth() - 20, 1);
+
+    // Draw rounded rectangle around the filter buttons
+    juce::Rectangle<float> filtersArea (290.0f, 6.0f, 600.0f, 36.0f);
+    g.setColour (findColour (ThemeColours::componentBackground).withAlpha (0.5f));
+    g.fillRoundedRectangle (filtersArea, 4.0f);
+    g.setColour (findColour (ThemeColours::outline).withAlpha (0.75f));
+    g.drawRoundedRectangle (filtersArea, 4.0f, 1.0f);
+    g.fillRect (512.0f, 6.0f, 1.5f, 36.0f);
+
+    if (pluginListAndInfo != nullptr)
+        g.drawRect (pluginListAndInfo->getBounds().toFloat().reduced (5.0f), 1.0f);
 }
 
 void PluginInstallerComponent::resized()
 {
-    sortingLabel.setBounds (20, 10, 70, 30);
-    sortByMenu.setBounds (90, 10, 90, 30);
+    searchLabel->setBounds (20, 10, 60, 28);
+    searchEditor->setBounds (80, 12, 200, 24);
 
-    viewLabel.setBounds (200, 10, 50, 30);
-    allButton.setBounds (250, 11, 55, 28);
-    installedButton.setBounds (305, 11, 105, 28);
+    viewLabel->setBounds (300, 10, 50, 28);
+    allButton->setBounds (350, 12, 55, 24);
+    installedButton->setBounds (410, 12, 95, 24);
 
-    typeLabel.setBounds (410, 11, 50, 28);
-    sourceType.setBounds (460, 11, 80, 28);
-    filterType.setBounds (540, 11, 70, 28);
-    sinkType.setBounds (610, 11, 65, 28);
-    otherType.setBounds (675, 11, 75, 28);
+    typeLabel->setBounds (520, 10, 50, 28);
+    sourceType->setBounds (575, 12, 80, 24);
+    filterType->setBounds (660, 12, 70, 24);
+    sinkType->setBounds (735, 12, 65, 24);
+    otherType->setBounds (805, 12, 75, 24);
 
-    updatesButton.setBounds (getWidth() - 140, 11, 120, 28);
+    updatesButton->setBounds (getWidth() - 44, 14, 20, 20);
 
-    pluginListAndInfo.setBounds (10, 40, getWidth() - 10, getHeight() - 40);
-}
-
-void PluginInstallerComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
-{
-    if (comboBoxThatHasChanged->getSelectedId() == 1)
-    {
-        pluginListAndInfo.pluginArray.sort (true);
-        pluginListAndInfo.repaint();
-    }
-    else if (comboBoxThatHasChanged->getSelectedId() == 2)
-    {
-        pluginListAndInfo.pluginArray.sort (true);
-        int size = pluginListAndInfo.pluginArray.size();
-        for (int i = 0; i < size / 2; i++)
-        {
-            pluginListAndInfo.pluginArray.getReference (i).swapWith (pluginListAndInfo.pluginArray.getReference (size - i - 1));
-        }
-
-        pluginListAndInfo.repaint();
-    }
-}
-
-void PluginInstallerComponent::run()
-{
-    File xmlFile = getPluginsDirectory().getChildFile ("installedPlugins.xml");
-
-    XmlDocument doc (xmlFile);
-    std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
-
-    if (xml == 0 || ! xml->hasTagName ("PluginInstaller"))
-    {
-        LOGE ("[PluginInstaller] File not found.");
-        return;
-    }
-    else
-    {
-        installedPlugins.clear();
-        auto child = xml->getFirstChildElement();
-
-        String baseUrl = "https://open-ephys-plugin-gateway.herokuapp.com/";
-        var gatewayData;
-        if (checkForUpdates)
-        {
-            setStatusMessage ("Fetching plugin updates...");
-            updatablePlugins.clear();
-
-            String response = URL (baseUrl).readEntireTextStream();
-
-            if (response.isEmpty())
-            {
-                LOGE ("Unable to fetch updates! Please check you internet connection and try again.")
-                return;
-            }
-
-            Result result = JSON::parse (response, gatewayData);
-            gatewayData = gatewayData.getProperty ("plugins", var());
-        }
-
-        for (auto* e : child->getChildIterator())
-        {
-            String pName = e->getTagName();
-            installedPlugins.add (pName);
-
-            if (checkForUpdates)
-            {
-                String latestVer;
-
-                //Get latest version
-                for (int i = 0; i < gatewayData.size(); i++)
-                {
-                    if (gatewayData[i].getProperty ("name", "NULL").toString().equalsIgnoreCase (pName))
-                    {
-                        // Get the latest compatible version
-                        auto allVersions = gatewayData[i].getProperty ("versions", "NULL").getArray();
-                        StringArray compatibleVersions;
-                        for (String depVersion : *allVersions)
-                        {
-                            String apiVer = depVersion.substring (depVersion.indexOf ("I") + 1);
-
-                            if (apiVer.equalsIgnoreCase (String (PLUGIN_API_VER)))
-                                compatibleVersions.add (depVersion);
-                        }
-
-                        if (! compatibleVersions.isEmpty())
-                        {
-                            compatibleVersions.sort (false);
-                            latestVer = compatibleVersions[compatibleVersions.size() - 1];
-                        }
-                        else
-                        {
-                            latestVer = "0.0.0-API" + String (PLUGIN_API_VER);
-                        }
-
-                        break;
-                    }
-                }
-
-                if (latestVer.compareNatural (e->getAttributeValue (0)) > 0)
-                    updatablePlugins.add (pName);
-            }
-        }
-
-        checkForUpdates = false;
-    }
-
-    /*if (updatablePlugins.size() > 0)
-	{
-		const String updatemsg = "Some of your plugins have updates available! "
-								 "Please update them to get the latest features and bug-fixes.";
-
-		AlertWindow::showMessageBoxAsync(AlertWindow::AlertIconType::InfoIcon,
-										 "Updates Available",
-										 updatemsg, "OK", this);
-	}*/
+    pluginListAndInfo->setBounds (10, 64, getWidth() - 20, getHeight() - 94);
 }
 
 void PluginInstallerComponent::buttonClicked (Button* button)
 {
-    // Filter plugins on the basis of checkbox selected
-    if (allPlugins.isEmpty())
+    if (button == updatesButton.get())
     {
-        allPlugins.addArray (pluginListAndInfo.pluginArray);
+        MouseCursor::showWaitCursor();
+        pluginListAndInfo->refreshCatalog();
+        MouseCursor::hideWaitCursor();
     }
 
-    if (button == &installedButton)
-    {
-        this->run();
+    applyTableFilters();
+}
 
-        pluginListAndInfo.pluginArray.clear();
-        pluginListAndInfo.pluginArray.addArray (installedPlugins);
-        pluginListAndInfo.setNumRows (installedPlugins.size());
-    }
-    else if (button == &allButton)
-    {
-        pluginListAndInfo.pluginArray.clear();
-        pluginListAndInfo.pluginArray.addArray (allPlugins);
-        pluginListAndInfo.setNumRows (allPlugins.size());
-    }
-    else if (button == &updatesButton)
-    {
-        checkForUpdates = true;
-        this->runThread();
-        pluginListAndInfo.resized();
-    }
+void PluginInstallerComponent::colourChanged()
+{
+    updatesButton->setOutline (findColour (ThemeColours::defaultText), 2.0f);
+    searchEditor->applyColourToAllText (findColour (ThemeColours::defaultText));
+}
 
-    if (button == &sourceType || button == &filterType || button == &sinkType || button == &otherType)
-    {
-        bool sourceState = sourceType.getToggleState();
-        bool filterState = filterType.getToggleState();
-        bool sinkState = sinkType.getToggleState();
-        bool otherState = otherType.getToggleState();
-
-        if (sourceState || filterState || sinkState || otherState)
-        {
-            StringArray tempArray;
-
-            pluginListAndInfo.pluginArray.clear();
-
-            if (installedButton.getToggleState())
-                tempArray.addArray (installedPlugins);
-            else
-                tempArray.addArray (allPlugins);
-
-            for (int i = 0; i < tempArray.size(); i++)
-            {
-                String label;
-
-                label = pluginListAndInfo.pluginLabels[tempArray[i]];
-
-                int containsType = 0;
-
-                bool isSource = label.containsWholeWordIgnoreCase ("source");
-                bool isFilter = label.containsWholeWordIgnoreCase ("filter");
-                bool isSink = label.containsWholeWordIgnoreCase ("sink");
-                bool isOther = isSource ? false : (isFilter ? false : (isSink ? false : true));
-
-                if (sourceState && isSource)
-                    containsType++;
-
-                if (filterState && isFilter)
-                    containsType++;
-
-                if (sinkState && isSink)
-                    containsType++;
-
-                if (otherState && isOther)
-                    containsType++;
-
-                if (containsType > 0)
-                {
-                    pluginListAndInfo.pluginArray.add (tempArray[i]);
-                }
-                pluginListAndInfo.setNumRows (pluginListAndInfo.pluginArray.size());
-            }
-        }
-        else
-        {
-            pluginListAndInfo.pluginArray.clear();
-            pluginListAndInfo.setNumRows (0);
-        }
-    }
-
-    sortByMenu.setSelectedId (-1, dontSendNotification);
+void PluginInstallerComponent::applyTableFilters()
+{
+    pluginListAndInfo->setSearchText (searchEditor->getText());
+    pluginListAndInfo->setShowInstalledOnly (installedButton->getToggleState());
+    pluginListAndInfo->setTypeFilters (sourceType->getToggleState(),
+                                       filterType->getToggleState(),
+                                       sinkType->getToggleState(),
+                                       otherType->getToggleState());
 }
 
 /* ================================== Plugin Table Component ================================== */
 
-PluginListBoxComponent::PluginListBoxComponent() : Thread ("Plugin List"), maxTextWidth (0)
+PluginListBoxComponent::PluginListBoxComponent()
 {
-    listFont = FontOptions ("Inter", "Semi Bold", 22.0f);
+    tableFont = FontOptions ("Inter", "Regular", 17.0f);
+    nameFont = FontOptions ("Inter", "Semi Bold", 17.0f);
 
-    // Set progress window text and background colours
-    //auto window = this->getAlertWindow();
-    //window->setColour(AlertWindow::textColourId, Colours::white);
-    //window->setColour(AlertWindow::backgroundColourId, Colour::fromRGB(50, 50, 50));
-    //setStatusMessage("Fetching plugins ...");
+    pluginTable = std::make_unique<TableListBox>();
+    pluginTable->setModel (this);
+    pluginTable->setRowHeight (70);
+    pluginTable->setHeaderHeight (36);
+    pluginTable->getViewport()->setScrollBarThickness (12);
+    addAndMakeVisible (pluginTable.get());
 
-    this->run(); //Load all plugin names and labels from bintray
+    auto& header = pluginTable->getHeader();
+    constexpr int sortableColumnFlags = TableHeaderComponent::visible | TableHeaderComponent::resizable | TableHeaderComponent::sortable;
+    constexpr int regularColumnFlags = TableHeaderComponent::visible | TableHeaderComponent::resizable;
 
-    addAndMakeVisible (pluginList);
-    pluginList.setModel (this);
-    pluginList.setRowHeight (35);
-    pluginList.setMouseMoveSelectsRows (true);
-    pluginList.getViewport()->setScrollBarThickness (10.0f);
+    header.addColumn ("Plugin", displayNameColumn, 180, 120, -1, sortableColumnFlags);
+    header.addColumn ("Type", typeColumn, 80, 80, 80, TableHeaderComponent::visible);
+    header.addColumn ("Developers", developersColumn, 150, 100, 280, regularColumnFlags);
+    header.addColumn ("Updated", updatedColumn, 100, 100, 100, TableHeaderComponent::visible);
+    header.addColumn ("Description", descriptionColumn, 310, 180, -1, regularColumnFlags);
+    header.addColumn ("Dependencies", dependenciesColumn, 120, 120, 120, TableHeaderComponent::appearsOnColumnMenu);
+    header.addColumn ("Installed", installedVersionColumn, 75, 75, 75, TableHeaderComponent::visible);
+    header.addColumn ("Version", versionSelectorColumn, 80, 80, 120, regularColumnFlags);
+    header.addColumn ("Action", installColumn, 60, 60, 60, TableHeaderComponent::visible);
+    header.addColumn ("Delete", uninstallColumn, 60, 60, 60, TableHeaderComponent::visible);
+    header.setSortColumnId (displayNameColumn, true);
 
-    listBoxDropShadower.setOwner (&pluginList);
+    tableDropShadower = std::make_unique<DropShadower> (DropShadow (Colours::black.withAlpha (0.5f), 6, { 2, 2 }));
+    tableDropShadower->setOwner (pluginTable.get());
 
-    addAndMakeVisible (pluginInfoPanel);
+    actionRunner = std::make_unique<PluginInstallActionRunner>();
+    actionRunner->setOperationCompleteHandler ([this] (const SelectedPluginInfo& pluginInfo, bool isInstalled)
+                                               { updatePluginState (pluginInfo, isInstalled); });
+
+    refreshCatalog();
 }
 
 int PluginListBoxComponent::getNumRows()
 {
-    return numRows;
+    return static_cast<int> (visibleRows.size());
 }
 
-void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics& g, int width, int height, bool rowIsSelected)
+void PluginListBoxComponent::paintRowBackground (Graphics& g, int rowNumber, int width, int height, bool rowIsSelected)
 {
-    if (rowIsSelected)
+    if (const auto* pluginInfo = getPluginForVisibleRow (rowNumber))
     {
-        g.fillAll (findColour (ThemeColours::defaultFill).withAlpha (0.5f));
-        g.setColour (findColour (ThemeColours::defaultText));
-    }
-    else
-    {
-        g.fillAll (findColour (ThemeColours::componentBackground));
-        g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.8f));
-    }
+        auto background = rowNumber % 2 == 0
+                              ? findColour (ThemeColours::componentBackground)
+                              : findColour (ThemeColours::componentBackground).darker (0.12f);
 
-    if (rowNumber == pluginArray.indexOf (lastPluginSelected, true, 0))
-    {
-        g.fillAll (findColour (ThemeColours::menuHighlightBackground));
-        g.setColour (findColour (ThemeColours::menuHighlightText));
-    }
+        g.fillAll (background);
 
-    g.setFont (listFont);
-
-    String text = displayNames[pluginArray[rowNumber]];
-
-    g.drawText (text, 20, 0, maxTextWidth + 5, height, Justification::centredLeft, true);
-
-    // Draw update indicator next to plugin name, if any
-    if (updatablePlugins.contains (pluginArray[rowNumber]))
-    {
-        g.setColour (Colours::green);
-        g.fillEllipse (maxTextWidth + 25.0f, 6.0f, 23.0f, height - 12.0f);
-        g.setColour (Colours::white);
-        g.drawArrow (Line (maxTextWidth + 37.0f, height - 11.0f, maxTextWidth + 37.0f, 11.0f), 3.0f, 9.0f, 9.0f);
+        g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.08f));
+        g.fillRect (0, height - 1, width, 1);
     }
 }
 
-void PluginListBoxComponent::run()
+void PluginListBoxComponent::paintCell (Graphics& g,
+                                        int rowNumber,
+                                        int columnId,
+                                        int width,
+                                        int height,
+                                        bool /*rowIsSelected*/)
 {
-    /* Get list of plugins uploaded to bintray */
-    String baseUrl = "https://open-ephys-plugin-gateway.herokuapp.com/";
-    String response = URL (baseUrl).readEntireTextStream();
+    const auto* pluginInfo = getPluginForVisibleRow (rowNumber);
 
-    if (response.isEmpty())
-    {
-        String errorMsg = "Unable to fetch plugins! Please check your internet connection and try again.";
-        LOGE (errorMsg);
-        MessageManager::callAsync ([this, errorMsg]
-                                   { pluginInfoPanel.updateStatusMessage (errorMsg, true); });
-
+    if (pluginInfo == nullptr)
         return;
-    }
 
-    var gatewayData;
-    Result result = JSON::parse (response, gatewayData);
+    g.setFont (tableFont);
 
-    String url = gatewayData.getProperty ("download_url", var()).toString();
-    pluginInfoPanel.setDownloadURL (url);
+    juce::Rectangle<int> textBounds (5, 5, width - 10, height - 10);
+    String text;
+    AttributedString attributedStr;
+    TextLayout layout;
+    attributedStr.setJustification (Justification::centredLeft);
+    attributedStr.setWordWrap (AttributedString::WordWrap::byWord);
 
-    pluginData = gatewayData.getProperty ("plugins", var());
-
-    numRows = pluginData.size();
-
-    String pluginName, label, dispName;
-
-    int pluginTextWidth;
-    StringArray compatibleVersions;
-
-    // Get each plugin's labels and add them to the list
-    for (int i = 0; i < numRows; i++)
+    switch (columnId)
     {
-        auto allVersions = pluginData[i].getProperty ("versions", "NULL").getArray();
-        compatibleVersions.clear();
-
-        for (String version : *allVersions)
-        {
-            String apiVer = version.substring (version.indexOf ("I") + 1);
-
-            if (apiVer.equalsIgnoreCase (String (PLUGIN_API_VER)))
-            {
-                compatibleVersions.add (version);
-            }
-        }
-
-        auto platforms = pluginData[i].getProperty ("platforms", "none").getArray();
-
-        if (! compatibleVersions.isEmpty() && platforms->contains (osType))
-        {
-            pluginName = pluginData[i].getProperty ("name", var()).toString();
-            label = pluginData[i].getProperty ("type", "NULL").toString();
-            dispName = pluginData[i].getProperty ("display_name", "NULL").toString();
-
-            pluginTextWidth = GlyphArrangement::getStringWidthInt (Font (listFont), dispName);
-            if (pluginTextWidth > maxTextWidth)
-                maxTextWidth = pluginTextWidth;
-
-            if (! label.equalsIgnoreCase ("CommonLib"))
-            {
-                pluginArray.add (pluginName);
-                displayNames.set (pluginName, dispName);
-                pluginLabels.set (pluginName, label);
-            }
-            else
-            {
-                compatibleVersions.sort (false);
-                dependencyVersion.set (pluginName, compatibleVersions[compatibleVersions.size() - 1]);
-            }
-        }
-
-        //setProgress ((i + 1) / (double) numRows);
-    }
-
-    MessageManager::callAsync ([this]
-                               { setNumRows (pluginArray.size()); });
-}
-
-bool PluginListBoxComponent::loadPluginInfo (const String& pluginName)
-{
-    int pIndex;
-    for (int i = 0; i < pluginData.size(); i++)
-    {
-        if (pluginData[i].getProperty ("name", "NULL").toString().equalsIgnoreCase (pluginName))
-        {
-            pIndex = i;
+        case displayNameColumn:
             break;
-        }
+
+        case typeColumn:
+            text = pluginInfo->type;
+            break;
+
+        case developersColumn:
+            text = pluginInfo->developers;
+            attributedStr.append (text, tableFont, findColour (ThemeColours::defaultText));
+            layout.createLayout (attributedStr, textBounds.getWidth());
+            if (layout.getNumLines() > 3)
+            {
+                attributedStr.setJustification (Justification::topLeft);
+                layout.createLayout (attributedStr, textBounds.getWidth());
+            }
+            layout.draw (g, textBounds.toFloat());
+            return;
+
+        case updatedColumn:
+            text = pluginInfo->lastUpdated;
+            break;
+
+        case descriptionColumn:
+            text = pluginInfo->description;
+            attributedStr.append (text, tableFont.withHeight (15.0f), findColour (ThemeColours::defaultText));
+            layout.createLayout (attributedStr, textBounds.getWidth());
+            if (layout.getNumLines() > 4)
+            {
+                attributedStr.setJustification (Justification::topLeft);
+                layout.createLayout (attributedStr, textBounds.getWidth());
+            }
+            layout.draw (g, textBounds.toFloat());
+            return;
+
+        case dependenciesColumn:
+            text = getDependenciesText (*pluginInfo);
+            break;
+
+        case installedVersionColumn:
+            text = pluginInfo->installedVersion.isEmpty() ? "No" : getDisplayVersion (pluginInfo->installedVersion);
+            break;
+
+        default:
+            return;
     }
 
-    auto platforms = pluginData[pIndex].getProperty ("platforms", "none").getArray();
-
-    if (! platforms->contains (osType))
-    {
-        LOGE ("No platform specific package found for ", pluginName);
-        pluginInfoPanel.makeInfoVisible (false);
-        return false;
-    }
-
-    selectedPluginInfo.pluginName = pluginName;
-    selectedPluginInfo.displayName = displayNames[pluginName];
-    selectedPluginInfo.type = pluginLabels[pluginName];
-    selectedPluginInfo.developers = pluginData[pIndex].getProperty ("developers", "NULL");
-    String updated = pluginData[pIndex].getProperty ("updated", "NULL");
-    selectedPluginInfo.lastUpdated = updated.substring (0, updated.indexOf ("T"));
-    selectedPluginInfo.description = pluginData[pIndex].getProperty ("desc", "NULL");
-    selectedPluginInfo.docURL = pluginData[pIndex].getProperty ("docs", "NULL").toString();
-    selectedPluginInfo.selectedVersion = String();
-
-    auto allVersions = pluginData[pIndex].getProperty ("versions", "NULL").getArray();
-
-    selectedPluginInfo.versions.clear();
-
-    for (String version : *allVersions)
-    {
-        String apiVer = version.substring (version.indexOf ("I") + 1);
-
-        if (apiVer.equalsIgnoreCase (String (PLUGIN_API_VER)))
-            selectedPluginInfo.versions.add (version);
-    }
-
-    // Set the latest version from the list of compatible versions
-    auto sortedVersions = selectedPluginInfo.versions;
-    sortedVersions.sort (false);
-    selectedPluginInfo.latestVersion = sortedVersions[sortedVersions.size() - 1];
-
-    selectedPluginInfo.dependencies.clear();
-    auto dependencies = pluginData[pIndex].getProperty ("dependencies", "NULL").getArray();
-    for (String dependency : *dependencies)
-    {
-        if (! dependency.equalsIgnoreCase ("None"))
-        {
-            selectedPluginInfo.dependencies.add (dependency);
-            selectedPluginInfo.dependencyVersions.add (dependencyVersion[dependency]);
-        }
-    }
-
-    // If the plugin is already installed, get installed version number
-    File xmlFile = getPluginsDirectory().getChildFile ("installedPlugins.xml");
-    ;
-
-    XmlDocument doc (xmlFile);
-    std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
-
-    if (xml == 0 || ! xml->hasTagName ("PluginInstaller"))
-    {
-        LOGE ("File not found.");
-        return false;
-    }
-    else
-    {
-        auto child = xml->getFirstChildElement();
-
-        auto pluginEntry = child->getChildByName (pluginName);
-
-        if (pluginEntry != nullptr)
-            selectedPluginInfo.installedVersion = pluginEntry->getAttributeValue (0);
-        else
-            selectedPluginInfo.installedVersion = String();
-    }
-
-    pluginInfoPanel.setPluginInfo (selectedPluginInfo);
-    pluginInfoPanel.makeInfoVisible (true);
-
-    return true;
+    g.setColour (findColour (ThemeColours::defaultText));
+    g.drawText (text.isNotEmpty() ? text : String ("-"), textBounds, Justification::centredLeft, true);
 }
 
-void PluginListBoxComponent::listBoxItemClicked (int row, const MouseEvent&)
+void PluginListBoxComponent::cellClicked (int rowNumber, int columnId, const MouseEvent&)
 {
-    this->returnKeyPressed (row);
+    if (columnId != descriptionColumn)
+        return;
+
+    const auto* pluginInfo = getPluginForVisibleRow (rowNumber);
+
+    if (pluginInfo == nullptr || pluginInfo->description.trim().isEmpty() || pluginTable == nullptr)
+        return;
+
+    auto anchorBounds = pluginTable->getCellPosition (descriptionColumn, rowNumber, true);
+    auto content = std::make_unique<PluginDescriptionCalloutComponent> (pluginInfo->description.trim(),
+                                                                        Font (FontOptions ("Inter", "Regular", 15.0f)));
+    auto& callOut = CallOutBox::launchAsynchronously (std::move (content), anchorBounds, this);
+    callOut.setDismissalMouseClicksAreAlwaysConsumed (true);
+}
+
+Component* PluginListBoxComponent::refreshComponentForCell (int rowNumber,
+                                                            int columnId,
+                                                            bool /*isRowSelected*/,
+                                                            Component* existingComponentToUpdate)
+{
+    const auto* pluginInfo = getPluginForVisibleRow (rowNumber);
+
+    if (pluginInfo == nullptr)
+        return nullptr;
+
+    if (columnId == versionSelectorColumn)
+    {
+        auto* versionCell = dynamic_cast<PluginVersionCell*> (existingComponentToUpdate);
+
+        if (versionCell == nullptr)
+            versionCell = new PluginVersionCell();
+
+        versionCell->update (*pluginInfo,
+                             [this, rowNumber] (const String& version)
+                             {
+                                 setSelectedVersion (rowNumber, version);
+                             });
+
+        return versionCell;
+    }
+
+    if (columnId == displayNameColumn)
+    {
+        auto* nameCell = dynamic_cast<PluginNameCell*> (existingComponentToUpdate);
+
+        if (nameCell == nullptr)
+            nameCell = new PluginNameCell();
+
+        nameCell->update (*pluginInfo, nameFont);
+        return nameCell;
+    }
+
+    if (columnId == installColumn || columnId == uninstallColumn)
+    {
+        auto* actionCell = dynamic_cast<PluginIconButtonCell*> (existingComponentToUpdate);
+
+        if (actionCell == nullptr)
+        {
+            actionCell = new PluginIconButtonCell (columnId == installColumn
+                                                       ? PluginIconButton::IconType::install
+                                                       : PluginIconButton::IconType::remove);
+        }
+
+        if (columnId == installColumn)
+        {
+            actionCell->update (getInstallActionLabel (*pluginInfo),
+                                canInstallPlugin (*pluginInfo),
+                                [this, rowNumber]
+                                {
+                                    installPluginForRow (rowNumber);
+                                });
+        }
+        else
+        {
+            actionCell->update ("Remove",
+                                pluginInfo->installedVersion.isNotEmpty(),
+                                [this, rowNumber]
+                                {
+                                    uninstallPluginForRow (rowNumber);
+                                });
+        }
+
+        return actionCell;
+    }
+
+    jassert (existingComponentToUpdate == nullptr);
+    return nullptr;
+}
+
+String PluginListBoxComponent::getCellTooltip (int rowNumber, int columnId)
+{
+    const auto* pluginInfo = getPluginForVisibleRow (rowNumber);
+
+    if (pluginInfo == nullptr)
+        return {};
+
+    switch (columnId)
+    {
+        case displayNameColumn:
+            return pluginInfo->docURL.isNotEmpty() ? pluginInfo->docURL : pluginInfo->displayName;
+
+        case developersColumn:
+            return pluginInfo->developers;
+
+        case descriptionColumn:
+            return pluginInfo->description.isNotEmpty() ? "Click to view full description" : String();
+
+        case dependenciesColumn:
+            return getDependenciesText (*pluginInfo);
+
+        default:
+            return {};
+    }
+}
+
+void PluginListBoxComponent::sortOrderChanged (int newSortColumnId, bool /*isForwards*/)
+{
+    if (newSortColumnId == displayNameColumn)
+        applyFilters();
+}
+
+int PluginListBoxComponent::getColumnAutoSizeWidth (int columnId)
+{
+    if (columnId != displayNameColumn)
+        return 0;
+
+    auto maxWidth = GlyphArrangement::getStringWidthInt (Font (nameFont), pluginTable->getHeader().getColumnName (displayNameColumn));
+
+    for (const auto& pluginInfo : allPlugins)
+        maxWidth = jmax (maxWidth,
+                         GlyphArrangement::getStringWidthInt (Font (nameFont), pluginInfo.displayName + "↗"));
+
+    return maxWidth + 28;
 }
 
 void PluginListBoxComponent::resized()
 {
-    // position our table with a gap around its edge
-    if (updatablePlugins.isEmpty())
+    pluginTable->setBounds (getLocalBounds().reduced (6));
+}
+
+void PluginListBoxComponent::setSearchText (const String& text)
+{
+    searchText = text.trim();
+    applyFilters();
+}
+
+void PluginListBoxComponent::setShowInstalledOnly (bool shouldShowInstalledOnly)
+{
+    showInstalledOnly = shouldShowInstalledOnly;
+    applyFilters();
+}
+
+void PluginListBoxComponent::setTypeFilters (bool shouldShowSources,
+                                             bool shouldShowFilters,
+                                             bool shouldShowSinks,
+                                             bool shouldShowOther)
+{
+    showSources = shouldShowSources;
+    showFilters = shouldShowFilters;
+    showSinks = shouldShowSinks;
+    showOther = shouldShowOther;
+    applyFilters();
+}
+
+bool PluginListBoxComponent::refreshCatalog()
+{
+    HashMap<String, String> selectedVersions;
+    for (const auto& pluginInfo : allPlugins)
+        selectedVersions.set (pluginInfo.pluginName, getSelectedVersionOrFallback (pluginInfo));
+
+    PluginCatalog catalog;
+    String errorMessage;
+    if (! parseGatewayCatalog (catalog, errorMessage))
     {
-        pluginList.setBounds (10, 10, maxTextWidth + 60, getHeight() - 30);
-        pluginInfoPanel.setBounds (maxTextWidth + 80, 10, getWidth() - maxTextWidth - 100, getHeight() - 30);
+        LOGE (errorMessage);
+        return false;
     }
-    else
+
+    InstalledPluginState installedState;
+    readInstalledPluginState (installedState);
+
+    std::vector<SelectedPluginInfo> loadedPlugins;
+
+    if (const auto* plugins = catalog.pluginData.getArray())
     {
-        pluginList.setBounds (10, 10, maxTextWidth + 70, getHeight() - 30);
-        pluginInfoPanel.setBounds (maxTextWidth + 90, 10, getWidth() - maxTextWidth - 110, getHeight() - 30);
-    }
-}
+        loadedPlugins.reserve (plugins->size());
 
-void PluginListBoxComponent::returnKeyPressed (int lastRowSelected)
-{
-    if (! lastPluginSelected.equalsIgnoreCase (pluginArray[lastRowSelected]))
-    {
-        lastPluginSelected = pluginArray[lastRowSelected];
-
-        pluginInfoPanel.makeInfoVisible (false);
-        pluginInfoPanel.updateStatusMessage ("Loading Plugin Info...", true);
-
-        if (loadPluginInfo (lastPluginSelected))
-            pluginInfoPanel.updateStatusMessage ("", false);
-        else
-            pluginInfoPanel.updateStatusMessage ("No platform specific package found for " + lastPluginSelected, true);
-
-        this->repaint();
-    }
-}
-
-/* ================================== Plugin Information Component ================================== */
-
-PluginInfoComponent::PluginInfoComponent() : ThreadWithProgressWindow ("Plugin Installer", true, false)
-{
-    infoCompDropShadower.setOwner (this);
-
-    infoFont = FontOptions ("Inter", "Regular", 20.0f);
-    infoFontBold = FontOptions ("Inter", "Semi Bold", 20.0f);
-
-    addChildComponent (pluginNameLabel);
-    pluginNameLabel.setFont (infoFontBold);
-    pluginNameLabel.setText ("Name: ", dontSendNotification);
-
-    addChildComponent (pluginNameText);
-    pluginNameText.setFont (infoFont);
-
-    addChildComponent (developersLabel);
-    developersLabel.setFont (infoFontBold);
-    developersLabel.setText ("Developers: ", dontSendNotification);
-
-    addChildComponent (developersText);
-    developersText.setFont (infoFont);
-    developersText.setMinimumHorizontalScale (1.0f);
-
-    addChildComponent (versionLabel);
-    versionLabel.setFont (infoFontBold);
-    versionLabel.setText ("Version: ", dontSendNotification);
-
-    addChildComponent (versionMenu);
-    versionMenu.setJustificationType (Justification::centred);
-    versionMenu.setTextWhenNoChoicesAvailable ("- N/A -");
-    versionMenu.addListener (this);
-
-    addChildComponent (installedVerLabel);
-    installedVerLabel.setFont (infoFontBold);
-    installedVerLabel.setText ("Installed: ", dontSendNotification);
-
-    addChildComponent (installedVerText);
-    installedVerText.setFont (infoFont);
-    installedVerText.setMinimumHorizontalScale (1.0f);
-
-    addChildComponent (lastUpdatedLabel);
-    lastUpdatedLabel.setFont (infoFontBold);
-    lastUpdatedLabel.setText ("Last Updated: ", dontSendNotification);
-
-    addChildComponent (lastUpdatedText);
-    lastUpdatedText.setFont (infoFont);
-
-    addChildComponent (descriptionLabel);
-    descriptionLabel.setFont (infoFontBold);
-    descriptionLabel.setText ("Description: ", dontSendNotification);
-
-    addChildComponent (descriptionText);
-    descriptionText.setFont (infoFont);
-    descriptionText.setJustificationType (Justification::topLeft);
-    descriptionText.setMinimumHorizontalScale (1.0f);
-
-    addChildComponent (dependencyLabel);
-    dependencyLabel.setFont (infoFontBold);
-    dependencyLabel.setText ("Dependencies: ", dontSendNotification);
-
-    addChildComponent (dependencyText);
-    dependencyText.setFont (infoFont);
-
-    addChildComponent (downloadButton);
-    downloadButton.setButtonText ("Install");
-    downloadButton.addListener (this);
-
-    addChildComponent (uninstallButton);
-    uninstallButton.setButtonText ("Uninstall");
-    uninstallButton.addListener (this);
-
-    addChildComponent (documentationButton);
-    documentationButton.setButtonText ("Documentation");
-    documentationButton.addListener (this);
-
-    addAndMakeVisible (statusLabel);
-    statusLabel.setFont (infoFont);
-    statusLabel.setText ("Please select a plugin from the list on the left...", dontSendNotification);
-}
-
-void PluginInfoComponent::paint (Graphics& g)
-{
-    g.fillAll (findColour (ThemeColours::componentBackground));
-}
-
-void PluginInfoComponent::resized()
-{
-    pluginNameLabel.setBounds (10, 30, 140, 30);
-    pluginNameText.setBounds (145, 30, getWidth() - 150, 30);
-
-    developersLabel.setBounds (10, 60, 140, 30);
-    developersText.setBounds (145, 60, getWidth() - 150, 30);
-
-    versionLabel.setBounds (10, 90, 140, 30);
-    versionMenu.setBounds (150, 90, 110, 26);
-
-    installedVerLabel.setBounds (10, versionLabel.getBottom(), 140, 30);
-    installedVerText.setBounds (145, versionLabel.getBottom(), 110, 30);
-
-    lastUpdatedLabel.setBounds (10, installedVerLabel.getBottom(), 140, 30);
-    lastUpdatedText.setBounds (145, installedVerLabel.getBottom(), getWidth() - 150, 30);
-
-    descriptionLabel.setBounds (10, lastUpdatedLabel.getBottom(), 140, 30);
-    descriptionText.setBounds (145, lastUpdatedLabel.getBottom() + 5, getWidth() - 150, 75);
-
-    dependencyLabel.setBounds (10, descriptionText.getBottom() + 5, 140, 30);
-    dependencyText.setBounds (145, dependencyLabel.getY(), getWidth() - 150, 30);
-
-    downloadButton.setBounds (getWidth() - (getWidth() * 0.25) - 20, getHeight() - 60, getWidth() * 0.25, 30);
-    uninstallButton.setBounds (getWidth() - (2 * (getWidth() * 0.25)) - 30, getHeight() - 60, getWidth() * 0.25, 30);
-    documentationButton.setBounds (20, getHeight() - 60, getWidth() * 0.25, 30);
-
-    statusLabel.setBounds (10, (getHeight() / 2) - 15, getWidth() - 10, 30);
-}
-
-void PluginInfoComponent::buttonClicked (Button* button)
-{
-    if (button == &downloadButton)
-    {
-        if (auto* alertWindow = this->getAlertWindow())
+        for (const auto& entry : *plugins)
         {
-            if (auto parent = button->getTopLevelComponent())
-                alertWindow->setCentrePosition (parent->getScreenBounds().getCentre());
-        }
+            const auto type = entry.getProperty ("type", {}).toString();
+            auto* platforms = entry.getProperty ("platforms", {}).getArray();
 
-        this->runThread();
-    }
-    else if (button == &uninstallButton)
-    {
-        if (! uninstallPlugin (pInfo.pluginName))
-        {
-            LOGE ("Failed to uninstall ", pInfo.displayName);
-            AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                              "[Plugin Installer] " + pInfo.displayName,
-                                              "Failed to uninstall " + pInfo.displayName);
-        }
-        else
-        {
-            LOGC (pInfo.displayName, " uninstalled successfully!");
-            AlertWindow::showMessageBoxAsync (AlertWindow::InfoIcon,
-                                              "[Plugin Installer] " + pInfo.displayName,
-                                              pInfo.displayName + " uninstalled successfully");
+            if (type.equalsIgnoreCase ("CommonLib") || platforms == nullptr || ! platforms->contains (osType))
+                continue;
+
+            auto pluginInfo = createSelectedPluginInfo (entry, installedState, catalog.dependencyVersions);
+
+            if (pluginInfo.versions.isEmpty())
+                continue;
+
+            if (const auto selectedVersion = selectedVersions[pluginInfo.pluginName]; pluginInfo.versions.contains (selectedVersion))
+                pluginInfo.selectedVersion = selectedVersion;
+
+            loadedPlugins.push_back (std::move (pluginInfo));
         }
     }
-    else if (button == &documentationButton)
+
+    allPlugins = std::move (loadedPlugins);
+    actionRunner->setDownloadURL (catalog.downloadUrl);
+    pluginTable->autoSizeColumn (displayNameColumn);
+
+    updatablePlugins.clear();
+
+    for (auto& pluginInfo : allPlugins)
     {
-        URL url = URL (pInfo.docURL);
-        url.launchInDefaultBrowser();
+        pluginInfo.hasUpdate = pluginInfo.installedVersion.isNotEmpty()
+                               && pluginInfo.latestVersion.isNotEmpty()
+                               && pluginInfo.latestVersion.compareNatural (pluginInfo.installedVersion) > 0;
+
+        if (pluginInfo.hasUpdate)
+            updatablePlugins.add (pluginInfo.pluginName);
+    }
+
+    applyFilters();
+    return true;
+}
+
+void PluginListBoxComponent::applyFilters()
+{
+    visibleRows.clear();
+
+    for (int index = 0; index < static_cast<int> (allPlugins.size()); ++index)
+    {
+        if (matchesCurrentFilters (allPlugins[static_cast<size_t> (index)]))
+            visibleRows.push_back (index);
+    }
+
+    std::sort (visibleRows.begin(), visibleRows.end(), [this] (int lhs, int rhs)
+               {
+        const auto result = allPlugins[static_cast<size_t> (lhs)].displayName.compareNatural (
+            allPlugins[static_cast<size_t> (rhs)].displayName);
+
+        if (result == 0)
+            return allPlugins[static_cast<size_t> (lhs)].pluginName.compareNatural (allPlugins[static_cast<size_t> (rhs)].pluginName) < 0;
+
+        return pluginTable->getHeader().isSortedForwards() ? result < 0 : result > 0; });
+
+    pluginTable->updateContent();
+    pluginTable->repaint();
+}
+
+bool PluginListBoxComponent::matchesCurrentFilters (const SelectedPluginInfo& pluginInfo) const
+{
+    if (showInstalledOnly && pluginInfo.installedVersion.isEmpty())
+        return false;
+
+    if (! searchText.isEmpty() && ! pluginInfo.displayName.containsIgnoreCase (searchText))
+        return false;
+
+    const auto type = pluginInfo.type;
+    const auto isSource = type.containsWholeWordIgnoreCase ("source");
+    const auto isFilter = type.containsWholeWordIgnoreCase ("filter");
+    const auto isSink = type.containsWholeWordIgnoreCase ("sink");
+    const auto matchesType = (showSources && isSource)
+                             || (showFilters && isFilter)
+                             || (showSinks && isSink)
+                             || (showOther && isOtherType (type));
+
+    return matchesType;
+}
+
+bool PluginListBoxComponent::isOtherType (const String& type) const
+{
+    return ! type.containsWholeWordIgnoreCase ("source")
+           && ! type.containsWholeWordIgnoreCase ("filter")
+           && ! type.containsWholeWordIgnoreCase ("sink");
+}
+
+SelectedPluginInfo* PluginListBoxComponent::getPluginForVisibleRow (int rowNumber)
+{
+    if (rowNumber < 0 || rowNumber >= static_cast<int> (visibleRows.size()))
+        return nullptr;
+
+    return &allPlugins[static_cast<size_t> (visibleRows[static_cast<size_t> (rowNumber)])];
+}
+
+const SelectedPluginInfo* PluginListBoxComponent::getPluginForVisibleRow (int rowNumber) const
+{
+    if (rowNumber < 0 || rowNumber >= static_cast<int> (visibleRows.size()))
+        return nullptr;
+
+    return &allPlugins[static_cast<size_t> (visibleRows[static_cast<size_t> (rowNumber)])];
+}
+
+void PluginListBoxComponent::setSelectedVersion (int rowNumber, const String& version)
+{
+    if (auto* pluginInfo = getPluginForVisibleRow (rowNumber))
+    {
+        pluginInfo->selectedVersion = version;
+        pluginTable->updateContent();
     }
 }
 
-void PluginInfoComponent::setDownloadURL (const String& url)
+void PluginListBoxComponent::installPluginForRow (int rowNumber)
+{
+    if (CoreServices::getAcquisitionStatus())
+    {
+        AlertWindow::showMessageBoxAsync (AlertWindow::InfoIcon,
+                                          "Plugin Installation Unavailable",
+                                          "Plugin installation is currently unavailable while acquisition is in progress.");
+        return;
+    }
+
+    if (auto* pluginInfo = getPluginForVisibleRow (rowNumber))
+    {
+        actionRunner->setPluginInfo (*pluginInfo);
+        actionRunner->installSelectedPlugin();
+    }
+}
+
+void PluginListBoxComponent::uninstallPluginForRow (int rowNumber)
+{
+    if (CoreServices::getAcquisitionStatus())
+    {
+        AlertWindow::showMessageBoxAsync (AlertWindow::InfoIcon,
+                                          "Plugin Removal Unavailable",
+                                          "Plugin removal is currently unavailable while acquisition is in progress.");
+        return;
+    }
+
+    if (auto* pluginInfo = getPluginForVisibleRow (rowNumber))
+    {
+        actionRunner->setPluginInfo (*pluginInfo);
+        actionRunner->uninstallSelectedPlugin();
+    }
+}
+
+void PluginListBoxComponent::updatePluginState (const SelectedPluginInfo& pluginInfo, bool isInstalled)
+{
+    for (auto& currentPlugin : allPlugins)
+    {
+        if (! currentPlugin.pluginName.equalsIgnoreCase (pluginInfo.pluginName))
+            continue;
+
+        currentPlugin.selectedVersion = pluginInfo.selectedVersion;
+        currentPlugin.installedVersion = isInstalled ? pluginInfo.installedVersion : String();
+        currentPlugin.hasUpdate = currentPlugin.installedVersion.isNotEmpty()
+                                  && currentPlugin.latestVersion.isNotEmpty()
+                                  && currentPlugin.latestVersion.compareNatural (currentPlugin.installedVersion) > 0;
+        break;
+    }
+
+    updatablePlugins.clear();
+
+    for (const auto& currentPlugin : allPlugins)
+    {
+        if (currentPlugin.hasUpdate)
+            updatablePlugins.add (currentPlugin.pluginName);
+    }
+
+    applyFilters();
+}
+
+/* ================================== Plugin Install Action Runner ================================== */
+
+PluginInstallActionRunner::PluginInstallActionRunner() : ThreadWithProgressWindow ("Plugin Installer", true, false)
+{
+}
+
+void PluginInstallActionRunner::setDownloadURL (const String& url)
 {
     downloadURL = url;
 }
 
-void PluginInfoComponent::showAlertOnMessageThread (MessageBoxIconType iconType, const String& title, const String& message)
+void PluginInstallActionRunner::setOperationCompleteHandler (OperationCompleteHandler handler)
+{
+    operationCompleteHandler = std::move (handler);
+}
+
+void PluginInstallActionRunner::setPluginInfo (const SelectedPluginInfo& p)
+{
+    pInfo = p;
+
+    if (pInfo.selectedVersion.isEmpty())
+    {
+        if (pInfo.latestVersion.isNotEmpty())
+            pInfo.selectedVersion = pInfo.latestVersion;
+        else if (! pInfo.versions.isEmpty())
+            pInfo.selectedVersion = pInfo.versions[pInfo.versions.size() - 1];
+    }
+}
+
+void PluginInstallActionRunner::installSelectedPlugin()
+{
+    runThread();
+}
+
+bool PluginInstallActionRunner::uninstallSelectedPlugin()
+{
+    if (! uninstallPlugin (pInfo.pluginName))
+    {
+        LOGE ("Failed to uninstall ", pInfo.displayName);
+        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+                                          "[Plugin Installer] " + pInfo.displayName,
+                                          "Failed to uninstall " + pInfo.displayName);
+        return false;
+    }
+
+    LOGC (pInfo.displayName, " uninstalled successfully!");
+    AlertWindow::showMessageBoxAsync (AlertWindow::InfoIcon,
+                                      "[Plugin Installer] " + pInfo.displayName,
+                                      pInfo.displayName + " uninstalled successfully");
+    return true;
+}
+
+void PluginInstallActionRunner::showAlertOnMessageThread (MessageBoxIconType iconType, const String& title, const String& message)
 {
     MessageManager::callAsync ([=]()
                                { AlertWindow::showMessageBoxAsync (iconType, title, message); });
 }
 
-void PluginInfoComponent::updateUIOnMessageThread()
+void PluginInstallActionRunner::updateUIOnMessageThread()
 {
     MessageManager::callAsync ([this]()
-    {
+                               {
         pInfo.installedVersion = pInfo.selectedVersion;
-        installedVerText.setText (pInfo.installedVersion, dontSendNotification);
-        downloadButton.setEnabled (false);
-        downloadButton.setButtonText ("Installed");
-        uninstallButton.setVisible (true);
-
-        if (pInfo.installedVersion.equalsIgnoreCase (pInfo.latestVersion))
-        {
-            updatablePlugins.removeString (pInfo.pluginName);
-            this->getParentComponent()->resized();
-        } 
-    });
+        notifyOperationComplete (true); });
 }
 
-void PluginInfoComponent::run()
+void PluginInstallActionRunner::notifyOperationComplete (bool isInstalled)
+{
+    if (operationCompleteHandler != nullptr)
+        operationCompleteHandler (pInfo, isInstalled);
+}
+
+void PluginInstallActionRunner::run()
 {
     setProgress (-1.0);
 
@@ -1191,6 +1659,15 @@ void PluginInfoComponent::run()
     // If a plugin has dependencies outside its zip, download them
     for (int i = 0; i < pInfo.dependencies.size(); i++)
     {
+        if (i >= pInfo.dependencyVersions.size() || pInfo.dependencyVersions[i].isEmpty())
+        {
+            showAlertOnMessageThread (AlertWindow::WarningIcon,
+                                      "[Plugin Installer] " + pInfo.dependencies[i],
+                                      "No compatible dependency version is available for " + pInfo.dependencies[i] + ".");
+            LOGE ("Compatible dependency version not found for ", pInfo.dependencies[i]);
+            return;
+        }
+
         setStatusMessage ("Downloading dependency: " + pInfo.dependencies[i]);
         LOGD ("Downloading dependency: ", pInfo.dependencies[i], "...  ");
 
@@ -1258,11 +1735,9 @@ void PluginInfoComponent::run()
     {
         LOGC ("Download Successful!");
 
-        String pluginVer = pInfo.selectedVersion.substring (0, pInfo.selectedVersion.indexOf ("-API"));
-
         showAlertOnMessageThread (AlertWindow::InfoIcon,
                                   "[Plugin Installer] " + pInfo.displayName,
-                                  pInfo.displayName + " v" + pluginVer + " Installed Successfully!");
+                                  pInfo.displayName + " v" + getDisplayVersion (pInfo.selectedVersion) + " Installed Successfully!");
 
         updateUIOnMessageThread();
     }
@@ -1302,7 +1777,7 @@ void PluginInfoComponent::run()
 
         showAlertOnMessageThread (AlertWindow::WarningIcon,
                                   "[Plugin Installer] " + pInfo.displayName,
-                                  pInfo.displayName + " v" + pInfo.selectedVersion
+                                  pInfo.displayName + " v" + getDisplayVersion (pInfo.selectedVersion)
                                       + " already exists. Please download another version.");
     }
     else if (dlReturnCode == XML_WRITE_ERR)
@@ -1341,117 +1816,7 @@ void PluginInfoComponent::run()
     httpStatusCode = 0;
 }
 
-void PluginInfoComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
-{
-    if (comboBoxThatHasChanged == &versionMenu)
-    {
-        pInfo.selectedVersion = comboBoxThatHasChanged->getText();
-
-        // Change install button name depending on the selected version of a plugin
-        if (pInfo.installedVersion.isEmpty())
-        {
-            downloadButton.setEnabled (true);
-            downloadButton.setButtonText ("Install");
-        }
-        else
-        {
-            int result = pInfo.selectedVersion.compareNatural (pInfo.installedVersion);
-
-            if (result == 0)
-            {
-                downloadButton.setEnabled (false);
-                downloadButton.setButtonText ("Installed");
-            }
-            else if (result > 0)
-            {
-                downloadButton.setEnabled (true);
-                downloadButton.setButtonText ("Upgrade");
-            }
-            else
-            {
-                downloadButton.setEnabled (true);
-                downloadButton.setButtonText ("Downgrade");
-            }
-        }
-    }
-}
-
-void PluginInfoComponent::setPluginInfo (const SelectedPluginInfo& p, bool shouldUpdateUI)
-{
-    pInfo = p;
-
-    if (shouldUpdateUI)
-    {
-        pluginNameText.setText (pInfo.displayName, dontSendNotification);
-        developersText.setText (pInfo.developers, dontSendNotification);
-        lastUpdatedText.setText (pInfo.lastUpdated, dontSendNotification);
-        descriptionText.setText (pInfo.description, dontSendNotification);
-        if (pInfo.dependencies.isEmpty())
-            dependencyText.setText ("None", dontSendNotification);
-        else
-            dependencyText.setText (pInfo.dependencies.joinIntoString (", "), dontSendNotification);
-
-        versionMenu.clear (dontSendNotification);
-
-        if (pInfo.installedVersion.isEmpty())
-            installedVerText.setText ("No", dontSendNotification);
-        else
-            installedVerText.setText (pInfo.installedVersion, dontSendNotification);
-
-        if (pInfo.versions.isEmpty())
-        {
-            downloadButton.setEnabled (false);
-            downloadButton.setButtonText ("Unavailable");
-        }
-        else
-        {
-            for (int i = 0; i < pInfo.versions.size(); i++)
-                versionMenu.addItem (pInfo.versions[i], i + 1);
-
-            //set default selected version to the first entry in combo box
-            versionMenu.setSelectedId (1, sendNotification);
-            pInfo.selectedVersion = pInfo.versions[0];
-        }
-    }
-}
-
-void PluginInfoComponent::updateStatusMessage (const String& str, bool isVisible)
-{
-    statusLabel.setText (str, dontSendNotification);
-    statusLabel.setVisible (isVisible);
-}
-
-void PluginInfoComponent::makeInfoVisible (bool isEnabled)
-{
-    pluginNameLabel.setVisible (isEnabled);
-    pluginNameText.setVisible (isEnabled);
-
-    developersLabel.setVisible (isEnabled);
-    developersText.setVisible (isEnabled);
-
-    versionLabel.setVisible (isEnabled);
-    versionMenu.setVisible (isEnabled);
-
-    installedVerLabel.setVisible (isEnabled);
-    installedVerText.setVisible (isEnabled);
-
-    lastUpdatedLabel.setVisible (isEnabled);
-    lastUpdatedText.setVisible (isEnabled);
-
-    descriptionLabel.setVisible (isEnabled);
-    descriptionText.setVisible (isEnabled);
-
-    dependencyLabel.setVisible (isEnabled);
-    dependencyText.setVisible (isEnabled);
-
-    downloadButton.setVisible (isEnabled);
-    documentationButton.setVisible (isEnabled);
-
-    if (pInfo.installedVersion.isNotEmpty())
-        uninstallButton.setVisible (isEnabled);
-}
-
-bool PluginInfoComponent::uninstallPlugin (const String& plugin)
+bool PluginInstallActionRunner::uninstallPlugin (const String& plugin)
 {
     LOGC ("Uninstalling plugin: ", pInfo.displayName);
 
@@ -1488,7 +1853,11 @@ bool PluginInfoComponent::uninstallPlugin (const String& plugin)
     {
         // Fetch plugin DLL name
         pluginElement = xml->getFirstChildElement()->getChildByName (plugin);
-        dllName = pluginElement->getAttributeValue (1);
+
+        if (pluginElement == nullptr)
+            return false;
+
+        dllName = pluginElement->getStringAttribute ("dllName");
     }
 
     // Remove and unload plugin via PluginManager
@@ -1508,10 +1877,8 @@ bool PluginInfoComponent::uninstallPlugin (const String& plugin)
     if (pInfo.type == "RecordEngine")
         AccessClass::getControlPanel()->updateRecordEngineList();
 
-    uninstallButton.setVisible (false);
-    downloadButton.setEnabled (true);
-    downloadButton.setButtonText ("Install");
-    installedVerText.setText ("No", dontSendNotification);
+    pInfo.installedVersion = {};
+    notifyOperationComplete (false);
 
     //delete plugin file
     File pluginFile = getPluginsDirectory().getChildFile (dllName);
@@ -1524,7 +1891,7 @@ bool PluginInfoComponent::uninstallPlugin (const String& plugin)
     return true;
 }
 
-int PluginInfoComponent::downloadPlugin (const String& plugin, const String& version, bool isDependency)
+int PluginInstallActionRunner::downloadPlugin (const String& plugin, const String& version, bool isDependency)
 {
     String fileDownloadURL = downloadURL;
     fileDownloadURL = fileDownloadURL.replace ("<plugin-name>", plugin);
