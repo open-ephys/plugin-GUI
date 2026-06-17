@@ -52,7 +52,7 @@ String formatRangeMarkerValue (float value)
 
     const float magnitude = std::abs (value);
     const int decimals = magnitude >= 100.0f ? 0 : magnitude >= 10.0f ? 1
-                                                                  : 2;
+                                                                      : 2;
 
     return String (value, decimals);
 }
@@ -686,11 +686,12 @@ void LfpChannelDisplay::pxPaintHistory (int playhead, int rightEdge, int maxScre
 
 void LfpChannelDisplay::drawEventOverlay (const int rawEventState, int x, int yfrom, int yto, Graphics& g)
 {
+    float alpha = channelHeight > 5 ? 0.3f : 0.5f;
     for (int ev_ch = 0; ev_ch < 8; ev_ch++)
     {
         if (display->getEventDisplayState (ev_ch) && (rawEventState & (1 << ev_ch)))
         {
-            g.setColour (display->channelColours[ev_ch * 2].withAlpha (0.5f));
+            g.setColour (display->channelColours[ev_ch * 2].withAlpha (alpha));
             g.fillRect (x, yfrom, 1, yto - yfrom + 1);
         }
     }
