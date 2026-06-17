@@ -53,6 +53,22 @@ bool shouldDrawDenseChannelLabel (const int channelHeight, const int drawableCha
 
     return (drawableChannelNumber + 1) % 10 == 0;
 }
+
+String getChannelLabelString (LfpChannelDisplay& channel, LfpDisplayOptions::ChannelLabelDisplayMode labelMode)
+{
+    switch (labelMode)
+    {
+        case LfpDisplayOptions::ChannelLabelDisplayMode::Number:
+            return String (channel.getChannelNumber() + 1);
+
+        case LfpDisplayOptions::ChannelLabelDisplayMode::Depth:
+            return channel.hasYposMetadata() ? String (roundToInt (channel.getDepth())) + " μm" : "-";
+
+        case LfpDisplayOptions::ChannelLabelDisplayMode::Name:
+        default:
+            return channel.getName();
+    }
+}
 } // namespace
 
 #pragma mark - LfpChannelDisplayInfo -
@@ -208,7 +224,8 @@ void LfpChannelDisplayInfo::paint (Graphics& g)
     if (display->options == nullptr)
         return;
 
-    const bool showChannelNumbers = display->options->getChannelNameState();
+    const auto channelLabelDisplayMode = display->options->getChannelLabelDisplayMode();
+    const bool showNumericChannelLabels = channelLabelDisplayMode != LfpDisplayOptions::ChannelLabelDisplayMode::Name;
     const int channelHeight = display->getChannelHeight();
     const bool isCentered = ! isSingleChannel && channelHeight < 15;
 
@@ -223,26 +240,13 @@ void LfpChannelDisplayInfo::paint (Graphics& g)
         g.setFont (isSingleChannel ? FontOptions (16.0f).withStyle ("SemiBold")
                                    : FontOptions (14.0f));
 
-        String channelString = drawChannelLabel ? (showChannelNumbers ? String (channel->getChannelNumber() + 1)
-                                                                            : channel->getName())
-                                                      : "--";
-
-        if (drawChannelLabel)
-        {
-            if (showChannelNumbers)
-                channelString = String (channel->getChannelNumber() + 1);
-            else
-                channelString = channel->getName();
-        }
-        else
-        {
-            channelString = channelHeight >= 10 ? "--" : "";
-        }
+        String channelString = drawChannelLabel ? getChannelLabelString (*channel, channelLabelDisplayMode)
+                                                : channelHeight >= 10 ? "--" : "";
 
         g.drawText (channelString,
-                    showChannelNumbers ? 6 : 3,
+                    showNumericChannelLabels ? 6 : 3,
                     center - (channelLabelHeight / 2),
-                    getWidth() - (showChannelNumbers ? 6 : 3),
+                    getWidth() - (showNumericChannelLabels ? 6 : 3),
                     channelLabelHeight,
                     isCentered ? Justification::centred : Justification::centredLeft,
                     false);
@@ -404,10 +408,8 @@ String LfpChannelDisplayInfo::getTooltip()
     if (trackIndex < 0)
         return {};
 
-    const bool showChannelNumbers = display->options->getChannelNameState();
     auto* channel = display->drawableChannels[trackIndex];
-    const String channelString = showChannelNumbers ? String (channel->getChannelNumber() + 1)
-                                                    : channel->getName();
+    const String channelString = getChannelLabelString (*channel, display->options->getChannelLabelDisplayMode());
 
     return channelString;
 }

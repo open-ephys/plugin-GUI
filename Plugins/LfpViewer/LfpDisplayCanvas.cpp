@@ -697,7 +697,6 @@ void LfpDisplayCanvas::loadCustomParametersFromXml (XmlElement* xml)
     //LOGD("    Resized in ", MS_FROM_START, " milliseconds");
 }
 
-
 LfpDisplaySplitter::LfpDisplaySplitter (LfpDisplayNode* node,
                                         LfpDisplayCanvas* canvas_,
                                         DisplayBuffer* db,
@@ -765,12 +764,21 @@ void LfpDisplaySplitter::refreshLeftMargin()
         const auto labelFont = Font (FontOptions (16.0f));
         constexpr int padding = 20;
 
-        for (int i = 0; i < displayBuffer->channelMetadata.size(); ++i)
+        if (options->getChannelLabelDisplayMode() == LfpDisplayOptions::ChannelLabelDisplayMode::Depth)
         {
-            const auto& metadata = displayBuffer->channelMetadata.getReference (i);
-            const float textWidth = labelFont.getStringWidthFloat (metadata.name);
-            const int requiredWidth = static_cast<int> (std::ceil (textWidth)) + padding;
-            newMargin = std::max (newMargin, requiredWidth);
+            // If displaying depth, we want to ensure enough space for the largest possible depth label
+            const float textWidth = labelFont.getStringWidthFloat ("99999 μm");
+            newMargin = std::max (newMargin, static_cast<int> (std::ceil (textWidth)) + 10);
+        }
+        else
+        {
+            for (int i = 0; i < displayBuffer->channelMetadata.size(); ++i)
+            {
+                const auto& metadata = displayBuffer->channelMetadata.getReference (i);
+                const float textWidth = labelFont.getStringWidthFloat (metadata.name);
+                const int requiredWidth = static_cast<int> (std::ceil (textWidth)) + padding;
+                newMargin = std::max (newMargin, requiredWidth);
+            }
         }
     }
 
@@ -1254,7 +1262,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
             if (triggerChannel >= 0)
             {
                 // we may need to wait for a trigger
-            if (hasTrigger)
+                if (hasTrigger)
                 {
                     if (sbi == 0 || reachedEnd)
                     {
@@ -1615,7 +1623,6 @@ void LfpDisplaySplitter::updateScreenBuffer()
                 displayBufferIndex.set (channel, newDisplayBufferIndex); // need to store this locally
             }
         }
-
     }
 }
 

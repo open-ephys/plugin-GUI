@@ -52,7 +52,11 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
       selectedChannelType (ContinuousChannel::Type::ELECTRODE),
       labelColour (100, 100, 100),
       medianOffsetOnForSpikeRaster (false),
-      ttlWordString ("NONE")
+      ttlWordString ("NONE"),
+      channelLabelDisplayMode (ChannelLabelDisplayMode::Name),
+      channelNameButton (nullptr),
+      channelNumberButton (nullptr),
+      channelDepthButton (nullptr)
 {
     setBufferedToImage (true);
 
@@ -166,7 +170,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     voltageRanges[ContinuousChannel::Type::AUX].add ("1000");
     voltageRanges[ContinuousChannel::Type::AUX].add ("2000");
     selectedVoltageRange[ContinuousChannel::Type::AUX] = 1; // Default to Auto
-    rangeGain[ContinuousChannel::Type::AUX] = 0.001f; //mV
+    rangeGain[ContinuousChannel::Type::AUX] = 1; //mV
     rangeSteps[ContinuousChannel::Type::AUX] = 10;
     rangeUnits.add ("mV");
     typeNames.add ("AUX");
@@ -426,19 +430,31 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     channelDisplaySkipLabel->setFont (labelFont);
     extendedOptions->addAndMakeVisible (channelDisplaySkipLabel.get());
 
-    // Show channel number button
-    showChannelNumberButton = std::make_unique<UtilityButton> ("OFF");
-    showChannelNumberButton->setRadius (5.0f);
-    showChannelNumberButton->setEnabledState (true);
-    showChannelNumberButton->setCorners (true, true, true, true);
-    showChannelNumberButton->addListener (this);
-    showChannelNumberButton->setClickingTogglesState (true);
-    showChannelNumberButton->setToggleState (false, sendNotification);
-    extendedOptions->addAndMakeVisible (showChannelNumberButton.get());
+    // Channel label display mode
+    channelNameButton = new TextButton ("Name", "Show channel names");
+    channelNameButton->setClickingTogglesState (true);
+    channelNameButton->setToggleState (true, dontSendNotification);
 
-    showChannelNumberLabel = std::make_unique<Label> ("ShowChannelNumberLabel", "Show number:");
-    showChannelNumberLabel->setFont (labelFont);
-    extendedOptions->addAndMakeVisible (showChannelNumberLabel.get());
+    channelNumberButton = new TextButton ("Num", "Show channel numbers");
+    channelNumberButton->setClickingTogglesState (true);
+    channelNumberButton->setToggleState (false, dontSendNotification);
+
+    channelDepthButton = new TextButton ("Depth", "Show channel depth values");
+    channelDepthButton->setClickingTogglesState (true);
+    channelDepthButton->setToggleState (false, dontSendNotification);
+
+    channelLabelButtonManager = std::make_unique<LinearButtonGroupManager>();
+    channelLabelButtonManager->addButton (channelNameButton);
+    channelLabelButtonManager->addButton (channelNumberButton);
+    channelLabelButtonManager->addButton (channelDepthButton);
+    channelLabelButtonManager->setRadioButtonMode (true);
+    channelLabelButtonManager->setButtonListener (this);
+    channelLabelButtonManager->setSelectedButtonIndex (static_cast<int> (channelLabelDisplayMode));
+    extendedOptions->addAndMakeVisible (channelLabelButtonManager.get());
+
+    channelLabelDisplayLabel = std::make_unique<Label> ("ChannelLabelDisplayLabel", "Label:");
+    channelLabelDisplayLabel->setFont (labelFont);
+    extendedOptions->addAndMakeVisible (channelLabelDisplayLabel.get());
 
     // SIGNAL PROCESSING SECTION
     sectionTitles.add ("SIGNALS");
@@ -675,7 +691,7 @@ void LfpDisplayOptions::resized()
     else
         extendedOptionsHolder->setBounds (0, 0, getWidth(), 0);
 
-    int extendedWidth = getWidth() < 755 ? 755 : getWidth();
+    int extendedWidth = getWidth() < 775 ? 775 : getWidth();
     extendedWidth = extendedWidth > 1500 ? 1500 : extendedWidth;
     extendedOptions->setBounds (0, 0, extendedWidth, extendedOptionsHolder->getHeight());
 
@@ -686,7 +702,7 @@ void LfpDisplayOptions::resized()
     extendedOptionsBox.alignItems = FlexBox::AlignItems::center;
 
     extendedOptionsBox.items.add (FlexItem (185, getHeight() - 60)); // THRESHOLDS
-    extendedOptionsBox.items.add (FlexItem (185, getHeight() - 60)); // CHANNELS
+    extendedOptionsBox.items.add (FlexItem (205, getHeight() - 60)); // CHANNELS
     extendedOptionsBox.items.add (FlexItem (185, getHeight() - 60)); // SIGNAL PROCESSING
     extendedOptionsBox.items.add (FlexItem (190, getHeight() - 60)); // TRIGGERED DISPLAY
 
@@ -721,7 +737,7 @@ void LfpDisplayOptions::resized()
     // CHANNELS
     xOffset = extendedOptionsBox.items[1].currentBounds.getX();
     xLimit = extendedOptionsBox.items[1].currentBounds.getRight();
-    channelsGroup->setBounds (xOffset, 5, 185, 135);
+    channelsGroup->setBounds (xOffset, 5, 205, 135);
 
     reverseChannelsDisplayButton->setBounds (xLimit - 45,
                                              startHeight,
@@ -753,15 +769,15 @@ void LfpDisplayOptions::resized()
                                         80,
                                         height);
 
-    showChannelNumberButton->setBounds (xLimit - 45,
-                                        startHeight + +verticalSpacing * 3,
-                                        35,
-                                        height);
+    channelLabelButtonManager->setBounds (xLimit - 145,
+                                          startHeight + verticalSpacing * 3,
+                                          135,
+                                          height);
 
-    showChannelNumberLabel->setBounds (xOffset + 10,
-                                       startHeight + verticalSpacing * 3,
-                                       100,
-                                       height);
+    channelLabelDisplayLabel->setBounds (xOffset + 10,
+                                         startHeight + verticalSpacing * 3,
+                                         50,
+                                         height);
 
     // SIGNAL PROCESSING
     xOffset = extendedOptionsBox.items[2].currentBounds.getX();
@@ -789,9 +805,9 @@ void LfpDisplayOptions::resized()
                                           height);
 
     highPassCutoffButton->setBounds (xLimit - 45,
-                                        startHeight + verticalSpacing * 2,
-                                        35,
-                                        height);
+                                     startHeight + verticalSpacing * 2,
+                                     35,
+                                     height);
 
     highPassCutoffLabel->setBounds (xOffset + 10,
                                     startHeight + verticalSpacing * 2,
@@ -871,9 +887,9 @@ bool LfpDisplayOptions::getInputInvertedState()
     return invertInputButton->getToggleState();
 }
 
-bool LfpDisplayOptions::getChannelNameState()
+LfpDisplayOptions::ChannelLabelDisplayMode LfpDisplayOptions::getChannelLabelDisplayMode() const
 {
-    return showChannelNumberButton->getToggleState();
+    return channelLabelDisplayMode;
 }
 
 void LfpDisplayOptions::setPausedState (bool isPaused)
@@ -1069,20 +1085,18 @@ void LfpDisplayOptions::setSortByDepth (bool state)
     }
 }
 
-void LfpDisplayOptions::setShowChannelNumbers (bool state)
+void LfpDisplayOptions::setChannelLabelDisplayMode (ChannelLabelDisplayMode mode)
 {
-    showChannelNumberButton->setToggleState (state, dontSendNotification);
+    const int modeIndex = jlimit (0, 2, static_cast<int> (mode));
+    channelLabelDisplayMode = static_cast<ChannelLabelDisplayMode> (modeIndex);
 
-    lfpDisplay->channelInfo->repaint();
+    channelNameButton->setToggleState (channelLabelDisplayMode == ChannelLabelDisplayMode::Name, dontSendNotification);
+    channelNumberButton->setToggleState (channelLabelDisplayMode == ChannelLabelDisplayMode::Number, dontSendNotification);
+    channelDepthButton->setToggleState (channelLabelDisplayMode == ChannelLabelDisplayMode::Depth, dontSendNotification);
+    channelLabelButtonManager->setSelectedButtonIndex (modeIndex);
 
-    if (state)
-    {
-        showChannelNumberButton->setLabel ("ON");
-    }
-    else
-    {
-        showChannelNumberButton->setLabel ("OFF");
-    }
+    canvasSplit->refreshLeftMargin();
+    lfpDisplay->resized();
 }
 
 void LfpDisplayOptions::setTTLWord (String word)
@@ -1149,9 +1163,21 @@ void LfpDisplayOptions::buttonClicked (Button* b)
         canvas->toggleOptionsDrawer (b->getToggleState());
     }
 
-    if (b == showChannelNumberButton.get())
+    if (b == channelNameButton)
     {
-        setShowChannelNumbers (b->getToggleState());
+        setChannelLabelDisplayMode (ChannelLabelDisplayMode::Name);
+        return;
+    }
+
+    if (b == channelNumberButton)
+    {
+        setChannelLabelDisplayMode (ChannelLabelDisplayMode::Number);
+        return;
+    }
+
+    if (b == channelDepthButton)
+    {
+        setChannelLabelDisplayMode (ChannelLabelDisplayMode::Depth);
         return;
     }
 
@@ -1604,7 +1630,7 @@ void LfpDisplayOptions::saveParameters (XmlElement* xml)
     xmlNode->setAttribute ("reverseOrder", reverseChannelsDisplayButton->getToggleState());
     xmlNode->setAttribute ("sortByDepth", sortByDepthButton->getToggleState());
     xmlNode->setAttribute ("channelSkip", channelDisplaySkipSelection->getSelectedId());
-    xmlNode->setAttribute ("showChannelNum", showChannelNumberButton->getToggleState());
+    xmlNode->setAttribute ("channelLabelMode", static_cast<int> (channelLabelDisplayMode));
     xmlNode->setAttribute ("subtractOffset", medianOffsetPlottingButton->getToggleState());
 
     xmlNode->setAttribute ("isInverted", invertInputButton->getToggleState());
@@ -1774,9 +1800,17 @@ void LfpDisplayOptions::loadParameters (XmlElement* xml)
             //LOGD("    --> setSortByDepth: ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();
 
-            setShowChannelNumbers (xmlNode->getBoolAttribute ("showChannelNum", false));
+            if (xmlNode->hasAttribute ("channelLabelMode"))
+            {
+                setChannelLabelDisplayMode (static_cast<ChannelLabelDisplayMode> (xmlNode->getIntAttribute ("channelLabelMode", 0)));
+            }
+            else
+            {
+                const bool showChannelNum = xmlNode->getBoolAttribute ("showChannelNum", false);
+                setChannelLabelDisplayMode (showChannelNum ? ChannelLabelDisplayMode::Number : ChannelLabelDisplayMode::Name);
+            }
 
-            //LOGD("    --> setShowChannelNumbers: ", MS_FROM_START, " milliseconds");
+            //LOGD("    --> setChannelLabelDisplayMode: ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();
 
             bool shouldInvert = xmlNode->getBoolAttribute ("isInverted", false);

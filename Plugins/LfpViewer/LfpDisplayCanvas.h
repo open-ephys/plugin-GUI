@@ -371,8 +371,10 @@ public:
     /** Sets the CAR state */
     void setCAREnabled (bool enabled);
 
-private:
+    /** Resizes the channel info margin based on the current channel label display mode */
     void refreshLeftMargin();
+
+private:
 
     bool isSelected;
     bool isUpdating;

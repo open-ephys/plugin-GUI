@@ -25,6 +25,7 @@
 #define __LFPDISPLAYOPTIONS_H__
 
 #include <VisualizerWindowHeaders.h>
+#include <UIUtilitiesHeaders.h>
 
 #include <array>
 #include <vector>
@@ -48,6 +49,13 @@ class LfpDisplayOptions : public Component,
                           public Timer
 {
 public:
+    enum class ChannelLabelDisplayMode
+    {
+        Name = 0,
+        Number,
+        Depth
+    };
+
     /** Construtor */
     LfpDisplayOptions (LfpDisplayCanvas*,
                        LfpDisplaySplitter*,
@@ -85,8 +93,8 @@ public:
     /** Returns true if channel polarity is inverted */
     bool getInputInvertedState();
 
-    /** Returns true if channel names should be shown*/
-    bool getChannelNameState();
+    /** Returns the selected channel label display mode */
+    ChannelLabelDisplayMode getChannelLabelDisplayMode() const;
 
     /** Toggles pause button (e.g. if space bar is pressed) */
     void togglePauseButton (bool sendUpdate = true);
@@ -139,8 +147,8 @@ public:
     /** Sets whether to use averaging in triggered display*/
     void setAveraging (bool);
 
-    /** Sets whether channel numbers should be shown instead of names */
-    void setShowChannelNumbers (bool);
+    /** Sets whether channel labels should show names, numbers, or depth values */
+    void setChannelLabelDisplayMode (ChannelLabelDisplayMode);
 
     /** Sets the latest ttl word value */
     void setTTLWord (String word);
@@ -191,6 +199,7 @@ private:
     Colour labelColour;
 
     String ttlWordString;
+    ChannelLabelDisplayMode channelLabelDisplayMode;
 
     // Main options
     std::unique_ptr<Component> mainOptions;
@@ -253,8 +262,11 @@ private:
     std::unique_ptr<ComboBox> channelDisplaySkipSelection;
     std::unique_ptr<Label> channelDisplaySkipLabel;
 
-    std::unique_ptr<UtilityButton> showChannelNumberButton;
-    std::unique_ptr<Label> showChannelNumberLabel;
+    std::unique_ptr<LinearButtonGroupManager> channelLabelButtonManager;
+    TextButton* channelNameButton;
+    TextButton* channelNumberButton;
+    TextButton* channelDepthButton;
+    std::unique_ptr<Label> channelLabelDisplayLabel;
 
     // SIGNAL PROCESSING SECTION
     std::unique_ptr<GroupComponent> signalProcessingGroup;
