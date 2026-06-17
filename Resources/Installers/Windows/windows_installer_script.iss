@@ -232,16 +232,20 @@ begin
 end;
 
 function InitializeSetup: Boolean;
+var
+  Version: String;
+  PackedVersion: Int64;
 begin
-
-  // https://docs.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist
-  if not IsMsiProductInstalled('{36F68A90-239C-34DF-B58C-64B30153CE35}', PackVersionComponents(14, 44, 35208, 0)) then begin
-    Dependency_Add('vcredist2022_x64.exe',
+  // https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist
+  if RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64', 'Version', Version) and (Copy(Version, 1, 1) = 'v') then begin
+    Delete(Version, 1, 1);
+  end;
+  if not StrToVersion(Version, PackedVersion) or (ComparePackedVersion(PackedVersion, PackVersionComponents(14, 51, 36247, 0)) < 0) then begin
+    Dependency_Add('vcredist14_x64.exe',
       '/passive /norestart',
-      'Visual C++ 2015-2022 Redistributable (x64)',
-      'https://aka.ms/vs/17/release/vc_redist.x64.exe',
+      'Visual C++ v14 Redistributable (x64)',
+      'https://aka.ms/vc14/vc_redist.x64.exe',
       '');
-
   end;
   Result := True;
 end;
