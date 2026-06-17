@@ -28,7 +28,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [windows-2022]
     
     steps:
     - uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
         cd Build 
         cmake -G "Visual Studio 17 2022" -A x64 ..
     - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v2
+      uses: microsoft/setup-msbuild@v3
     - name: build
       run: |
         msbuild Build/ALL_BUILD.vcxproj -p:Configuration=Release -p:Platform=x64 -m
