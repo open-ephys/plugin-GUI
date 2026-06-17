@@ -46,12 +46,12 @@ constexpr int channelLabelHeight = 12;
 constexpr int channelButtonSize = 10;
 constexpr int singleChannelInfoOffset = 75;
 
-bool shouldDrawDenseChannelLabel (const int channelHeight, const int drawableChannelNumber, bool isSingleChannel)
+bool shouldDrawDenseChannelLabel (const int channelHeight, const int channelIndex, bool isSingleChannel)
 {
     if (isSingleChannel || channelHeight >= 15)
         return true;
 
-    return (drawableChannelNumber + 1) % 10 == 0;
+    return (channelIndex + 1) % 10 == 0;
 }
 
 String getChannelLabelString (LfpChannelDisplay& channel, LfpDisplayOptions::ChannelLabelDisplayMode labelMode)
@@ -233,7 +233,7 @@ void LfpChannelDisplayInfo::paint (Graphics& g)
     {
         auto* channel = display->drawableChannels[i];
         const int center = getTrackCenterY (*channel);
-        const bool drawChannelLabel = shouldDrawDenseChannelLabel (channelHeight, channel->getDrawableChannelNumber(), isSingleChannel);
+        const bool drawChannelLabel = shouldDrawDenseChannelLabel (channelHeight, i, isSingleChannel);
         const bool showTypeString = isSingleChannel || channel->getChannelHeight() > 34;
 
         g.setColour (channel->getRecorded() && recordingIsActive ? Colours::red : Colours::grey);

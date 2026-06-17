@@ -399,6 +399,8 @@ private:
 
     int eventState;
 
+    bool hasAnyDepthInfo;
+
     std::unique_ptr<AudioBuffer<float>> eventDisplayBuffer; // buffer for event data
 
     /** Define buffers for min, mean, and max for better plotting of spikes */

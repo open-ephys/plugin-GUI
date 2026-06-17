@@ -713,7 +713,8 @@ LfpDisplaySplitter::LfpDisplaySplitter (LfpDisplayNode* node,
                                                   screenBufferWidth (0),
                                                   nChans (0),
                                                   selectedStreamId (0),
-                                                  isSelected (false)
+                                                  isSelected (false),
+                                                  hasAnyDepthInfo (false)
 {
     viewport = std::make_unique<LfpViewport> (this);
     lfpDisplay = std::make_unique<LfpDisplay> (this, viewport.get());
@@ -766,9 +767,12 @@ void LfpDisplaySplitter::refreshLeftMargin()
 
         if (options->getChannelLabelDisplayMode() == LfpDisplayOptions::ChannelLabelDisplayMode::Depth)
         {
-            // If displaying depth, we want to ensure enough space for the largest possible depth label
-            const float textWidth = labelFont.getStringWidthFloat ("99999 μm");
-            newMargin = std::max (newMargin, static_cast<int> (std::ceil (textWidth)) + 10);
+            if (hasAnyDepthInfo)
+            {
+                // If displaying depth, we want to ensure enough space for the largest possible depth label
+                const float textWidth = labelFont.getStringWidthFloat ("99999 μm");
+                newMargin = std::max (newMargin, static_cast<int> (std::ceil (textWidth)) + 10);
+            }
         }
         else
         {
@@ -1008,6 +1012,10 @@ void LfpDisplaySplitter::updateSettings()
         lfpDisplay->channels[i]->setName (displayBuffer->channelMetadata[i].name);
         lfpDisplay->channels[i]->setGroup (displayBuffer->channelMetadata[i].group);
         lfpDisplay->channels[i]->setDepth (displayBuffer->channelMetadata[i].ypos);
+        if (displayBuffer->channelMetadata[i].ypos != 0)
+        {
+            hasAnyDepthInfo = true;
+        }
         lfpDisplay->channels[i]->setXpos (displayBuffer->channelMetadata[i].xpos);
         lfpDisplay->channels[i]->setMetadataPresence (displayBuffer->channelMetadata[i].hasGroupMetadata,
                                                       displayBuffer->channelMetadata[i].hasYposMetadata,
