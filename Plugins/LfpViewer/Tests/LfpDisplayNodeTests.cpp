@@ -380,3 +380,122 @@ TEST_F (LfpDisplayNodeTests, DataIntegrityTest)
 
     processor->stopAcquisition();
 }
+
+class LfpDisplayNodeLowRateTests : public LfpDisplayNodeTests
+{
+protected:
+    void SetUp() override
+    {
+        sampleRate = 10.0f; // Override before base SetUp reads it
+        LfpDisplayNodeTests::SetUp();
+    }
+};
+
+// Checks if low sampling rate signals receive a sufficient buffer legnth
+TEST_F (LfpDisplayNodeLowRateTests, LowRateDisplayBufferHasMinimumSize)
+{
+    Array<LfpViewer::DisplayBuffer*> displayBuffers = processor->getDisplayBuffers();
+    ASSERT_GT (displayBuffers.size(), 0);
+    EXPECT_GE (displayBuffers[0]->getNumSamples(), 1000);
+}
+
+// Checks that low sampling rate signals with numSamples / pixels < 1.0 still display.
+TEST_F (LfpDisplayNodeLowRateTests, LowRateSignalIsNotFlatLine)
+{
+    const int canvasX = 600;
+    const int canvasY = 800;
+    const int numSamples = 20;
+
+    std::unique_ptr<LfpViewer::LfpDisplayCanvas> canvas =
+        std::make_unique<LfpViewer::LfpDisplayCanvas> (processor, LfpViewer::SplitLayouts::SINGLE, false);
+    canvas->updateSettings();
+    canvas->setSize (canvasX, canvasY);
+    canvas->resized();
+    canvas->setVisible (true);
+    setExpectedImageParameters (canvas.get());
+
+    processor->startAcquisition();
+    canvas->beginAnimation();
+
+    auto inputBuffer = createBufferSinusoidal (1, numChannels, numSamples, 100);
+    writeBlock (inputBuffer);
+    canvas->refreshState();
+
+    Rectangle<int> canvasSnapshot (x, y, width, height);
+    Image canvasImage = canvas->createComponentSnapshot (canvasSnapshot);
+
+    const int firstChannelHeight = height / numChannels;
+    const int midlineRow = firstChannelHeight / 2;
+    const int midlineBand = 4; // tolerance for midline so zero-buffer flat line cannot pass
+
+    bool hasOffMidlineSignal = false;
+    for (int px = 0; px < width && !hasOffMidlineSignal; px++)
+    {
+        for (int py = 0; py < firstChannelHeight && !hasOffMidlineSignal; py++)
+        {
+            if (std::abs (py - midlineRow) <= midlineBand)
+                continue;
+            if (canvasImage.getPixelAt (px, py) == channelColours[0])
+                hasOffMidlineSignal = true;
+        }
+    }
+
+    EXPECT_TRUE (hasOffMidlineSignal)
+        << "No off-midline signal found: canvas likely rendered a zero-valued flat line";
+
+    processor->stopAcquisition();
+}
+
+// A connected trace produces signal in almost every pixel column; isolated dots produce
+// signal in only ~numSamples columns. The midline band is excluded so a zero-buffer
+// flat line scores zero columns.
+TEST_F (LfpDisplayNodeLowRateTests, LowRateTraceIsConnected)
+{
+    const int canvasX = 600;
+    const int canvasY = 800;
+    const int numSamples = 20;
+
+    std::unique_ptr<LfpViewer::LfpDisplayCanvas> canvas =
+        std::make_unique<LfpViewer::LfpDisplayCanvas> (processor, LfpViewer::SplitLayouts::SINGLE, false);
+    canvas->updateSettings();
+    canvas->setSize (canvasX, canvasY);
+    canvas->resized();
+    canvas->setVisible (true);
+    setExpectedImageParameters (canvas.get());
+
+    processor->startAcquisition();
+    canvas->beginAnimation();
+
+    auto inputBuffer = createBufferSinusoidal (1, numChannels, numSamples, 100);
+    writeBlock (inputBuffer);
+    canvas->refreshState();
+
+    Rectangle<int> canvasSnapshot (x, y, width, height);
+    Image canvasImage = canvas->createComponentSnapshot (canvasSnapshot);
+
+    const int firstChannelHeight = height / numChannels;
+    const int midlineRow = firstChannelHeight / 2;
+    const int midlineBand = 4; // tolerance for midline so zero-buffer flat line cannot pass
+
+    int signalColumns = 0;
+    for (int px = 0; px < width; px++)
+    {
+        for (int py = 0; py < firstChannelHeight; py++)
+        {
+            if (std::abs (py - midlineRow) <= midlineBand)
+                continue;
+            if (canvasImage.getPixelAt (px, py) == channelColours[0])
+            {
+                signalColumns++;
+                break;
+            }
+        }
+    }
+
+    // With connected rendering almost every column has off-midline signal.
+    EXPECT_GT (signalColumns, numSamples * 5)
+        << "Trace appears disjointed: " << signalColumns
+        << " off-midline signal columns, expected > " << numSamples * 5;
+
+    processor->stopAcquisition();
+}

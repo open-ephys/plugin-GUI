@@ -1357,6 +1357,11 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
             int sampleNumber = 0;
 
+            // For ratio < 1: save the display-buffer start index so we can
+            // compute each pixel's sample position with a direct multiply
+            // (drift-free) instead of accumulating subSampleOffset in a loop.
+            const int dbiStart = dbi;
+
             if (pixelsToFill > 0 && pixelsToFill < 1000000)
             {
                 float i;
@@ -1404,39 +1409,41 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
                         if (ratio < 1.0f) // less than one sample per pixel
                         {
+                            // Drift-free interpolation: compute sample position
+                            // directly from pixel index rather than accumulating
+                            // subSampleOffset, which accumulates rounding errors,
+                            // causing the displayed sample positions to drift from
+                            // the true timeline.
+                            float samplePos = float (i) * ratio;
+                            int sampleStep = int (samplePos);
+                            float alpha = samplePos - float (sampleStep);
+
+                            int curDbi = (dbiStart + sampleStep) % displayBufferSize;
+                            int lastIndex = (curDbi - 1 + displayBufferSize) % displayBufferSize;
+
                             if (isEventChannel)
                             {
-                                eventWritePtr[sbi] = displayData[dbi];
+                                eventWritePtr[sbi] = displayData[curDbi];
                             }
                             else
                             {
-                                const float alpha = subSampleOffset;
-                                const float invAlpha = 1.0f - alpha;
-
-                                int lastIndex = dbi - 1;
-
-                                if (lastIndex < 0)
-                                {
-                                    lastIndex = displayBufferSize - 1;
+                                // Skip the very first pixel if the display buffer has
+                                // never been written (dbiStart == 0 means no previous
+                                // sample exists to interpolate from).
+                                if (dbiStart == 0 && sampleStep == 0)
                                     continue;
-                                }
 
                                 const float val0 = displayData[lastIndex];
-                                const float val1 = displayData[dbi];
-                                const float val = invAlpha * val0 + alpha * val1;
+                                const float val1 = displayData[curDbi];
+                                const float val = (1.0f - alpha) * val0 + alpha * val1;
+
+                                // Span min..max across consecutive pixels so the plotter
+                                // draws connected line segments at low sample rates.
+                                const float prevVal = (sbi > 0) ? meanReadPtr[sbi - 1] : val;
 
                                 meanWritePtr[sbi] += val;
-                                minWritePtr[sbi] += val;
-                                maxWritePtr[sbi] += val;
-                            }
-
-                            subSampleOffset += ratio;
-
-                            if (subSampleOffset > 1.0f) // go to next pixel
-                            {
-                                subSampleOffset -= 1.0f;
-                                dbi += 1;
-                                dbi %= displayBufferSize;
+                                minWritePtr[sbi] += jmin (val, prevVal);
+                                maxWritePtr[sbi] += jmax (val, prevVal);
                             }
                         }
                         else
@@ -1621,10 +1628,12 @@ void LfpDisplaySplitter::updateScreenBuffer()
                     } // !isPaused
                 }
 
-                if (ratio > 1.0f)
-                    leftOverSamples.set (channel, pixelsToFill - i); // +(pixelsToFill - (i - 1)) * ratio);
-                else
-                    leftOverSamples.set (channel, subSampleOffset - 1.0f);
+                // Same formula for both ratio branches: after the loop, `i` is
+                // the first value that failed (i < pixelsToFill), so
+                // pixelsToFill - i is the signed fractional carry. For ratio < 1
+                // the loop runs ceil(pixelsToFill) iterations and the carry is
+                // <= 0, which subtracts from the next call and prevents drift.
+                leftOverSamples.set (channel, pixelsToFill - i);
 
                 //std::cout << "Setting channel " << channel << " sbi to " << sbi << std::endl;
                 screenBufferIndex.set (channel, sbi);

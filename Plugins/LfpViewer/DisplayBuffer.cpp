@@ -27,6 +27,7 @@ namespace LfpViewer
 {
 
 #define BUFFER_LENGTH_S 1.0f
+#define MIN_BUFFER_SAMPLES 1000
 
 DisplayBuffer::DisplayBuffer (int id_, String name_, float sampleRate_) : id (id_), name (name_), sampleRate (sampleRate_), isNeeded (true)
 {
@@ -104,7 +105,7 @@ void DisplayBuffer::addChannel (
 void DisplayBuffer::update()
 {
     if (numChannels != previousSize)
-        setSize (numChannels + 1, int (sampleRate * BUFFER_LENGTH_S));
+        setSize (numChannels + 1, std::max (int (sampleRate * BUFFER_LENGTH_S), MIN_BUFFER_SAMPLES));
 
     clear();
 
