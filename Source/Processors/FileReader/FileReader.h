@@ -31,6 +31,8 @@
 
 #include "../../Utils/Utils.h"
 
+#include <array>
+
 #define BUFFER_WINDOW_CACHE_SIZE 10
 
 class ScrubberInterface;
@@ -186,8 +188,21 @@ public:
     void loadCustomParametersFromXml (XmlElement*) override;
 
 private:
+    struct BufferWindowInfo
+    {
+        std::array<int, BUFFER_WINDOW_CACHE_SIZE> sampleCounts {};
+        std::array<int, BUFFER_WINDOW_CACHE_SIZE> sampleOffsets {};
+        int totalSamples = 0;
+    };
+
     /** Checks for changes in the audio device settings */
     void checkAudioDevice();
+
+    /** Resets the fractional block conversion state after a seek or format change. */
+    void resetBufferSchedule();
+
+    /** Precomputes how many file samples each cached callback window should consume. */
+    void updateBufferWindowInfo (BufferWindowInfo& info);
 
     /** Generates any events found within the current continuous buffer interval */
     void addEventsInRange (int64 start, int64 stop);
@@ -215,23 +230,28 @@ private:
     HeapBlock<float>* readBuffer;
     HeapBlock<float> bufferA;
     HeapBlock<float> bufferB;
+    BufferWindowInfo bufferAInfo;
+    BufferWindowInfo bufferBInfo;
+    BufferWindowInfo* readBufferInfo = nullptr;
 
     HashMap<String, int> supportedExtensions;
 
     Atomic<bool> m_shouldFillBackBuffer;
-    Atomic<int> m_samplesPerBuffer;
 
     unsigned int m_bufferSize;
     float m_sysSampleRate;
+    double m_samplesPerCallbackExact = 0.0;
+    double m_samplesPerCallbackRemainder = 0.0;
 
     HeapBlock<float>* getFrontBuffer();
     HeapBlock<float>* getBackBuffer();
+    BufferWindowInfo* getBackBufferInfo();
 
     /** Executes the background thread task */
     void run() override;
 
     /** Reads a chunk of the file that fills an entire buffer cache. */
-    void readAndFillBufferCache (HeapBlock<float>& cacheBuffer);
+    void readAndFillBufferCache (HeapBlock<float>& cacheBuffer, BufferWindowInfo& bufferInfo);
 
     /** Returns the number of included file sources */
     int getNumBuiltInFileSources() const { return 1; }
