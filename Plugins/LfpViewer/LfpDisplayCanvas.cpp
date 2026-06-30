@@ -1262,10 +1262,11 @@ void LfpDisplaySplitter::updateScreenBuffer()
             lastScreenBufferIndex.set (channel, sbi);
             //std::cout << "Setting channel " << channel << " lastScreenBufferIndex to " << lastScreenBufferIndex[channel] << std::endl;
 
-            float subSampleOffset = leftOverSamples[channel];
+            float pixelOffset = leftOverSamples[channel];
+            float subSampleOffset = 0.0f;
 
             //if (ratio > 1)
-            pixelsToFill += subSampleOffset; // keep track of fractional pixels left over from the last round
+            pixelsToFill += pixelOffset; // keep track of fractional pixels left over from the last round
 
             if (triggerChannel >= 0)
             {
@@ -1291,7 +1292,8 @@ void LfpDisplaySplitter::updateScreenBuffer()
                             newSamples += displayBufferSize;
 
                         pixelsToFill = newSamples * invRatio;
-                        subSampleOffset = 0;
+                        pixelOffset = 0.0f;
+                        subSampleOffset = 0.0f;
 
                         // rewind screen buffer to the far left
                         screenBufferIndex.set (channel, 0);
@@ -1414,7 +1416,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                             // subSampleOffset, which accumulates rounding errors,
                             // causing the displayed sample positions to drift from
                             // the true timeline.
-                            float samplePos = float (i) * ratio;
+                            float samplePos = (float (i) - pixelOffset) * ratio;
                             int sampleStep = int (samplePos);
                             float alpha = samplePos - float (sampleStep);
 
@@ -1427,13 +1429,8 @@ void LfpDisplaySplitter::updateScreenBuffer()
                             }
                             else
                             {
-                                // Skip the very first pixel if the display buffer has
-                                // never been written (dbiStart == 0 means no previous
-                                // sample exists to interpolate from).
-                                if (dbiStart == 0 && sampleStep == 0)
-                                    continue;
-
-                                const float val0 = displayData[lastIndex];
+                                const bool hasPreviousSample = ! (dbiStart == 0 && sampleStep == 0);
+                                const float val0 = hasPreviousSample ? displayData[lastIndex] : displayData[curDbi];
                                 const float val1 = displayData[curDbi];
                                 const float val = (1.0f - alpha) * val0 + alpha * val1;
 
