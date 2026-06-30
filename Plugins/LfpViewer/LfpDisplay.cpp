@@ -522,6 +522,8 @@ void LfpDisplay::refresh()
     //    std::cout << fillfrom << " : " << fillto << " ::: " << "totalPixelsToFill: " << totalPixelsToFill << std::endl;
 
     int fillfrom_local, fillto_local;
+    int channelFillFrom = fillfrom;
+    int channelFillTo = fillto;
 
     if (canvasSplit->fullredraw)
     {
@@ -561,8 +563,17 @@ void LfpDisplay::refresh()
     }
     else
     {
-        fillfrom_local = lastBitmapIndex;
-        fillto_local = (lastBitmapIndex + totalPixelsToFill) % totalXPixels;
+        if (totalPixelsToFill >= totalXPixels)
+        {
+            channelFillFrom = (fillto - totalXPixels + canvasSplit->screenBufferWidth) % canvasSplit->screenBufferWidth;
+            fillfrom_local = 0;
+            fillto_local = totalXPixels;
+        }
+        else
+        {
+            fillfrom_local = lastBitmapIndex;
+            fillto_local = (lastBitmapIndex + totalPixelsToFill) % totalXPixels;
+        }
 
         //if (fillto != 0)
         //{
@@ -572,8 +583,8 @@ void LfpDisplay::refresh()
 
         for (int i = 0; i < numChans; i++)
         {
-            channels[i]->ifrom = fillfrom; // canvasSplit->lastScreenBufferIndex[0];
-            channels[i]->ito = fillto; // canvasSplit->screenBufferIndex[0];
+            channels[i]->ifrom = channelFillFrom; // canvasSplit->lastScreenBufferIndex[0];
+            channels[i]->ito = channelFillTo; // canvasSplit->screenBufferIndex[0];
             channels[i]->ifrom_local = fillfrom_local;
             channels[i]->ito_local = fillto_local;
         }
