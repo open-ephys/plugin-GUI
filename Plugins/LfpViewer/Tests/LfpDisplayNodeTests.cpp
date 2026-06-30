@@ -391,6 +391,16 @@ protected:
     }
 };
 
+class LfpDisplayNodeWideLowRatioTests : public LfpDisplayNodeTests
+{
+protected:
+    void SetUp() override
+    {
+        sampleRate = 2500.0f;
+        LfpDisplayNodeTests::SetUp();
+    }
+};
+
 // Checks if low sampling rate signals receive a sufficient buffer legnth
 TEST_F (LfpDisplayNodeLowRateTests, LowRateDisplayBufferHasMinimumSize)
 {
@@ -442,6 +452,99 @@ TEST_F (LfpDisplayNodeLowRateTests, LowRateSignalIsNotFlatLine)
 
     EXPECT_TRUE (hasOffMidlineSignal)
         << "No off-midline signal found: canvas likely rendered a zero-valued flat line";
+
+    processor->stopAcquisition();
+}
+
+TEST_F (LfpDisplayNodeLowRateTests, LowRateFirstSampleAdvancesScreenBuffer)
+{
+    const int canvasX = 600;
+    const int canvasY = 800;
+
+    std::unique_ptr<LfpViewer::LfpDisplayCanvas> canvas =
+        std::make_unique<LfpViewer::LfpDisplayCanvas> (processor, LfpViewer::SplitLayouts::SINGLE, false);
+    canvas->updateSettings();
+    canvas->setSize (canvasX, canvasY);
+    canvas->resized();
+    canvas->setVisible (true);
+
+    processor->startAcquisition();
+    canvas->beginAnimation();
+
+    auto inputBuffer = createBufferSinusoidal (1, numChannels, 1, 100);
+    writeBlock (inputBuffer);
+    canvas->refreshState();
+
+    EXPECT_GT (canvas->getScreenBufferIndex (0, 0), 0)
+        << "First low-rate sample was consumed without advancing the screen buffer";
+
+    processor->stopAcquisition();
+}
+
+TEST_F (LfpDisplayNodeWideLowRatioTests, WideDisplayCarriesLowRatioInterpolationPhase)
+{
+    const int canvasX = 6000;
+    const int canvasY = 800;
+
+    std::unique_ptr<LfpViewer::LfpDisplayCanvas> canvas =
+        std::make_unique<LfpViewer::LfpDisplayCanvas> (processor, LfpViewer::SplitLayouts::SINGLE, false);
+    canvas->updateSettings();
+    canvas->setSize (canvasX, canvasY);
+    canvas->resized();
+    canvas->setVisible (true);
+
+    processor->startAcquisition();
+    canvas->beginAnimation();
+
+    auto firstSample = createBuffer (100.0f, 0.0f, numChannels, 1);
+    writeBlock (firstSample);
+    canvas->refreshState();
+
+    const int firstRefreshEnd = canvas->getScreenBufferIndex (0, 0);
+
+    auto secondSample = createBuffer (200.0f, 0.0f, numChannels, 1);
+    writeBlock (secondSample);
+    canvas->refreshState();
+
+    const float firstPixelAfterCarry = canvas->getScreenBufferMeanValue (0, 0, firstRefreshEnd);
+    EXPECT_GT (firstPixelAfterCarry, 150.0f)
+        << "Low-ratio interpolation phase restarted instead of carrying across refreshes";
+
+    processor->stopAcquisition();
+}
+
+TEST_F (LfpDisplayNodeWideLowRatioTests, WideDisplayDoesNotDropPixelsNearOneSamplePerPixel)
+{
+    const int canvasX = 4242;
+    const int canvasY = 800;
+    const int blockSamples = 50;
+    const int numBlocks = 10;
+    const float timebase = 2.0f;
+
+    std::unique_ptr<LfpViewer::LfpDisplayCanvas> canvas =
+        std::make_unique<LfpViewer::LfpDisplayCanvas> (processor, LfpViewer::SplitLayouts::SINGLE, false);
+    canvas->updateSettings();
+    canvas->setSize (canvasX, canvasY);
+    canvas->resized();
+    canvas->setVisible (true);
+
+    setExpectedImageParameters (canvas.get());
+
+    processor->startAcquisition();
+    canvas->beginAnimation();
+
+    for (int block = 0; block < numBlocks; ++block)
+    {
+        auto inputBuffer = createBuffer (100.0f, 0.0f, numChannels, blockSamples);
+        writeBlock (inputBuffer);
+        canvas->refreshState();
+    }
+
+    const float ratio = sampleRate * timebase / float (width);
+    const int expectedPixels = int (float (blockSamples * numBlocks) / ratio);
+
+    EXPECT_GT (canvas->getScreenBufferIndex (0, 0), expectedPixels - 5)
+        << "Samples were consumed without advancing enough screen-buffer pixels";
 
     processor->stopAcquisition();
 }

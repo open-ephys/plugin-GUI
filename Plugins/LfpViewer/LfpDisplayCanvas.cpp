@@ -633,6 +633,29 @@ bool LfpDisplayCanvas::setChannelRange (int splitIndex, int range, ContinuousCha
 
     return true;
 }
+
+int LfpDisplayCanvas::getScreenBufferIndex (int splitIndex, int channel)
+{
+    if (splitIndex < 0 || splitIndex >= displaySplits.size()
+        || channel < 0 || channel >= displaySplits[splitIndex]->screenBufferIndex.size())
+    {
+        return -1;
+    }
+
+    return displaySplits[splitIndex]->screenBufferIndex[channel];
+}
+
+float LfpDisplayCanvas::getScreenBufferMeanValue (int splitIndex, int channel, int sample)
+{
+    if (splitIndex < 0 || splitIndex >= displaySplits.size()
+        || channel < 0 || channel >= displaySplits[splitIndex]->getNumChannels()
+        || sample < 0 || sample >= displaySplits[splitIndex]->screenBufferWidth)
+    {
+        return 0.0f;
+    }
+
+    return displaySplits[splitIndex]->getYCoordMean (channel, sample);
+}
 #endif
 
 void LfpDisplayCanvas::saveCustomParametersToXml (XmlElement* xml)

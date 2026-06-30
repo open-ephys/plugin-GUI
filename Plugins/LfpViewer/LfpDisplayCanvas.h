@@ -129,6 +129,10 @@ public:
     bool setChannelHeight (int splitIndex, int height);
 
     bool setChannelRange (int splitIndex, int range, ContinuousChannel::Type type);
+
+    int getScreenBufferIndex (int splitIndex, int channel);
+
+    float getScreenBufferMeanValue (int splitIndex, int channel, int sample);
 #endif
 
     bool isLoading;
