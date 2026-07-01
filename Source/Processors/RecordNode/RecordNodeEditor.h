@@ -27,6 +27,7 @@
 #include "../../Utils/Utils.h"
 #include "../Editors/GenericEditor.h"
 #include "../Editors/PopupChannelSelector.h"
+#include "../Synchronizer/Synchronizer.h"
 
 #include "DiskMonitor/DiskSpaceListener.h"
 
@@ -51,15 +52,17 @@ public:
     ~SyncMonitor();
 
     /** Sets the most recent sync metric */
-    void setSyncMetric (bool isSynchronized, float syncMetric);
+    void setSyncMetric (SyncStatus syncStatus, float syncMetric);
 
     /** Enable or disable this component*/
     void setEnabled (bool isEnabled);
 
 protected:
     bool isEnabled = true;
-    bool isSynchronized = false;
+    SyncStatus syncStatus = SyncStatus::OFF;
     float metric = 0.0f;
+    bool isSynchronized = false;
+    String timeUnits = " ms";
 };
 
 /** 
@@ -354,13 +357,13 @@ public:
     void stopRecording() override {};
 
     /** Set start time for each stream */
-    void setStreamStartTime (uint16 streamId, bool isSynchronized, float offsetMs);
+    void setStreamStartTime (uint16 streamId, SyncStatus status, float offsetMs);
 
     /** Set the time of latest sync pulse */
-    void setLastSyncEvent (uint16 streamId, bool isSynchronized, float syncTimeSeconds);
+    void setLastSyncEvent (uint16 streamId, SyncStatus status, float syncTimeSeconds);
 
     /** Set the synchronization accuracy metric for a particular stream */
-    void setSyncAccuracy (uint16 streamId, bool isSynchronized, float expectedMinusActual);
+    void setSyncAccuracy (uint16 streamId, SyncStatus status, float expectedMinusActual);
 
     std::unique_ptr<FifoDrawerButton> fifoDrawerButton;
 

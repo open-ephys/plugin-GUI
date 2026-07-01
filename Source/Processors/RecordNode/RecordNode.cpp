@@ -1251,9 +1251,9 @@ void RecordNode::updateSyncMonitors()
 
         RecordNodeEditor* editor = (RecordNodeEditor*) getEditor();
 
-        editor->setStreamStartTime (streamId, synchronizer.isStreamSynced (streamKey), synchronizer.getStartTime (streamKey));
-        editor->setLastSyncEvent (streamId, synchronizer.isStreamSynced (streamKey), synchronizer.getLastSyncEvent (streamKey));
-        editor->setSyncAccuracy (streamId, synchronizer.isStreamSynced (streamKey), synchronizer.getAccuracy (streamKey));
+        editor->setStreamStartTime (streamId, synchronizer.getStatus (streamKey), synchronizer.getStartTime (streamKey));
+        editor->setLastSyncEvent (streamId, synchronizer.getStatus (streamKey), synchronizer.getLastSyncEvent (streamKey));
+        editor->setSyncAccuracy (streamId, synchronizer.getStatus (streamKey), synchronizer.getAccuracy (streamKey));
     }
 }
 

@@ -35,10 +35,20 @@ SyncMonitor::~SyncMonitor()
 {
 }
 
-void SyncMonitor::setSyncMetric (bool isSynchronized_, float syncMetric_)
+void SyncMonitor::setSyncMetric (SyncStatus syncStatus_, float syncMetric_)
 {
-    isSynchronized = isSynchronized_;
+    syncStatus = syncStatus_;
     metric = syncMetric_;
+
+    if(syncStatus == SyncStatus::SYNCED || syncStatus == SyncStatus::HARDWARE_SYNCED || syncStatus == SyncStatus::HARP_CLOCK)
+        isSynchronized = true;
+    else
+        isSynchronized = false;
+
+    if(syncStatus == SyncStatus::HARP_CLOCK)
+        timeUnits = " s";
+    else
+        timeUnits = " ms";
 }
 
 void SyncMonitor::setEnabled (bool state)
@@ -86,7 +96,7 @@ void SyncStartTimeMonitor::paint (Graphics& g)
     if (isSynchronized)
     {
         g.setColour (findColour (ThemeColours::defaultText));
-        g.drawText (String (metric, 2) + " ms", 0, 0, 50, 20, Justification::centred);
+        g.drawText (String (metric, 2) + timeUnits, 0, 0, 50, 20, Justification::centred);
     }
 
     else
@@ -697,30 +707,30 @@ void RecordNodeEditor::buttonClicked (Button* button)
     }
 }
 
-void RecordNodeEditor::setStreamStartTime (uint16 streamId, bool isSynchronized, float offsetMs)
+void RecordNodeEditor::setStreamStartTime (uint16 streamId, SyncStatus status, float offsetMs)
 {
     if (syncStartTimeMonitors.find (streamId) != syncStartTimeMonitors.end())
     {
         if (syncStartTimeMonitors[streamId] != nullptr)
-            syncStartTimeMonitors[streamId]->setSyncMetric (isSynchronized, offsetMs);
+            syncStartTimeMonitors[streamId]->setSyncMetric (status, offsetMs);
     }
 }
 
-void RecordNodeEditor::setLastSyncEvent (uint16 streamId, bool isSynchronized, float syncTimeSeconds)
+void RecordNodeEditor::setLastSyncEvent (uint16 streamId, SyncStatus status, float syncTimeSeconds)
 {
     if (lastSyncEventMonitors.find (streamId) != lastSyncEventMonitors.end())
     {
         if (lastSyncEventMonitors[streamId] != nullptr)
-            lastSyncEventMonitors[streamId]->setSyncMetric (isSynchronized, syncTimeSeconds);
+            lastSyncEventMonitors[streamId]->setSyncMetric (status, syncTimeSeconds);
     }
 }
 
-void RecordNodeEditor::setSyncAccuracy (uint16 streamId, bool isSynchronized, float syncAccuracy)
+void RecordNodeEditor::setSyncAccuracy (uint16 streamId, SyncStatus status, float syncAccuracy)
 {
     if (syncAccuracyMonitors.find (streamId) != syncAccuracyMonitors.end())
     {
         if (syncAccuracyMonitors[streamId] != nullptr)
-            syncAccuracyMonitors[streamId]->setSyncMetric (isSynchronized, syncAccuracy);
+            syncAccuracyMonitors[streamId]->setSyncMetric (status, syncAccuracy);
     }
 }
 
