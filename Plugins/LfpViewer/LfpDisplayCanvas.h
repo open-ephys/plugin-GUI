@@ -114,6 +114,7 @@ public:
     bool keyPressed (const KeyPress& key, Component* orig) override;
 
     /** Mouse listeners */
+    void paintOverChildren (Graphics&) override;
     void mouseMove (const MouseEvent&) override;
     void mouseDrag (const MouseEvent&) override;
     void mouseUp (const MouseEvent&) override;
@@ -155,6 +156,12 @@ private:
     Array<float> tripleHorizontalSplitRatio;
 
     int borderToDrag;
+    bool resizeIndicatorIsVisible;
+    bool resizeIndicatorIsVertical;
+    int resizeIndicatorPosition;
+
+    void showResizeIndicator (bool isVertical, int position);
+    void hideResizeIndicator();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LfpDisplayCanvas);
 };

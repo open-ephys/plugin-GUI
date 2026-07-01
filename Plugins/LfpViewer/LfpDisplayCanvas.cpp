@@ -84,6 +84,9 @@ LfpDisplayCanvas::LfpDisplayCanvas (LfpDisplayNode* processor_, SplitLayouts sl,
     addMouseListener (this, true);
 
     borderToDrag = -1;
+    resizeIndicatorIsVisible = false;
+    resizeIndicatorIsVertical = true;
+    resizeIndicatorPosition = 0;
 
     resized();
 
@@ -253,6 +256,53 @@ void LfpDisplayCanvas::resized()
     }
 }
 
+void LfpDisplayCanvas::paintOverChildren (Graphics& g)
+{
+    if (! resizeIndicatorIsVisible)
+        return;
+
+    constexpr int resizeBarThickness = 4;
+    const int halfThickness = resizeBarThickness / 2;
+    const Colour shadowColour = Colours::black.withAlpha (0.5f);
+    const Colour barColour = Colour (252, 210, 0).withAlpha (0.9f);
+
+    if (resizeIndicatorIsVertical)
+    {
+        const int x = jlimit (0, getWidth(), resizeIndicatorPosition);
+        const int h = getHeight() - (optionsDrawerIsOpen ? 210 : 60);
+        g.setColour (shadowColour);
+        g.fillRect (x - halfThickness - 1, 0, resizeBarThickness + 2, h);
+        g.setColour (barColour);
+        g.fillRect (x - halfThickness, 0, resizeBarThickness, h);
+    }
+    else
+    {
+        const int y = jlimit (0, getHeight(), resizeIndicatorPosition);
+        g.setColour (shadowColour);
+        g.fillRect (0, y - halfThickness - 1, getWidth(), resizeBarThickness + 2);
+        g.setColour (barColour);
+        g.fillRect (0, y - halfThickness, getWidth(), resizeBarThickness);
+    }
+}
+
+void LfpDisplayCanvas::showResizeIndicator (bool isVertical, int position)
+{
+    resizeIndicatorIsVisible = true;
+    resizeIndicatorIsVertical = isVertical;
+    resizeIndicatorPosition = position;
+    repaint();
+}
+
+void LfpDisplayCanvas::hideResizeIndicator()
+{
+    if (! resizeIndicatorIsVisible)
+        return;
+
+    resizeIndicatorIsVisible = false;
+    borderToDrag = -1;
+    repaint();
+}
+
 void LfpDisplayCanvas::beginAnimation()
 {
     for (auto split : displaySplits)
@@ -314,6 +364,7 @@ void LfpDisplayCanvas::select (LfpDisplaySplitter* splitter)
 void LfpDisplayCanvas::setLayout (SplitLayouts sl)
 {
     selectedLayout = sl;
+    hideResizeIndicator();
 
     if (! isLoading)
         resized();
@@ -432,12 +483,8 @@ void LfpDisplayCanvas::mouseDrag (const MouseEvent& e)
 
         if (borderToDrag == 0)
         {
-            doubleVerticalSplitRatio = float (event.position.getX()) / float (getWidth());
-
-            if (doubleVerticalSplitRatio < 0.15)
-                doubleVerticalSplitRatio = 0.15;
-            else if (doubleVerticalSplitRatio > 0.85)
-                doubleVerticalSplitRatio = 0.85;
+            doubleVerticalSplitRatio = jlimit (0.15f, 0.85f, float (event.position.getX()) / float (getWidth()));
+            showResizeIndicator (true, roundToInt (getWidth() * doubleVerticalSplitRatio));
         }
     }
     else if (selectedLayout == THREE_VERT)
@@ -461,6 +508,8 @@ void LfpDisplayCanvas::mouseDrag (const MouseEvent& e)
                 tripleVerticalSplitRatio.set (0, 0.15);
             else if (tripleVerticalSplitRatio[0] > tripleVerticalSplitRatio[1] - 0.15)
                 tripleVerticalSplitRatio.set (0, tripleVerticalSplitRatio[1] - 0.15);
+
+            showResizeIndicator (true, roundToInt (getWidth() * tripleVerticalSplitRatio[0]));
         }
 
         else if (borderToDrag == 1)
@@ -471,6 +520,8 @@ void LfpDisplayCanvas::mouseDrag (const MouseEvent& e)
                 tripleVerticalSplitRatio.set (1, tripleVerticalSplitRatio[0] + 0.15);
             else if (tripleVerticalSplitRatio[1] > 0.85)
                 tripleVerticalSplitRatio.set (1, 0.85);
+
+            showResizeIndicator (true, roundToInt (getWidth() * tripleVerticalSplitRatio[1]));
         }
     }
     else if (selectedLayout == TWO_HORZ)
@@ -485,12 +536,8 @@ void LfpDisplayCanvas::mouseDrag (const MouseEvent& e)
 
         if (borderToDrag == 0)
         {
-            doubleHorizontalSplitRatio = float (event.position.getY()) / float (getHeight());
-
-            if (doubleHorizontalSplitRatio < 0.15)
-                doubleHorizontalSplitRatio = 0.15;
-            else if (doubleHorizontalSplitRatio > 0.85)
-                doubleHorizontalSplitRatio = 0.85;
+            doubleHorizontalSplitRatio = jlimit (0.15f, 0.85f, float (event.position.getY()) / float (getHeight()));
+            showResizeIndicator (false, roundToInt (getHeight() * doubleHorizontalSplitRatio));
         }
     }
     else if (selectedLayout == THREE_HORZ)
@@ -514,6 +561,8 @@ void LfpDisplayCanvas::mouseDrag (const MouseEvent& e)
                 tripleHorizontalSplitRatio.set (0, 0.15);
             else if (tripleHorizontalSplitRatio[0] > tripleHorizontalSplitRatio[1] - 0.15)
                 tripleHorizontalSplitRatio.set (0, tripleHorizontalSplitRatio[1] - 0.15);
+
+            showResizeIndicator (false, roundToInt (getHeight() * tripleHorizontalSplitRatio[0]));
         }
 
         else if (borderToDrag == 1)
@@ -524,6 +573,8 @@ void LfpDisplayCanvas::mouseDrag (const MouseEvent& e)
                 tripleHorizontalSplitRatio.set (1, tripleHorizontalSplitRatio[0] + 0.15);
             else if (tripleHorizontalSplitRatio[1] > 0.85)
                 tripleHorizontalSplitRatio.set (1, 0.85);
+
+            showResizeIndicator (false, roundToInt (getHeight() * tripleHorizontalSplitRatio[1]));
         }
     }
 }
@@ -535,6 +586,8 @@ void LfpDisplayCanvas::mouseUp (const MouseEvent& e)
         resized();
         borderToDrag = -1;
     }
+
+    hideResizeIndicator();
 }
 
 void LfpDisplayCanvas::toggleOptionsDrawer (bool isOpen)
