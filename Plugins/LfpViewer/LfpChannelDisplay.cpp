@@ -132,17 +132,18 @@ void LfpChannelDisplay::pxPaint()
     Graphics overlayGraphics (display->lfpChannelBitmap);
 
     int center = getHeight() / 2;
+    const int channelTop = getY() - display->getChannelBitmapYOrigin();
 
     //int ifrom = canvasSplit->lastScreenBufferIndex[0]; // base everything on the first channel
     //int ito = screenBufferIndex;
 
     // max and min of channel in absolute px coords for event displays etc - actual data might be drawn outside of this range
-    int jfrom_wholechannel = (int) (getY() + center - channelHeight / 2) + 1 + 0;
-    int jto_wholechannel = (int) (getY() + center + channelHeight / 2) - 0;
+    int jfrom_wholechannel = (int) (channelTop + center - channelHeight / 2) + 1 + 0;
+    int jto_wholechannel = (int) (channelTop + center + channelHeight / 2) - 0;
 
     // max and min of channel, this is the range where actual data is drawn
-    int jfrom_wholechannel_clip = (int) (getY() + center - (channelHeight) *canvasSplit->channelOverlapFactor) + 1;
-    int jto_wholechannel_clip = (int) (getY() + center + (channelHeight) *canvasSplit->channelOverlapFactor) - 0;
+    int jfrom_wholechannel_clip = (int) (channelTop + center - (channelHeight) *canvasSplit->channelOverlapFactor) + 1;
+    int jto_wholechannel_clip = (int) (channelTop + center + (channelHeight) *canvasSplit->channelOverlapFactor) - 0;
 
     if (jfrom_wholechannel < 0)
     {
@@ -196,6 +197,7 @@ void LfpChannelDisplay::pxPaint()
     LfpBitmapPlotterInfo plotterInfo; // hold and pass plotting info for each plotting method class
 
     const bool showRangeMarkers = isSelected || display->getSingleChannelState();
+    const bool showMidline = channelHeight > 4;
 
     for (int ii = ifrom; ii <= endIndex; ii++)
     {
@@ -203,20 +205,23 @@ void LfpChannelDisplay::pxPaint()
         int index = ii % canvasSplit->screenBufferWidth;
 
         //draw zero line
-        int m = getY() + center;
-
-        if (m > 0 && m < display->lfpChannelBitmap.getHeight())
+        if (showMidline)
         {
-            bdLfpChannelBitmap.setPixelColour (i, m, Colour (50, 50, 50));
+            int m = channelTop + center;
+
+            if (m > 0 && m < display->lfpChannelBitmap.getHeight())
+            {
+                bdLfpChannelBitmap.setPixelColour (i, m, Colour (50, 50, 50));
+            }
         }
 
         //draw range markers
         if (showRangeMarkers)
         {
-            int start = getY() + center - channelHeight / 2;
+            int start = channelTop + center - channelHeight / 2;
             int jump = jmax (1, channelHeight / 4);
 
-            for (m = start; m <= start + jump * 4; m += jump)
+            for (int m = start; m <= start + jump * 4; m += jump)
             {
                 if (m > 0 && m < display->lfpChannelBitmap.getHeight())
                 {
@@ -228,7 +233,8 @@ void LfpChannelDisplay::pxPaint()
 
         // draw event markers
         const int rawEventState = canvasSplit->getEventState (index); // get event state
-        drawEventOverlay (rawEventState, i, jfrom_wholechannel, jto_wholechannel, overlayGraphics); // draw event markers
+        if (rawEventState != 0)
+            drawEventOverlay (rawEventState, i, jfrom_wholechannel, jto_wholechannel, overlayGraphics); // draw event markers
 
         // get y-coordinates for plotting
         double a_raw = canvasSplit->getYCoordMax (chan, index);
@@ -317,7 +323,7 @@ void LfpChannelDisplay::pxPaint()
         int samplerange = to - from;
 
         plotterInfo.channelID = chan;
-        plotterInfo.y = getY();
+        plotterInfo.y = channelTop;
         plotterInfo.from = from;
         plotterInfo.to = to;
         plotterInfo.samp = i;
@@ -408,14 +414,15 @@ void LfpChannelDisplay::pxPaintHistory (int playhead, int rightEdge, int maxScre
     Graphics overlayGraphics (display->lfpChannelBitmap);
 
     int center = getHeight() / 2;
+    const int channelTop = getY() - display->getChannelBitmapYOrigin();
 
     // max and min of channel in absolute px coords for event displays etc - actual data might be drawn outside of this range
-    int jfrom_wholechannel = (int) (getY() + center - channelHeight / 2) + 1 + 0;
-    int jto_wholechannel = (int) (getY() + center + channelHeight / 2) - 0;
+    int jfrom_wholechannel = (int) (channelTop + center - channelHeight / 2) + 1 + 0;
+    int jto_wholechannel = (int) (channelTop + center + channelHeight / 2) - 0;
 
     // max and min of channel, this is the range where actual data is drawn
-    int jfrom_wholechannel_clip = (int) (getY() + center - (channelHeight) *canvasSplit->channelOverlapFactor) + 1;
-    int jto_wholechannel_clip = (int) (getY() + center + (channelHeight) *canvasSplit->channelOverlapFactor) - 0;
+    int jfrom_wholechannel_clip = (int) (channelTop + center - (channelHeight) *canvasSplit->channelOverlapFactor) + 1;
+    int jto_wholechannel_clip = (int) (channelTop + center + (channelHeight) *canvasSplit->channelOverlapFactor) - 0;
 
     if (jfrom_wholechannel < 0)
     {
@@ -453,6 +460,7 @@ void LfpChannelDisplay::pxPaintHistory (int playhead, int rightEdge, int maxScre
     LfpBitmapPlotterInfo plotterInfo; // hold and pass plotting info for each plotting method class
 
     const bool showRangeMarkers = isSelected || display->getSingleChannelState();
+    const bool showMidline = channelHeight > 4;
 
     for (int ii = 0; ii < rightEdge; ii++)
     {
@@ -489,22 +497,25 @@ void LfpChannelDisplay::pxPaintHistory (int playhead, int rightEdge, int maxScre
         //    std::cout << "First screenBufferIndex: " << index << std::endl;
 
         //draw zero line
-        int m = getY() + center;
-
-        if (m > 0 && m < display->lfpChannelBitmap.getHeight())
+        if (showMidline)
         {
-            //if (bdLfpChannelBitmap.getPixelColour(i, m).isTransparent()) { // make sure we're not drawing over an existing plot from another channel
-            bdLfpChannelBitmap.setPixelColour (i, m, Colour (50, 50, 50));
-            // }
+            int m = channelTop + center;
+
+            if (m > 0 && m < display->lfpChannelBitmap.getHeight())
+            {
+                //if (bdLfpChannelBitmap.getPixelColour(i, m).isTransparent()) { // make sure we're not drawing over an existing plot from another channel
+                bdLfpChannelBitmap.setPixelColour (i, m, Colour (50, 50, 50));
+                // }
+            }
         }
 
         //draw range markers
         if (showRangeMarkers)
         {
-            int start = getY() + center - channelHeight / 2;
+            int start = channelTop + center - channelHeight / 2;
             int jump = jmax (1, channelHeight / 4);
 
-            for (m = start; m <= start + jump * 4; m += jump)
+            for (int m = start; m <= start + jump * 4; m += jump)
             {
                 if (m > 0 && m < display->lfpChannelBitmap.getHeight())
                 {
@@ -515,7 +526,8 @@ void LfpChannelDisplay::pxPaintHistory (int playhead, int rightEdge, int maxScre
 
         // draw event markers
         const int rawEventState = canvasSplit->getEventState (index); // get event state
-        drawEventOverlay (rawEventState, i, jfrom_wholechannel, jto_wholechannel, overlayGraphics); // draw event markers
+        if (rawEventState != 0)
+            drawEventOverlay (rawEventState, i, jfrom_wholechannel, jto_wholechannel, overlayGraphics); // draw event markers
 
         // get y max-min for plotting
         double a_raw = canvasSplit->getYCoordMax (chan, index);
@@ -604,7 +616,7 @@ void LfpChannelDisplay::pxPaintHistory (int playhead, int rightEdge, int maxScre
         int samplerange = to - from;
 
         plotterInfo.channelID = chan;
-        plotterInfo.y = getY();
+        plotterInfo.y = channelTop;
         plotterInfo.from = from;
         plotterInfo.to = to;
         plotterInfo.samp = i;

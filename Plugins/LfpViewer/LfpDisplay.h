@@ -241,6 +241,9 @@ public:
     /** Returns a const pointer to the internally managed plotter method class */
     LfpBitmapPlotter* const getPlotterPtr() const;
 
+    /** Top edge, in component coordinates, represented by lfpChannelBitmap. */
+    int getChannelBitmapYOrigin() const;
+
     /** Current background colour (based on the selected colour scheme)*/
     Colour backgroundColour;
 
@@ -297,6 +300,12 @@ private:
     /** Used to throttle refresh speed when scrolling backwards */
     void timerCallback() override;
 
+    /** Keeps lfpChannelBitmap sized to the visible viewport plus a small vertical margin. */
+    void ensureChannelBitmapForVisibleArea();
+
+    /** Returns the component-space bounds represented by lfpChannelBitmap. */
+    Rectangle<int> getChannelBitmapWindowBounds();
+
     int singleChan;
 
     int pausePoint;
@@ -320,6 +329,7 @@ private:
     int scrollY;
 
     int totalHeight;
+    int channelBitmapYOrigin = 0;
 
     String colourGrouping;
 

@@ -350,6 +350,59 @@ int LfpDisplay::getTotalHeight()
     return totalHeight;
 }
 
+int LfpDisplay::getChannelBitmapYOrigin() const
+{
+    return channelBitmapYOrigin;
+}
+
+Rectangle<int> LfpDisplay::getChannelBitmapWindowBounds()
+{
+    const int bitmapWidth = jmax (1, getWidth() - canvasSplit->leftmargin);
+    const int componentHeight = jmax (1, getHeight());
+
+    if (viewport == nullptr || viewport->getViewHeight() <= 0)
+        return Rectangle<int> (0, 0, bitmapWidth, jmin (componentHeight, 10));
+
+    const int channelHeightForMargin = drawableChannels.size() > 0 ? drawableChannels[0]->getHeight() : 30;
+    const int margin = jmax (64, channelHeightForMargin * 2);
+    const int viewTop = jlimit (0, componentHeight, viewport->getViewPositionY());
+    const int viewBottom = jlimit (0, componentHeight, viewTop + jmax (1, viewport->getViewHeight()));
+
+    if (! lfpChannelBitmap.isNull()
+        && lfpChannelBitmap.getWidth() == bitmapWidth
+        && channelBitmapYOrigin >= 0
+        && channelBitmapYOrigin <= viewTop
+        && channelBitmapYOrigin + lfpChannelBitmap.getHeight() >= viewBottom
+        && channelBitmapYOrigin + lfpChannelBitmap.getHeight() <= componentHeight)
+    {
+        return Rectangle<int> (0, channelBitmapYOrigin, bitmapWidth, lfpChannelBitmap.getHeight());
+    }
+
+    const int bitmapTop = jmax (0, viewTop - margin);
+    const int bitmapBottom = jmin (componentHeight, viewBottom + margin);
+
+    return Rectangle<int> (0, bitmapTop, bitmapWidth, jmax (1, bitmapBottom - bitmapTop));
+}
+
+void LfpDisplay::ensureChannelBitmapForVisibleArea()
+{
+    const auto bitmapBounds = getChannelBitmapWindowBounds();
+
+    if (lfpChannelBitmap.isNull()
+        || lfpChannelBitmap.getWidth() != bitmapBounds.getWidth()
+        || lfpChannelBitmap.getHeight() != bitmapBounds.getHeight()
+        || channelBitmapYOrigin != bitmapBounds.getY())
+    {
+        lfpChannelBitmap = Image (Image::ARGB,
+                                  bitmapBounds.getWidth(),
+                                  bitmapBounds.getHeight(),
+                                  true,
+                                  SoftwareImageType());
+        channelBitmapYOrigin = bitmapBounds.getY();
+        canvasSplit->fullredraw = true;
+    }
+}
+
 void LfpDisplay::restoreViewPosition()
 {
     if (! getSingleChannelState())
@@ -361,11 +414,6 @@ void LfpDisplay::resized()
     int totalHeight = 0;
 
     //LOGD(" !! LFP DISPLAY RESIZED TO: ", getWidth(), " pixels.");
-
-    if (getWidth() > 0 && getHeight() > 0)
-        lfpChannelBitmap = Image (Image::ARGB, getWidth() - canvasSplit->leftmargin, getHeight(), true, SoftwareImageType());
-    else
-        lfpChannelBitmap = Image (Image::ARGB, 10, 10, true, SoftwareImageType());
 
     if (getWidth() == 0)
     {
@@ -405,6 +453,7 @@ void LfpDisplay::resized()
     }
 
     canvasSplit->fullredraw = true;
+    ensureChannelBitmapForVisibleArea();
 
     //LOGD("    RESIZED IN: ", MS_FROM_START, " milliseconds");
     start = Time::getHighResolutionTicks();
@@ -422,9 +471,10 @@ void LfpDisplay::resized()
 
 void LfpDisplay::paint (Graphics& g)
 {
-    // g.drawImageAt(lfpChannelBitmap, canvasSplit->leftmargin, 0);
-    auto viewArea = viewport->getViewArea();
-    g.drawImage (lfpChannelBitmap, canvasSplit->leftmargin, viewArea.getY(), getWidth() - canvasSplit->leftmargin, viewArea.getHeight(), 0, viewArea.getY(), lfpChannelBitmap.getWidth(), viewArea.getHeight());
+    if (lfpChannelBitmap.isNull())
+        return;
+
+    g.drawImageAt (lfpChannelBitmap, canvasSplit->leftmargin, channelBitmapYOrigin);
 }
 
 void LfpDisplay::sync()
@@ -441,17 +491,13 @@ void LfpDisplay::refresh()
     if (numChans == 0)
         return;
 
-    // Ensure the lfpChannelBitmap has been initialized
-    if (lfpChannelBitmap.isNull() || lfpChannelBitmap.getWidth() < getWidth() - canvasSplit->leftmargin)
-    {
-        resized();
-    }
+    ensureChannelBitmapForVisibleArea();
 
     int totalXPixels = lfpChannelBitmap.getWidth();
     int totalYPixels = lfpChannelBitmap.getHeight();
 
-    int topBorder = viewport->getViewPositionY();
-    int bottomBorder = viewport->getViewHeight() + topBorder;
+    int topBorder = channelBitmapYOrigin;
+    int bottomBorder = topBorder + totalYPixels;
 
     //std::cout << "refresh display " << std::endl;
 
@@ -581,14 +627,6 @@ void LfpDisplay::refresh()
         //        fillfrom_local << " : " << fillto_local << " :: " << totalPixelsToFill << " ::: " << totalXPixels << std::endl;
         // }
 
-        for (int i = 0; i < numChans; i++)
-        {
-            channels[i]->ifrom = channelFillFrom; // canvasSplit->lastScreenBufferIndex[0];
-            channels[i]->ito = channelFillTo; // canvasSplit->screenBufferIndex[0];
-            channels[i]->ifrom_local = fillfrom_local;
-            channels[i]->ito_local = fillto_local;
-        }
-
         if (fillfrom_local < fillto_local)
         {
             int x1 = fillfrom_local;
@@ -620,6 +658,10 @@ void LfpDisplay::refresh()
 
         if ((topBorder <= componentBottom && bottomBorder >= componentTop)) // only draw things that are visible
         {
+            drawableChannels[i]->ifrom = channelFillFrom; // canvasSplit->lastScreenBufferIndex[0];
+            drawableChannels[i]->ito = channelFillTo; // canvasSplit->screenBufferIndex[0];
+            drawableChannels[i]->ifrom_local = fillfrom_local;
+            drawableChannels[i]->ito_local = fillto_local;
             drawableChannels[i]->pxPaint(); // draws to lfpChannelBitmap
         }
     }
