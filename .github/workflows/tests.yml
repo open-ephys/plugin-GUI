@@ -12,6 +12,9 @@ on:
     branches:
       - 'development'
       - 'testing'
+  push:
+    branches:
+      - 'testing'
 
 jobs:
   unit-tests:
@@ -70,7 +73,7 @@ jobs:
           cd Build 
           cmake -G "Visual Studio 17 2022" -A x64 ..
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.0.2
+        uses: microsoft/setup-msbuild@v3
       - name: build
         run: |
           cd Build
