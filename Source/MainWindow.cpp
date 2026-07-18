@@ -369,14 +369,35 @@ void MainWindow::handleCrash (void* input)
         activityLog.deleteFile();
     }
 
-    String recoveryFileLocation = crashLogDir.getChildFile ("recoveryConfig.xml").getFullPathName();
+    File recoveryConfig = crashLogDir.getChildFile ("recoveryConfig.xml");
 
-    AlertWindow::showMessageBox (AlertWindow::NoIcon,
-                                 "Open Ephys has stopped working",
-                                 "To help fix the problem, please email the following files to gui@open-ephys.org: \n\n"
-                                     + recoveryFileLocation
-                                     + "\n\n"
-                                     + crashLog.getFullPathName());
+    AlertWindow alertWindow ("Open Ephys has stopped working",
+                             "To help fix the problem, please email the following files to gui@open-ephys.org:",
+                             MessageBoxIconType::NoIcon,
+                             nullptr);
+
+    auto createFileHyperlink = [] (const File& file) -> std::unique_ptr<HyperlinkButton>
+    {
+        auto hyperlink = std::make_unique<HyperlinkButton> (file.getFileName(), URL());
+        hyperlink->setName ("");
+        hyperlink->setFont (FontOptions ("Inter", "Regular", 18.0f).withUnderline (true), false);
+        hyperlink->setSize (200, 22);
+        hyperlink->changeWidthToFitText();
+        hyperlink->setTooltip (file.getFullPathName());
+        hyperlink->setWantsKeyboardFocus (false);
+        hyperlink->onClick = [file]
+        { file.revealToUser(); };
+
+        return hyperlink;
+    };
+
+    auto recoveryConfigLink = createFileHyperlink (recoveryConfig);
+    auto crashLogLink = createFileHyperlink (crashLog);
+
+    alertWindow.addCustomComponent (recoveryConfigLink.get());
+    alertWindow.addCustomComponent (crashLogLink.get());
+    alertWindow.addButton ("OK", 1, KeyPress (KeyPress::returnKey), KeyPress (KeyPress::escapeKey));
+    alertWindow.runModalLoop();
 }
 
 void MainWindow::saveProcessorGraph (const File& file)
