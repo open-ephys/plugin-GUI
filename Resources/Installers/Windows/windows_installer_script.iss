@@ -1,8 +1,8 @@
 [Setup]
 AppId=Open Ephys
 AppName=Open Ephys GUI
-AppVersion=1.0.2
-AppVerName=Open Ephys GUI 1.0.2
+AppVersion=1.1.0
+AppVerName=Open Ephys GUI 1.1.0
 AppCopyright=Copyright (C) 2010-2026, Open Ephys & Contributors
 AppPublisher=open-ephys.org
 AppPublisherURL=https://open-ephys.org/gui
