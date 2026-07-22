@@ -98,6 +98,19 @@ class PluginInstallActionRunner : public ThreadWithProgressWindow
 public:
     using OperationCompleteHandler = std::function<void(const SelectedPluginInfo&, bool)>;
 
+    enum ReturnCode
+    {
+        ZIP_NOTFOUND,
+        SUCCESS,
+        UNCMP_ERR,
+        XML_MISSING,
+        VER_EXISTS_ERR,
+        XML_WRITE_ERR,
+        LOAD_ERR,
+        HTTP_ERR,
+        RESTART_REQUIRED
+    };
+
     PluginInstallActionRunner();
 
     /** Sets selected plugin info before running an action. */
@@ -121,19 +134,8 @@ private:
 
     SelectedPluginInfo pInfo;
 
-    enum ReturnCode
-    {
-        ZIP_NOTFOUND,
-        SUCCESS,
-        UNCMP_ERR,
-        XML_MISSING,
-        VER_EXISTS_ERR,
-        XML_WRITE_ERR,
-        LOAD_ERR,
-        HTTP_ERR
-    };
-
     int httpStatusCode = 0;
+    bool restartRequired = false;
 
     void run() override;
 

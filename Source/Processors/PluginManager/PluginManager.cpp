@@ -21,6 +21,9 @@
 
 */
 
+#ifdef _WIN32
+#include <filesystem>
+#endif
 #include <iostream>
 #include <stdio.h>
 #if ! defined(_WIN32) && ! defined(__APPLE__)
@@ -33,6 +36,36 @@
 #include "PluginManager.h"
 
 #include "../../Utils/Utils.h"
+
+#ifdef _WIN32
+namespace fs = std::filesystem;
+
+static void applyPendingSharedLibraryUpdates (const File& sharedDirectory)
+{
+    const auto pendingDirectory = sharedDirectory.getSiblingFile (sharedDirectory.getFileName() + ".pending");
+
+    if (! pendingDirectory.isDirectory())
+        return;
+
+    try
+    {
+        const auto source = fs::path (pendingDirectory.getFullPathName().toStdString());
+        const auto destination = fs::path (sharedDirectory.getFullPathName().toStdString());
+        const auto copyOptions = fs::copy_options::overwrite_existing
+                                 | fs::copy_options::recursive
+                                 | fs::copy_options::copy_symlinks;
+
+        fs::create_directories (destination);
+        fs::copy (source, destination, copyOptions);
+        fs::remove_all (source);
+        LOGD ("Applied pending shared library updates from ", pendingDirectory.getFullPathName());
+    }
+    catch (const fs::filesystem_error& error)
+    {
+        LOGE ("Could not apply pending shared library updates: \"", error.what(), "\"");
+    }
+}
+#endif
 
 static inline void closeHandle (decltype (LoadedLibInfo::handle) handle)
 {
@@ -106,6 +139,9 @@ PluginManager::PluginManager()
     File installSharedPath = File::getSpecialLocation (File::windowsLocalAppData)
                                  .getChildFile ("Open Ephys")
                                  .getChildFile ("shared-api" + String (PLUGIN_API_VER));
+
+    applyPendingSharedLibraryUpdates (sharedPath);
+    applyPendingSharedLibraryUpdates (installSharedPath);
 
     // Add executable level shared directory to DLL search path
     AddDllDirectory (sharedPath.getFullPathName().toWideCharPointer());

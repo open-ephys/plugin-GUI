@@ -503,8 +503,10 @@ void PluginInstaller::installPluginAndDependency (const String& plugin, String v
 
     int code = actionRunner.downloadPlugin (requiredPluginInfo.pluginName, version, false);
 
-    if (code == 1)
+    if (code == PluginInstallActionRunner::SUCCESS)
         LOGC ("Install successful!!")
+    else if (code == PluginInstallActionRunner::RESTART_REQUIRED)
+        LOGC ("Install staged successfully. Restart Open Ephys to finish updating shared libraries.")
     else
         LOGC ("Install failed!!");
 }
@@ -1556,6 +1558,7 @@ void PluginInstallActionRunner::setOperationCompleteHandler (OperationCompleteHa
 void PluginInstallActionRunner::setPluginInfo (const SelectedPluginInfo& p)
 {
     pInfo = p;
+    restartRequired = false;
 
     if (pInfo.selectedVersion.isEmpty())
     {
@@ -1796,6 +1799,17 @@ void PluginInstallActionRunner::run()
                                   "[Plugin Installer] " + pInfo.displayName,
                                   "Unable to load " + pInfo.displayName
                                       + " in the Processor List.\nLook at console output for more details.");
+
+        updateUIOnMessageThread();
+    }
+    else if (dlReturnCode == RESTART_REQUIRED)
+    {
+        LOGC (pInfo.displayName, " update staged. Restart Open Ephys to load the updated shared libraries.");
+
+        showAlertOnMessageThread (AlertWindow::InfoIcon,
+                                  "[Plugin Installer] " + pInfo.displayName,
+                                  pInfo.displayName + " v" + getDisplayVersion (pInfo.selectedVersion)
+                                      + " was installed. Please restart Open Ephys GUI to finish updating its shared libraries.");
 
         updateUIOnMessageThread();
     }
@@ -2092,9 +2106,9 @@ int PluginInstallActionRunner::downloadPlugin (const String& plugin, const Strin
         pluginDllPath = getPluginsDirectory().getChildFile (dllName).getFullPathName();
     }
 
-    /* Copy shared files 
-	*  Uses C++17's filesystem::copy functionality to allow copying symlinks
-	*/
+    /* Copy shared files
+     * Uses C++17's filesystem::copy functionality to allow copying symlinks.
+     */
     fs::path tempSharedPath = tempDir.getChildFile ("shared").getFullPathName().toStdString();
     fs::path destSharedPath = getSharedDirectory().getFullPathName().toStdString();
 
@@ -2116,7 +2130,32 @@ int PluginInstallActionRunner::downloadPlugin (const String& plugin, const Strin
         }
         catch (fs::filesystem_error& e)
         {
-            LOGD ("Could not copy shared files: \"", e.what(), "\"");
+#if JUCE_WINDOWS
+            const auto pendingSharedPath = fs::path (getSharedDirectory()
+                                                         .getSiblingFile (getSharedDirectory().getFileName() + ".pending")
+                                                         .getFullPathName()
+                                                         .toStdString());
+
+            try
+            {
+                fs::create_directories (pendingSharedPath);
+                fs::copy (tempSharedPath, pendingSharedPath, copyOptions);
+                restartRequired = true;
+                LOGD ("Shared libraries are still in use. Staged replacements at ", pendingSharedPath.string());
+            }
+            catch (const fs::filesystem_error& stagingError)
+            {
+                LOGE ("Could not copy shared files: \"", e.what(), "\". Could not stage them either: \"", stagingError.what(), "\"");
+                tempDir.deleteRecursively();
+                pluginFile.deleteFile();
+                return UNCMP_ERR;
+            }
+#else
+            LOGE ("Could not copy shared files: \"", e.what(), "\"");
+            tempDir.deleteRecursively();
+            pluginFile.deleteFile();
+            return UNCMP_ERR;
+#endif
         }
     }
 
@@ -2132,6 +2171,9 @@ int PluginInstallActionRunner::downloadPlugin (const String& plugin, const Strin
             LOGE ("Error! Couldn't write to installedPlugins.xml");
             return 5;
         }
+
+        if (restartRequired)
+            return RESTART_REQUIRED;
 
 #if JUCE_LINUX
         // Add shared library directory to LD_LIBRARY_PATH before loading plugin
