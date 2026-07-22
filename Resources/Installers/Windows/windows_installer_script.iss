@@ -33,7 +33,8 @@ Name: install_ok_usb; Description: "Install Opal Kelly Front Panel USB driver (O
 [Files]
 Source: "..\..\..\Build\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; BeforeInstall: UpdateProgress(0);
 Source: "..\..\DLLs\FTD3XXDriver_WHQLCertified_1.3.0.10_Installer.exe"; DestDir: {tmp}; Flags: deleteafterinstall; Tasks: install_ftdi\13010; BeforeInstall: UpdateProgress(80);
-Source: "https://github.com/open-ephys-plugins/ftdi-drivers/raw/refs/heads/main/installers/FTDI_DriverInstaller_1.4.0.1_x64.exe"; DestDir: "{tmp}"; DestName: "FTDI_DriverInstaller_1.4.0.1_x64.exe"; ExternalSize: 71_818_824; Flags: external download ignoreversion; Tasks: install_ftdi\14001; BeforeInstall: UpdateProgress(50);
+Source: "..\..\DLLs\WU_FTD3XX_Driver\FTD3XXWU.Inf"; DestDir: "{tmp}"; Flags: deleteafterinstall; Tasks: install_ftdi\14001; BeforeInstall: UpdateProgress(50);
+Source: "..\..\DLLs\WU_FTD3XX_Driver\FTD3XXWU.cat"; DestDir: "{tmp}"; Flags: deleteafterinstall; Tasks: install_ftdi\14001;
 Source: "..\..\DLLs\FrontPanelUSB-DriverOnly-4.5.5.exe"; DestDir: {tmp}; Flags: deleteafterinstall; BeforeInstall: UpdateProgress(90);
 
 [Icons]
@@ -42,7 +43,7 @@ Name: "{autoprograms}\Open Ephys GUI"; Filename: "{app}\open-ephys.exe"
 
 [Run]
 Filename: "{tmp}\FTD3XXDriver_WHQLCertified_1.3.0.10_Installer.exe"; StatusMsg: "Installing FTDI D3XX driver v1.3.0.10..."; Tasks: install_ftdi\13010; Flags: skipifsilent
-Filename: "{tmp}\FTDI_DriverInstaller_1.4.0.1_x64.exe"; StatusMsg: "Installing FTDI D3XX driver v1.4.0.1..."; Tasks: install_ftdi\14001; Flags: skipifsilent
+Filename: "{sys}\pnputil.exe"; Parameters: "/add-driver ""{tmp}\FTD3XXWU.Inf"" /install"; StatusMsg: "Installing FTDI D3XX driver v1.4.0.1..."; Tasks: install_ftdi\14001; Flags: runascurrentuser skipifsilent
 Filename: "{tmp}\FrontPanelUSB-DriverOnly-4.5.5.exe"; StatusMsg: "Installing Front Panel USB driver..."; Tasks: install_ok_usb; Flags: skipifsilent
 Filename: "{app}\open-ephys.exe"; Description: "Launch Open Ephys GUI"; Flags: postinstall nowait skipifsilent
 
