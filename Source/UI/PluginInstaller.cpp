@@ -46,6 +46,15 @@ namespace
 {
 constexpr auto pluginGatewayUrl = "https://open-ephys-plugin-gateway.herokuapp.com/";
 
+fs::path getFilesystemPath (const File& file)
+{
+#if JUCE_WINDOWS
+    return fs::path (file.getFullPathName().toWideCharPointer());
+#else
+    return fs::path (file.getFullPathName().toStdString());
+#endif
+}
+
 struct InstalledPluginState
 {
     HashMap<String, String> versions;
@@ -2068,8 +2077,8 @@ int PluginInstallActionRunner::downloadPlugin (const String& plugin, const Strin
     // copy plugin DLL from temp directory to actual location
     if (! isDependency)
     {
-        fs::path tempPluginPath = tempDir.getChildFile ("plugins").getFullPathName().toStdString();
-        fs::path destPluginPath = getPluginsDirectory().getFullPathName().toStdString();
+        const auto tempPluginPath = getFilesystemPath (tempDir.getChildFile ("plugins"));
+        const auto destPluginPath = getFilesystemPath (getPluginsDirectory());
 
         // Copy only if plugin file exists in temp directory
         if (fs::exists (tempPluginPath))
@@ -2109,8 +2118,8 @@ int PluginInstallActionRunner::downloadPlugin (const String& plugin, const Strin
     /* Copy shared files
      * Uses C++17's filesystem::copy functionality to allow copying symlinks.
      */
-    fs::path tempSharedPath = tempDir.getChildFile ("shared").getFullPathName().toStdString();
-    fs::path destSharedPath = getSharedDirectory().getFullPathName().toStdString();
+    const auto tempSharedPath = getFilesystemPath (tempDir.getChildFile ("shared"));
+    const auto destSharedPath = getFilesystemPath (getSharedDirectory());
 
     // Copy only if shared files exist
     if (fs::exists (tempSharedPath))
@@ -2131,17 +2140,15 @@ int PluginInstallActionRunner::downloadPlugin (const String& plugin, const Strin
         catch (fs::filesystem_error& e)
         {
 #if JUCE_WINDOWS
-            const auto pendingSharedPath = fs::path (getSharedDirectory()
-                                                         .getSiblingFile (getSharedDirectory().getFileName() + ".pending")
-                                                         .getFullPathName()
-                                                         .toStdString());
+            const auto pendingSharedDirectory = getSharedDirectory().getSiblingFile (getSharedDirectory().getFileName() + ".pending");
+            const auto pendingSharedPath = getFilesystemPath (pendingSharedDirectory);
 
             try
             {
                 fs::create_directories (pendingSharedPath);
                 fs::copy (tempSharedPath, pendingSharedPath, copyOptions);
                 restartRequired = true;
-                LOGD ("Shared libraries are still in use. Staged replacements at ", pendingSharedPath.string());
+                LOGD ("Shared libraries are still in use. Staged replacements at ", pendingSharedDirectory.getFullPathName());
             }
             catch (const fs::filesystem_error& stagingError)
             {
