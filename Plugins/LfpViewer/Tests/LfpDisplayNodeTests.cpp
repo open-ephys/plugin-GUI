@@ -23,6 +23,9 @@
 
 #include <stdio.h>
 
+#include <iostream>
+#include <string>
+
 #include "gtest/gtest.h"
 
 #include "../LfpDisplayCanvas.h"
@@ -599,6 +602,57 @@ TEST_F (LfpDisplayNodeLowRateTests, LowRateTraceIsConnected)
     EXPECT_GT (signalColumns, numSamples * 5)
         << "Trace appears disjointed: " << signalColumns
         << " off-midline signal columns, expected > " << numSamples * 5;
+
+    processor->stopAcquisition();
+}
+
+/*
+    The channel bitmap only covers the visible viewport plus a small margin, so
+    a tall channel stack leaves some channels hanging off its top or bottom
+    edge. Those channels are still painted, and their vertical extent has to be
+    clipped to the bitmap before it is handed to Graphics::fillRect. Passing a
+    negative height there trips a jassertquiet in juce_GraphicsContext.cpp,
+    which floods the console on every refresh of a Debug build.
+
+    Logger::outputDebugString writes to stderr, so capturing stderr around the
+    refresh is enough to detect the assertion.
+*/
+TEST_F (LfpDisplayNodeTests, OffscreenChannelsDoNotAssertOnNegativeOverlaySpan)
+{
+    const int canvasX = 600;
+    const int canvasY = 400;
+    const int tallChannelHeight = 120; // 16 channels -> 1920px stack, far taller than the viewport
+
+    std::unique_ptr<LfpViewer::LfpDisplayCanvas> canvas =
+        std::make_unique<LfpViewer::LfpDisplayCanvas> (processor, LfpViewer::SplitLayouts::SINGLE, false);
+    canvas->updateSettings();
+    canvas->setSize (canvasX, canvasY);
+    canvas->resized();
+    canvas->setVisible (true);
+    canvas->setChannelHeight (0, tallChannelHeight);
+    canvas->refreshState();
+
+    processor->startAcquisition();
+    canvas->beginAnimation();
+
+    testing::internal::CaptureStderr();
+
+    for (int block = 0; block < 4; block++)
+    {
+        auto inputBuffer = createBufferSinusoidal (5, numChannels, 500, 125);
+        writeBlock (inputBuffer);
+        canvas->refreshState();
+    }
+
+    const std::string captured = testing::internal::GetCapturedStderr();
+
+    // Echo whatever was captured so a failure is still visible in the test log.
+    std::cerr << captured;
+
+    EXPECT_EQ (captured.find ("juce_GraphicsContext.cpp"), std::string::npos)
+        << "LFP Viewer passed an out-of-range rectangle to a Graphics call while "
+           "painting channels that hang off the edge of the channel bitmap:\n"
+        << captured;
 
     processor->stopAcquisition();
 }

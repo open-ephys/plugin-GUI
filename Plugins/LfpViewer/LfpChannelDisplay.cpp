@@ -154,8 +154,15 @@ void LfpChannelDisplay::pxPaint()
         jto_wholechannel = display->lfpChannelBitmap.getHeight() - 1;
     };
 
+    // Each clamp above only moves one end of the span, so a channel lying
+    // above or below the bitmap window ends up with jto < jfrom. The bitmap
+    // only covers the visible viewport plus a margin, and LfpDisplay paints
+    // every channel that overlaps that window at all, so this is the normal
+    // state of the channels straddling its top and bottom edges.
+    const bool channelSpanIsVisible = jfrom_wholechannel <= jto_wholechannel;
+
     // draw most recent drawn sample position
-    if (ito_local < display->lfpChannelBitmap.getWidth() - 1)
+    if (channelSpanIsVisible && ito_local < display->lfpChannelBitmap.getWidth() - 1)
     {
         overlayGraphics.setColour (Colours::yellow);
         overlayGraphics.fillRect (ito_local + 1, jfrom_wholechannel, 1, jto_wholechannel - jfrom_wholechannel + 1); // draw yellow line
@@ -433,7 +440,11 @@ void LfpChannelDisplay::pxPaintHistory (int playhead, int rightEdge, int maxScre
         jto_wholechannel = display->lfpChannelBitmap.getHeight() - 1;
     };
 
-    if (playhead < rightEdge - 1)
+    // See pxPaint(): the one-sided clamps above can leave jto < jfrom for a
+    // channel that sits outside the bitmap window.
+    const bool channelSpanIsVisible = jfrom_wholechannel <= jto_wholechannel;
+
+    if (channelSpanIsVisible && playhead < rightEdge - 1)
     {
         overlayGraphics.setColour (Colours::yellow);
         overlayGraphics.fillRect (playhead + 1, jfrom_wholechannel, 1, jto_wholechannel - jfrom_wholechannel + 1); // draw yellow line
@@ -698,6 +709,9 @@ void LfpChannelDisplay::pxPaintHistory (int playhead, int rightEdge, int maxScre
 
 void LfpChannelDisplay::drawEventOverlay (const int rawEventState, int x, int yfrom, int yto, Graphics& g)
 {
+    if (yto < yfrom)
+        return; // channel span lies outside the channel bitmap
+
     float alpha = channelHeight > 5 ? 0.3f : 0.5f;
     for (int ev_ch = 0; ev_ch < 8; ev_ch++)
     {
