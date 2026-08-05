@@ -41,8 +41,9 @@ namespace LfpViewer
     Holds and draws all of the LfpDisplayChannel and lfpDisplayChannelInfo 
     instances.
  
-    All of the channels and channelInfos are drawn here to a "master" bitmap
-    lfpChannelBitmap with height equal to the sum of all channel heights. This
+    All of the channels and channelInfos are drawn here to a bitmap
+    lfpChannelBitmap covering the visible viewport plus a small vertical
+    margin, positioned at channelBitmapYOrigin in component coordinates. This
     bitmap is drawn by the LfpViewport using Viewport::setViewedComponent.
  
  */
