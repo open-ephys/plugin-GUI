@@ -96,7 +96,7 @@ struct HarpBarcode
     int64 computerTimeMillis = 0;
     
     /** Complete Harp timestamp bit sequence */
-    std::array<bool, TOTAL_BITS> bitSequence;
+    std::array<bool, TOTAL_BITS> bitSequence {};
     
     /** Whether barcode is complete */
     bool isComplete = false;
@@ -108,7 +108,7 @@ struct HarpBarcode
     double actualDuration = 0.0;
     
     /** Individual bit durations for validation */
-    std::array<double, 43> bitDurations;
+    std::array<double, 43> bitDurations {};
 
     // Raw event sample numbers and states
     std::vector<std::pair<int64, bool>> barcodeEvents;
@@ -237,9 +237,6 @@ public:
     /** true if Harp detection is currently active */
     bool harpDetectionActive = true;
 
-    /** Number of Harp barcode decoding attempts made */
-    int numDecodingAttempts = 0;
-    
     /** Baseline matching barcode for Harp synchronization */
     HarpBarcode baselineMatchingBarcode;
 
@@ -274,10 +271,10 @@ public:
     /** Threshold of calling intervals equal */
     const double MAX_INTERVAL_DIFFERENCE_MS = 2;
     
-    /** Minimum valid barcodes needed to confirm Harp mode */
+    /** Minimum valid barcodes needed for Harp synchronization */
     static constexpr int MIN_VALID_BARCODES_FOR_HARP = 3;
 
-    /** Attempts to decode current barcode events if sufficient time has elapsed */
+    /** Decodes all pending completed barcodes in acquisition order */
     void attemptBarcodeDecoding();
 
 private:
@@ -290,7 +287,8 @@ private:
     
     // Harp detection members
     HarpDetectionState harpState = HarpDetectionState::IDLE;
-    std::vector<HarpBarcode> completedBarcodes;
+    std::vector<HarpBarcode> completedBarcodes; // Pending decoding
+    std::vector<HarpBarcode> validatedBarcodes; // Baseline and two most recent valid barcodes
     HarpBarcode currentBarcode;
     HarpDecoder harpDecoder;
     
@@ -418,7 +416,6 @@ public:
 private:
     int eventCount = 0;
     bool acquisitionIsActive = false;
-    bool firstSyncTimerCallbackPending = false;
 
     void hiResTimerCallback();
 

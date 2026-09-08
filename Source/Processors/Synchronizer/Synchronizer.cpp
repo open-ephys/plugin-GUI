@@ -31,8 +31,13 @@
 
 bool HarpDecoder::decodeBarcode(HarpBarcode& barcode, double expectedSampleRate)
 {
+    barcode.isValid = false;
+    barcode.isComplete = false;
+    barcode.encodedTime = 0;
 
-    //LOGD ("Decoding barcode...");
+    if (barcode.barcodeEvents.size() < 2
+        || !std::isfinite (expectedSampleRate) || expectedSampleRate <= 0.0)
+        return false;
     
     // Convert events to bit sequence
     std::array<bool, TOTAL_BITS> bits;
@@ -43,6 +48,10 @@ bool HarpDecoder::decodeBarcode(HarpBarcode& barcode, double expectedSampleRate)
     {
         int64 duration = barcode.barcodeEvents[i + 1].first - barcode.barcodeEvents[i].first;
         double durationMs = (double(duration) / expectedSampleRate) * 1000.0;
+
+        if (duration <= 0 || !std::isfinite (durationMs)
+            || durationMs > EXPECTED_BARCODE_DURATION_MS + 5.0)
+            return false;
         
         // Determine number of bits based on duration
         int numBits = std::round(durationMs / EXPECTED_BIT_DURATION_MS);
@@ -131,7 +140,6 @@ bool HarpDecoder::validateBitTiming(const HarpBarcode& barcode)
            // LOGD ("Failed tolerance for bit ", i);
             return false;
         }
-            
     }
 
    // LOGD ("OK.");
@@ -191,13 +199,13 @@ void SyncStream::reset (String mainStreamKey)
     // Reset Harp detection state
     harpState = HarpDetectionState::IDLE;
     completedBarcodes.clear();
+    validatedBarcodes.clear();
     currentBarcode = HarpBarcode();
     barcodeStartTime = -1;
     lastEventSample = -1;
     lastEventState = true;
     consecutiveValidBarcodes = 0;
     expectedNextStartSample = -1;
-    numDecodingAttempts = 0;
     isHarpStream = false;
     harpDetectionActive = true;
     baselineMatchingBarcode = HarpBarcode();
@@ -269,6 +277,7 @@ void SyncStream::addEvent (int64 sampleNumber, bool state)
             pulses.pop_back();
         }
     }
+
 }
 
 void SyncStream::setHardwareTimestamp (int64 sampleNumber, double timestamp)
@@ -578,7 +587,7 @@ void SyncStream::processHarpEvent(int64 sampleNumber, bool state)
 
     //LOGD ("currentBarcode.localStartSample: ", (currentBarcode.localStartSample));
 
-    if (currentBarcode.localStartSample == 0)
+    if (currentBarcode.barcodeEvents.empty())
     {
         //LOGD ("STARTING NEW BARCODE COLLECTION.");
         currentBarcode.localStartSample = sampleNumber;
@@ -619,23 +628,23 @@ bool SyncStream::validateBarcodeStructure(const HarpBarcode& barcode)
 
 bool SyncStream::validateBarcodeTimestamp(const HarpBarcode& barcode)
 {
+    if (validatedBarcodes.empty())
+        return true;
 
-    // Check monotonic increase if we have previous barcodes
-    if (completedBarcodes.size() >= 2)
-    {
-        auto& lastBarcode = completedBarcodes[completedBarcodes.size() - 2];
-        if (barcode.encodedTime != lastBarcode.encodedTime + 1)
-        {
-            //LOGD ("Non-monotonic increase");
-            return false; // Should increment by 1 second
-        }
-        else
-        {
-            //LOGD ("Expected barcode found!");
-        }
-    }
-    
-    return true;
+    const auto& previousBarcode = validatedBarcodes.back();
+    // Widen before subtracting so backwards timestamps cannot wrap unsigned.
+    const int64 timeDifference = int64 (barcode.encodedTime) - int64 (previousBarcode.encodedTime);
+    const int64 sampleDifference = barcode.localStartSample - previousBarcode.localStartSample;
+
+    if (timeDifference <= 0 || sampleDifference <= 0
+        || !std::isfinite (expectedSampleRate) || expectedSampleRate <= 0.0)
+        return false;
+
+    // Missing or rejected barcodes are OK if elapsed Harp time agrees with
+    // elapsed sample time. Do not require timestamps to differ by exactly one.
+    const double estimatedSampleRate = double (sampleDifference) / double (timeDifference);
+    return std::isfinite (estimatedSampleRate)
+           && std::abs (estimatedSampleRate - expectedSampleRate) / expectedSampleRate < 0.05;
 }
 
 void SyncStream::predictNextBarcodeStart(const HarpBarcode& barcode)
@@ -646,22 +655,12 @@ void SyncStream::predictNextBarcodeStart(const HarpBarcode& barcode)
 
 void SyncStream::attemptBarcodeDecoding()
 {
-   // LOGD ("Attempting Harp barcode decoding for stream ", streamKey);
-
-    if (completedBarcodes.size() == 0)
+    // Timer callbacks need not coincide with barcode arrivals. Process every
+    // pending barcode once, rather than skipping directly to the newest one.
+    for (auto& barcode : completedBarcodes)
     {
-        //LOGD (" No completed barcodes yet.");
-        numDecodingAttempts += 1;
-        return;
-    }
-    else
-    {
-        //LOGD (" Completed barcodes: ", completedBarcodes.size());
-    }
-      
-    // decode last barcode
-    if (harpDecoder.decodeBarcode(completedBarcodes.back(), expectedSampleRate))
-    {
+        if (!harpDecoder.decodeBarcode (barcode, expectedSampleRate))
+            continue;
 
         if (!isHarpStream)
         {
@@ -671,47 +670,54 @@ void SyncStream::attemptBarcodeDecoding()
 
         }
 
-        // Validate timing
-        if (!validateBarcodeTimestamp(completedBarcodes.back()))
+        if (!validateBarcodeTimestamp (barcode))
         {
-            //LOGD ("Non-consecutive barcodes, clearing completed barcodes");
-            completedBarcodes.clear();
+            LOGD (streamKey, " Harp timestamp/sample discontinuity; rebuilding synchronization history.");
+            validatedBarcodes.clear();
+            isSynchronized = false;
         }
-    }
-    else
-    {
-        //LOGD ("Unsuccessful decoding");
 
-        if (completedBarcodes.size() == 0)
+        // Keep the first barcode as the long-term rate baseline, plus the two
+        // newest barcodes. Raw event history must not grow for the whole run.
+        validatedBarcodes.push_back (std::move (barcode));
+        if (validatedBarcodes.size() > MIN_VALID_BARCODES_FOR_HARP)
         {
-           // LOGD ("No completed barcodes, setting Harp detection to false");
-            harpDetectionActive = false;
+            validatedBarcodes.erase (validatedBarcodes.begin() + 1);
         }
-        else
-        {
-           // LOGD ("Previous completed barcodes, keeping Harp detection active");
-        }
-            
     }
+    completedBarcodes.clear();
 }
 
 
 void SyncStream::syncWithHarp()
 {
-    if (completedBarcodes.size() < 3)
+    if (validatedBarcodes.size() < MIN_VALID_BARCODES_FOR_HARP)
     {
         return;
     }
 
-    HarpBarcode& lastBarcode = completedBarcodes[completedBarcodes.size() - 2];
-    HarpBarcode& firstBarcode = completedBarcodes.front();
+    // Preserve the existing one-barcode lag, using only decoded entries.
+    const HarpBarcode& lastBarcode = validatedBarcodes[validatedBarcodes.size() - 2];
+    const HarpBarcode& firstBarcode = validatedBarcodes.front();
 
-    double timeDifference = double (lastBarcode.encodedTime - firstBarcode.encodedTime);
-    double estimatedSampleRate = (double (lastBarcode.localStartSample - firstBarcode.localStartSample)) / timeDifference;
-    
-    if (std::abs (estimatedSampleRate - expectedSampleRate) / expectedSampleRate < 0.05)
+    const int64 timeDifference = int64 (lastBarcode.encodedTime) - int64 (firstBarcode.encodedTime);
+    const int64 sampleDifference = lastBarcode.localStartSample - firstBarcode.localStartSample;
+
+    if (!firstBarcode.isValid || !lastBarcode.isValid
+        || timeDifference <= 0 || sampleDifference <= 0
+        || !std::isfinite (expectedSampleRate) || expectedSampleRate <= 0.0)
     {
-        //LOGC (streamKey, " total barcodes = ", completedBarcodes.size(), "; estimated sample rate: ", estimatedSampleRate);
+        LOGD (streamKey, " invalid Harp synchronization baseline; rebuilding synchronization history.");
+        isSynchronized = false;
+        validatedBarcodes.clear();
+        return;
+    }
+
+    const double estimatedSampleRate = double (sampleDifference) / double (timeDifference);
+    
+    if (std::isfinite (estimatedSampleRate)
+        && std::abs (estimatedSampleRate - expectedSampleRate) / expectedSampleRate < 0.05)
+    {
         actualSampleRate = estimatedSampleRate;
 
         // Calculate global start time
@@ -719,7 +725,7 @@ void SyncStream::syncWithHarp()
         globalStartTime = (double (firstBarcode.encodedTime) - firstBarcode.localStartTimestamp) / 1000; // divide by 1000 so that time appears in seconds in the stream info view
         baselineMatchingPulse.globalTimestamp = double (firstBarcode.encodedTime);
         baselineMatchingPulse.localSampleNumber = firstBarcode.localStartSample;
-        latestSyncSampleNumber = lastBarcode.barcodeEvents.front().first;
+        latestSyncSampleNumber = lastBarcode.localStartSample;
         latestGlobalSyncTime = double(lastBarcode.encodedTime);
 
         isSynchronized = true;
@@ -729,9 +735,10 @@ void SyncStream::syncWithHarp()
     }
     else
     {
-        LOGD (streamKey, " estimated sample rate out of range; clearing Harp barcodes.");
+        LOGD (streamKey, " estimated sample rate out of range: ", estimatedSampleRate,
+              "; expected: ", expectedSampleRate, "; rebuilding Harp synchronization history.");
         isSynchronized = false;
-        completedBarcodes.clear();
+        validatedBarcodes.clear();
     }
     
 }
@@ -829,15 +836,12 @@ void Synchronizer::startAcquisition()
     reset();
 
     acquisitionIsActive = true;
-    firstSyncTimerCallbackPending = true;
-    startTimer (3000);
     startTimer (1000);
 }
 
 void Synchronizer::stopAcquisition()
 {
     acquisitionIsActive = false;
-    firstSyncTimerCallbackPending = false;
 
     stopTimer();
 }
@@ -982,19 +986,12 @@ void Synchronizer::hiResTimerCallback()
 
     const ScopedLock sl (synchronizerLock);
 
-    if (firstSyncTimerCallbackPending)
-    {
-        firstSyncTimerCallbackPending = false;
-        startTimer (1000);
-    }
-    
     // First, attempt to decode any pending Harp barcodes
     for (auto [key, stream] : streams)
     {
         if (stream->harpDetectionActive)
         {
-            if (stream->numDecodingAttempts < 5)
-                stream->attemptBarcodeDecoding();
+            stream->attemptBarcodeDecoding();
         }
     }
     
