@@ -42,11 +42,7 @@ RecordThread::RecordThread (RecordNode* parentNode, RecordEngine* engine) : Thre
         m_maxWriteSamples = m_minWriteSamples;
     }
 
-    if (m_engine == nullptr || ! m_engine->getEngineId().equalsIgnoreCase ("BINARY"))
-    {
-        useBatchWrites = false;
-        LOGD ("[RecordThread] Batch writes disabled - using single-sample writes for compatibility with engines other than BINARY");
-    }
+    setEngine (engine);
 
     LOGD ("RecordThread initialized with MIN_WRITE_SAMPLES=", m_minWriteSamples, " MAX_WRITE_SAMPLES=", m_maxWriteSamples);
 }
@@ -59,14 +55,21 @@ void RecordThread::setEngine (RecordEngine* engine)
 {
     m_engine = engine;
 
-    if (m_engine == nullptr || ! m_engine->getEngineId().equalsIgnoreCase ("BINARY"))
+    useBatchWrites = m_engine != nullptr && m_engine->getEngineId().equalsIgnoreCase ("BINARY");
+
+    if (m_engine != nullptr && m_engine->getEngineId().equalsIgnoreCase ("NWB2"))
     {
-        useBatchWrites = false;
-        LOGD ("[RecordThread] Batch writes disabled - using single-sample writes for compatibility with engines other than BINARY");
+        const String libraryVersion = recordNode->getEngineLibraryVersion();
+        useBatchWrites = libraryVersion.getIntValue() >= 2;
+        LOGD ("[RecordThread] NWB2 library version: ", libraryVersion);
+    }
+
+    if (! useBatchWrites)
+    {
+        LOGD ("[RecordThread] Batch writes disabled - using single-sample writes for compatibility with engines other than BINARY or NWB2 version 2.0+");
     }
     else
     {
-        useBatchWrites = true;
         LOGD ("[RecordThread] Batch writes enabled for engine: ", m_engine->getEngineId());
     }
 }

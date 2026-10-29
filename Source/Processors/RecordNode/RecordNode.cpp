@@ -31,6 +31,7 @@
 #include "BinaryFormat/BinaryRecording.h"
 
 #include "../Events/Spike.h"
+#include "../PluginManager/PluginManager.h"
 #include "../Settings/DataStream.h"
 #include "../Settings/DeviceInfo.h"
 
@@ -465,6 +466,16 @@ String RecordNode::getEngineId()
     return recordEngine->getEngineId();
 }
 
+String RecordNode::getEngineLibraryVersion() const
+{
+    const int pluginIndex = engineIndex - RecordEngineManager::getNumOfBuiltInEngines();
+    if (pluginIndex < 0)
+        return {};
+
+    auto* pluginManager = AccessClass::getPluginManager();
+    return pluginManager->getLibraryVersion (pluginManager->getLibraryIndexFromPlugin (Plugin::RECORD_ENGINE, pluginIndex));
+}
+
 void RecordNode::setEngine (String id)
 {
     availableEngines = getAvailableRecordEngines();
@@ -475,6 +486,8 @@ void RecordNode::setEngine (String id)
     {
         if (engine->getID().equalsIgnoreCase (id))
         {
+            engineIndex = foundIndex;
+
             if (recordEngine.get() != nullptr)
             {
                 if (recordEngine->getEngineId() != id)
@@ -489,7 +502,6 @@ void RecordNode::setEngine (String id)
             {
                 recordEngine.reset (engine->instantiateEngine());
             }
-            engineIndex = foundIndex;
         }
         foundIndex += 1;
     }

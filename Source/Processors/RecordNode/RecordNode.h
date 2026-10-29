@@ -161,6 +161,9 @@ public:
     /** Gets the engine ID for this record node*/
     String getEngineId();
 
+    /** Returns the selected engine's library version, or an empty string for built-in engines */
+    String getEngineLibraryVersion() const;
+
     /** Sets the engine ID for this record node */
     void setEngine (String engineId);
 
