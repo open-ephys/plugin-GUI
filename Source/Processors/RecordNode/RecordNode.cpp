@@ -751,17 +751,13 @@ bool RecordNode::startAcquisition()
 
 bool RecordNode::stopAcquisition()
 {
-    synchronizer.stopAcquisition();
-
-    if (hasRecorded)
+    if (recordThread->isThreadRunning())
     {
-        // stopRecording() signals the thread to exit, but we should wait here until the thread actually gracefully
-        // exits before we reset some of its needed data (e.g. eventQueue, spikeQueue, etc.)
-        if (recordThread)
-        {
-            recordThread->waitForThreadToExit (1000);
-        }
+        LOGE ("Cannot reset Record Node while its recording thread is still running.");
+        return false;
     }
+
+    synchronizer.stopAcquisition();
 
     // Remove message channel
     if (eventChannels.size() > 0 && eventChannels.getLast()->getSourceNodeName() == "Message Center")
@@ -795,6 +791,12 @@ bool RecordNode::stopAcquisition()
 // called by GenericProcessor::setRecording() and CoreServices::setRecordingStatus()
 void RecordNode::startRecording()
 {
+    if (recordThread->isThreadRunning())
+    {
+        LOGE ("Cannot start a recording while the previous recording is still being finalized.");
+        return;
+    }
+
     Array<int> chanProcessorMap;
     Array<int> chanOrderinProc;
     OwnedArray<RecordProcessorInfo> procInfo;
@@ -953,7 +955,7 @@ void RecordNode::notifyRecordThreadFilesOpened()
 {
     MessageManager::callAsync ([this]()
                                {
-                                   if (recordThread->isThreadRunning())
+                                   if (recordThread->isThreadRunning() && ! recordThread->threadShouldExit())
                                        isRecording = true; });
 }
 
@@ -961,6 +963,9 @@ void RecordNode::notifyRecordThreadFilesOpened()
 void RecordNode::stopRecording()
 {
     if (! isRecording && !recordThread->isThreadRunning())
+        return;
+
+    if (recordThread->threadShouldExit())
         return;
 
     isRecording = false;
@@ -975,7 +980,7 @@ void RecordNode::stopRecording()
 
 bool RecordNode::getRecordingStatus() const
 {
-    return isRecording;
+    return isRecording || (recordThread->threadShouldExit() && recordThread->isThreadRunning());
 }
 
 void RecordNode::setRecordEvents (bool recordEvents)

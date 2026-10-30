@@ -84,22 +84,27 @@ public:
     /** Updates the Record Engine for this thread*/
     void setEngine (RecordEngine* engine);
 
+    /** Returns shutdown progress; 1.0 means all queues are drained and files are closed. */
+    double getDrainProgress() const { return m_drainProgress.load(); }
+
     /** Pointer to the RecordNode */
     RecordNode* recordNode;
 
 private:
-    /** Writes continuous data from all per-stream queues 
+    /** Writes one bounded batch of continuous data, events, and spikes
      *  @param minSamples Minimum samples required before writing (0 = write any available)
      *  @param maxSamples Maximum samples per write batch
      *  @param maxEvents Maximum events to write
      *  @param maxSpikes Maximum spikes to write
-     *  @param lastBlock If true, write all remaining data regardless of minSamples
+     *  @param lastBlock If true, ignore minSamples for this batch
      */
     void writeData (int minSamples,
                     int maxSamples,
                     int maxEvents,
                     int maxSpikes,
                     bool lastBlock = false);
+
+    int64 getPendingItemCount() const;
 
     RecordEngine* m_engine;
     Array<int> m_channelArray;
@@ -111,6 +116,7 @@ private:
 
     std::atomic<bool> m_receivedFirstBlock;
     std::atomic<bool> m_cleanExit;
+    std::atomic<double> m_drainProgress { 0.0 };
 
     Array<int64> sampleNumbers; // Global sample numbers (indexed by global channel)
     std::vector<int64> m_perStreamSampleNumbers; // Per-stream sample numbers

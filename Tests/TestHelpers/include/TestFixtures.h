@@ -72,7 +72,8 @@ class ProcessorTester
 {
 public:
     ProcessorTester (TestSourceNodeBuilder sourceNodeBuilder,
-                     ProcessorTesterMode mode = ProcessorTesterMode::GraphOnly)
+                     ProcessorTesterMode mode = ProcessorTesterMode::GraphOnly,
+                     bool showControlPanel = false)
     {
         // Singletons...
         MessageManager::deleteInstance();
@@ -93,7 +94,7 @@ public:
         {
             // These set global state in AccessClass and require a real audio-capable test environment.
             audioComponent = std::make_unique<AudioComponent>();
-            controlPanel = std::make_unique<ControlPanel> (processorGraph.get(), audioComponent.get(), true);
+            controlPanel = std::make_unique<ControlPanel> (processorGraph.get(), audioComponent.get(), ! showControlPanel);
         }
 
         SourceNode* snTemp = sourceNodeBuilder.buildSourceNode();
@@ -217,6 +218,13 @@ public:
             throw std::logic_error ("ProcessorTester::stopAcquisition requires FullApp mode");
 
         controlPanel->stopAcquisition();
+        const auto deadline = Time::getMillisecondCounterHiRes() + 10000.0;
+        while (controlPanel->isFinalizingRecording())
+        {
+            if (Time::getMillisecondCounterHiRes() >= deadline)
+                throw std::runtime_error ("Timed out waiting for recording finalization");
+            MessageManager::getInstance()->runDispatchLoopUntil (10);
+        }
     }
 
     const DataStream* getProcessorDataStream (uint16 nodeId, uint16 streamId)

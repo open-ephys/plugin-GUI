@@ -84,8 +84,16 @@ bool getAcquisitionStatus()
 
 void setAcquisitionStatus (bool enable)
 {
-    const MessageManagerLock mml;
-    getControlPanel()->setAcquisitionState (enable);
+    if (getControlPanel()->isFinalizingRecording())
+    {
+        LOGC ("Cannot change acquisition mode while recording files are being finalized.");
+        return;
+    }
+
+    if (MessageManager::getInstance()->isThisTheMessageThread())
+        getControlPanel()->setAcquisitionState (enable);
+    else
+        MessageManager::callAsync ([enable] { getControlPanel()->setAcquisitionState (enable); });
 }
 
 bool getRecordingStatus()
@@ -95,8 +103,16 @@ bool getRecordingStatus()
 
 void setRecordingStatus (bool enable)
 {
-    const MessageManagerLock mml;
-    getControlPanel()->setRecordingState (enable, true); // starts recording regardless of sync status
+    if (getControlPanel()->isFinalizingRecording())
+    {
+        LOGC ("Cannot change recording mode while recording files are being finalized.");
+        return;
+    }
+
+    if (MessageManager::getInstance()->isThisTheMessageThread())
+        getControlPanel()->setRecordingState (enable, true); // starts recording regardless of sync status
+    else
+        MessageManager::callAsync ([enable] { getControlPanel()->setRecordingState (enable, true); });
 }
 
 void sendStatusMessage (const String& text)

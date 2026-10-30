@@ -6,6 +6,7 @@ add_sources(${COMPONENT_NAME}_tests
 		PluginManagerTests.cpp
 		SourceNodeTests.cpp
 		RecordNodeTests.cpp
+		RecordThreadTests.cpp
 		SIMDConverterTests.cpp
 		SynchronizerTests.cpp
 		ProcessorGraphTests.cpp
@@ -20,6 +21,8 @@ add_sources(${COMPONENT_NAME}_tests
 		MetadataEventTests.cpp
 		ParameterOwnerTests.cpp
 		../../Source/Processors/PluginManager/PluginManager.cpp
+		../../Source/Processors/RecordNode/DataQueue.cpp
+		../../Source/Processors/RecordNode/RecordThread.cpp
 )
 target_include_directories(
 		${COMPONENT_NAME}_tests

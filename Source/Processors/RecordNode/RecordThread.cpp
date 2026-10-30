@@ -112,6 +112,8 @@ void RecordThread::setQueuePointers (OwnedArray<DataQueue>* dataQueues, EventMsg
 
 void RecordThread::setFirstBlockFlag (bool state)
 {
+    if (! state)
+        m_drainProgress = 0.0;
     m_receivedFirstBlock = state;
     this->notify();
 }
@@ -197,16 +199,34 @@ void RecordThread::run()
 
     if (! closeEarly)
     {
-        // flush the buffers - use 0 for minSamples to write all remaining data
-        writeData (0, m_maxWriteSamples, BLOCK_MAX_WRITE_EVENTS, BLOCK_MAX_WRITE_SPIKES, true);
+        // Drain all queues in bounded batches, including any partial final batch.
+        const int64 initialItems = getPendingItemCount();
+        int64 remainingItems;
+        do
+        {
+            writeData (0, m_maxWriteSamples, BLOCK_MAX_WRITE_EVENTS, BLOCK_MAX_WRITE_SPIKES, true);
+
+            remainingItems = getPendingItemCount();
+            m_drainProgress = initialItems > 0 ? 0.95 * (1.0 - jmin (1.0, double (remainingItems) / double (initialItems))) : 0.95;
+        } while (remainingItems > 0);
 
         //5-Close files
         m_engine->closeFiles();
     }
+    m_drainProgress = 1.0;
     m_cleanExit = true;
     m_receivedFirstBlock = false;
 
     //LOGC("RecordThread received ", spikesReceived, " spikes and wrote ", spikesWritten, ".");
+}
+
+int64 RecordThread::getPendingItemCount() const
+{
+    int64 count = int64 (m_eventQueue->getRemainingEvents()) + m_spikeQueue->getRemainingEvents();
+    for (auto* queue : *m_dataQueues)
+        if (queue != nullptr)
+            count += queue->getNumSamplesReady();
+    return count;
 }
 
 void RecordThread::writeData (int minSamples,

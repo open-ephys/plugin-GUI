@@ -58,6 +58,9 @@ using json = nlohmann::json;
  * - PUT /api/status : 
  *          sets the GUI's mode
  *          e.g.: {"mode" : "ACQUIRE"}
+ *          Stopping recording is asynchronous. Status remains RECORD with
+ *          "finalizing": true until queued data and recording files are finalized.
+ *          Further mode changes return HTTP 409 during finalization.
  * 
  * - GET /api/cpu :
  *         returns a JSON string with the average proportion of available CPU being spent inside the audio callbacks
@@ -148,6 +151,37 @@ public:
     explicit OpenEphysHttpServer (ProcessorGraph* graph) : graph_ (graph),
                                                            juce::Thread ("HttpServer") {}
 
+    /** Applies a status request on the message thread without opening a progress window. */
+    static void handleStatusModeChange (const std::string& desiredMode, httplib::Response& response)
+    {
+        JUCE_ASSERT_MESSAGE_THREAD
+        auto* panel = AccessClass::getControlPanel();
+        json result;
+        if (panel->isFinalizingRecording())
+        {
+            result["error"] = "Recording files are being finalized. Mode changes are blocked.";
+            LOGC ("Rejected HTTP mode change while recording files are being finalized.");
+            response.status = 409;
+        }
+        else
+        {
+            response.status = 200;
+            if (desiredMode == "RECORD" && ! panel->getRecordingState())
+                panel->setRecordingState (true, true, false);
+            else if (desiredMode == "ACQUIRE")
+            {
+                if (panel->getRecordingState())
+                    panel->setRecordingState (false, false, false);
+                else
+                    panel->setAcquisitionState (true, false);
+            }
+            else if (desiredMode == "IDLE")
+                panel->setAcquisitionState (false, false);
+        }
+        status_to_json (&result);
+        response.set_content (result.dump(), "application/json");
+    }
+
     void run() override
     {
         svr_->Get ("/api/config", [this] (const httplib::Request&, httplib::Response& res)
@@ -162,7 +196,7 @@ public:
         svr_->Get ("/api/status", [this] (const httplib::Request&, httplib::Response& res)
                    {
             json ret;
-            status_to_json(graph_, &ret);
+            status_to_json(&ret);
             res.set_content(ret.dump(), "application/json"); });
 
         svr_->Put ("/api/status", [this] (const httplib::Request& req, httplib::Response& res)
@@ -185,48 +219,13 @@ public:
                 return;
             }
 
-            if (desired_mode == "RECORD" && !CoreServices::getRecordingStatus()) {
-                std::promise<void> signalRecordingStarted;
-                std::future<void> signalRecordingStartedFuture = signalRecordingStarted.get_future();
-
-                MessageManager::callAsync([this, &signalRecordingStarted] {
-                    CoreServices::setRecordingStatus(true);
-                    signalRecordingStarted.set_value(); // Signal that recording has started
-                });
-
-                // Wait for recording to start
-                signalRecordingStartedFuture.wait();
-            }
-            else if (desired_mode == "ACQUIRE") {
-                std::promise<void> signalAcquisitionStarted;
-                std::future<void> signalAcquisitionStartedFuture = signalAcquisitionStarted.get_future();
-
-                MessageManager::callAsync([this, &signalAcquisitionStarted] {
-                    CoreServices::setRecordingStatus(false);
-                    CoreServices::setAcquisitionStatus(true);
-                    signalAcquisitionStarted.set_value(); // Signal that acquisition has started
-                });
-
-                // Wait for acquisition to start
-                signalAcquisitionStartedFuture.wait();
-            }
-            else if (desired_mode == "IDLE") {
-                std::promise<void> signalAcquisitionStopped;
-                std::future<void> signalAcquisitionStoppedFuture = signalAcquisitionStopped.get_future();
-
-                MessageManager::callAsync([this, &signalAcquisitionStopped] {
-                    CoreServices::setRecordingStatus(false);
-                    CoreServices::setAcquisitionStatus(false);
-                    signalAcquisitionStopped.set_value(); // Signal that acquisition has stopped
-                });
-
-                // Wait for acquisition to stop
-                signalAcquisitionStoppedFuture.wait();
-            }
-
-            json ret;
-            status_to_json(graph_, &ret);
-            res.set_content(ret.dump(), "application/json"); });
+            std::promise<void> modeChanged;
+            auto modeChangedFuture = modeChanged.get_future();
+            MessageManager::callAsync([desired_mode, &modeChanged, &res] {
+                handleStatusModeChange(desired_mode, res);
+                modeChanged.set_value();
+            });
+            modeChangedFuture.wait(); });
 
         svr_->Get ("/api/cpu", [this] (const httplib::Request&, httplib::Response& res)
                    {
@@ -487,7 +486,7 @@ public:
             graph_->broadcastMessage(String(message_str));
 
             json ret;
-            status_to_json(graph_, &ret);
+            status_to_json(&ret);
             res.set_content(ret.dump(), "application/json"); });
 
         svr_->Put ("/api/load", [this] (const httplib::Request& req, httplib::Response& res)
@@ -523,7 +522,7 @@ public:
             signalChainLoadedFuture.wait();
 
             json ret;
-            status_to_json(graph_, &ret);
+            status_to_json(&ret);
             res.set_content(ret.dump(), "application/json"); });
 
         svr_->Put ("/api/save", [this] (const httplib::Request& req, httplib::Response& res)
@@ -1436,8 +1435,9 @@ private:
         (*ret)["is_synchronized"] = CoreServices::RecordNode::isSynchronized (nodeId);
     }
 
-    inline static void status_to_json (const ProcessorGraph* graph, json* ret)
+    inline static void status_to_json (json* ret)
     {
+        (*ret)["finalizing"] = AccessClass::getControlPanel()->isFinalizingRecording();
         if (CoreServices::getRecordingStatus())
         {
             (*ret)["mode"] = "RECORD";

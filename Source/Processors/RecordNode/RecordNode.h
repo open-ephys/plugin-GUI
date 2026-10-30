@@ -277,7 +277,7 @@ private:
     OwnedArray<RecordEngine> engineArray;
 
     bool isProcessing;
-    bool isRecording;
+    std::atomic<bool> isRecording;
     bool hasRecorded;
     bool settingsNeeded;
     bool shouldRecord;

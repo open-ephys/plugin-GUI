@@ -34,6 +34,43 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 const int SIZE_AUDIO_EDITOR_MAX_WIDTH = 500;
 
+namespace
+{
+class RecordingDrainProgressWindow : public ThreadWithProgressWindow
+{
+public:
+    RecordingDrainProgressWindow (const Array<RecordNode*>& nodes, Component* parent)
+        : ThreadWithProgressWindow ("Finishing recording", true, false, 1000, {}, parent)
+    {
+        for (auto* node : nodes)
+            threads.push_back (node->recordThread.get());
+        setStatusMessage ("Writing queued data and closing recording files...");
+    }
+
+    void run() override
+    {
+        while (! threadShouldExit())
+        {
+            double progress = 0.0;
+            bool running = false;
+            for (auto* thread : threads)
+            {
+                const bool active = thread->isThreadRunning();
+                running = running || active;
+                progress += active ? thread->getDrainProgress() : 1.0;
+            }
+            setProgress (threads.empty() ? 1.0 : progress / double (threads.size()));
+            if (! running)
+                return;
+            wait (50);
+        }
+    }
+
+private:
+    std::vector<RecordThread*> threads;
+};
+}
+
 NewDirectoryButton::NewDirectoryButton() : Button ("NewDirectory")
 {
     XmlDocument xmlDoc (R"(
@@ -566,16 +603,23 @@ ControlPanel::~ControlPanel()
 {
 }
 
-void ControlPanel::setRecordingState (bool t, bool force)
+void ControlPanel::setRecordingState (bool t, bool force, bool showProgressWindow)
 {
+    if (isFinalizingRecording())
+    {
+        LOGC ("Cannot change recording mode while recording files are being finalized.");
+        return;
+    }
+
+    const ScopedValueSetter<bool> progressWindow (showDrainProgress, showProgressWindow);
     forceRecording = force;
 
-    recordButton->setToggleState (t, sendNotification);
+    recordButton->setToggleState (t, sendNotificationSync);
 }
 
 bool ControlPanel::getRecordingState()
 {
-    return recordButton->getToggleState();
+    return recordingActive.load();
 }
 
 int64 ControlPanel::getRecordingTime() const
@@ -608,16 +652,29 @@ File ControlPanel::getRecordingParentDirectory()
 
 bool ControlPanel::getAcquisitionState()
 {
-    return playButton->getToggleState();
+    return acquisitionActive.load();
 }
 
-void ControlPanel::setAcquisitionState (bool state)
+void ControlPanel::setAcquisitionState (bool state, bool showProgressWindow)
 {
-    playButton->setToggleState (state, sendNotification);
+    if (isFinalizingRecording())
+    {
+        LOGC ("Cannot change acquisition mode while recording files are being finalized.");
+        return;
+    }
+
+    const ScopedValueSetter<bool> progressWindow (showDrainProgress, showProgressWindow);
+    playButton->setToggleState (state, sendNotificationSync);
 }
 
 void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
 {
+    if (isFinalizingRecording())
+    {
+        LOGC ("Cannot start acquisition while recording files are being finalized.");
+        return;
+    }
+
     if (! audio->checkForDevice())
     {
         playButton->setToggleState (false, dontSendNotification);
@@ -671,6 +728,8 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
     if (graph->isReady()) // check that all processors are enabled
     {
         graph->updateConnections();
+        acquisitionActive = true;
+        playButton->setToggleState (true, dontSendNotification);
 
         LOGC ("Starting acquisition");
 
@@ -704,16 +763,29 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
 
 void ControlPanel::stopAcquisition()
 {
-    if (recordButton->getToggleState())
+    if (isFinalizingRecording())
     {
-        stopRecording();
+        LOGC ("Cannot stop acquisition while recording files are being finalized.");
+        return;
     }
 
-    graph->stopAcquisition();
+    if (getRecordingState())
+    {
+        beginRecordingFinalization (true);
+        return;
+    }
 
+    finishStopAcquisition();
+}
+
+void ControlPanel::finishStopAcquisition()
+{
     LOGC ("Stopping acquisition");
 
     audio->endCallbacks();
+    graph->stopAcquisition();
+    acquisitionActive = false;
+    playButton->setToggleState (false, dontSendNotification);
 
     if (! isConsoleApp)
     {
@@ -1020,6 +1092,9 @@ void ControlPanel::labelTextChanged (Label* label)
 
 void ControlPanel::startRecording()
 {
+    recordingActive = true;
+    recordButton->setToggleState (true, dontSendNotification);
+
     if (newDirectoryButton->getToggleState())
         clock->resetRecordingTime();
 
@@ -1057,9 +1132,50 @@ void ControlPanel::startRecording()
 
 void ControlPanel::stopRecording()
 {
-    hasRecorded = true;
+    beginRecordingFinalization (false);
+}
 
-    graph->setRecordState (false); // turn off recording in processor graph
+bool ControlPanel::recordingThreadsHaveStopped() const
+{
+    for (auto* node : graph->getRecordNodes())
+        if (node->recordThread->isThreadRunning())
+            return false;
+    return true;
+}
+
+void ControlPanel::beginRecordingFinalization (bool stopAcquisitionWhenFinished)
+{
+    if (isFinalizingRecording())
+    {
+        LOGC ("Recording finalization is already in progress.");
+        return;
+    }
+
+    finalizingRecording = true;
+    stopAcquisitionAfterDrain = stopAcquisitionWhenFinished;
+    drainProgressWindowShowTime = ! isConsoleApp && showDrainProgress ? Time::getMillisecondCounterHiRes() + 500.0 : 0.0;
+    playButton->setToggleState (true, dontSendNotification);
+    recordButton->setToggleState (true, dontSendNotification);
+    playButton->setEnabled (false);
+    recordButton->setEnabled (false);
+
+    // Let any in-flight audio block finish before stopping queue producers.
+    {
+        const ScopedLock callbackLock (graph->getCallbackLock());
+        graph->setRecordState (false);
+    }
+
+    initialize = false;
+    startTimer (50);
+}
+
+void ControlPanel::finishRecordingFinalization()
+{
+    jassert (recordingThreadsHaveStopped());
+    drainProgressWindow.reset();
+    drainProgressWindowShowTime = 0.0;
+
+    hasRecorded = true;
 
     clock->stopRecording();
 
@@ -1080,10 +1196,23 @@ void ControlPanel::stopRecording()
     showHideRecordingOptionsButton->setCustomBackground (false, findColour (ThemeColours::windowBackground));
 
     recordButton->setToggleState (false, dontSendNotification);
+    recordingActive = false;
 
     filenameComponent->setEnabled (true);
 
     LOGC ("Stopping recording");
+
+    if (stopAcquisitionAfterDrain)
+        finishStopAcquisition();
+
+    stopAcquisitionAfterDrain = false;
+    finalizingRecording = false;
+    playButton->setEnabled (true);
+    recordButton->setEnabled (true);
+    if (isConsoleApp)
+        stopTimer();
+    else
+        startTimer (getAcquisitionState() ? 250 : 60000);
 
     repaint();
 }
@@ -1114,6 +1243,14 @@ void ControlPanel::colourChanged()
 
 void ControlPanel::buttonClicked (Button* button)
 {
+    if (isFinalizingRecording() && (button == playButton.get() || button == recordButton.get()))
+    {
+        playButton->setToggleState (true, dontSendNotification);
+        recordButton->setToggleState (true, dontSendNotification);
+        LOGC ("Cannot change mode while recording files are being finalized.");
+        return;
+    }
+
     if (button == showHideRecordingOptionsButton.get())
     {
         openState (button->getToggleState());
@@ -1311,6 +1448,12 @@ void ControlPanel::disableCallbacks()
 {
     LOGD ("Control panel received signal to disable callbacks.");
 
+    if (isFinalizingRecording() || getRecordingState())
+    {
+        stopAcquisition();
+        return;
+    }
+
     if (audio->callbacksAreActive())
     {
         graph->stopAcquisition();
@@ -1327,6 +1470,8 @@ void ControlPanel::disableCallbacks()
 
     playButton->setToggleState (false, dontSendNotification);
     recordButton->setToggleState (false, dontSendNotification);
+    acquisitionActive = false;
+    recordingActive = false;
     recordSelector->setEnabled (true);
     clock->stopRecording();
     clock->stop();
@@ -1334,6 +1479,19 @@ void ControlPanel::disableCallbacks()
 
 void ControlPanel::timerCallback()
 {
+    if (isFinalizingRecording())
+    {
+        if (recordingThreadsHaveStopped())
+            finishRecordingFinalization();
+        else if (drainProgressWindow == nullptr && drainProgressWindowShowTime > 0.0
+                 && Time::getMillisecondCounterHiRes() > drainProgressWindowShowTime)
+        {
+            drainProgressWindow = std::make_unique<RecordingDrainProgressWindow> (graph->getRecordNodes(), this->getTopLevelComponent());
+            drainProgressWindow->launchThread();
+        }
+        return;
+    }
+
     refreshMeters();
 }
 
