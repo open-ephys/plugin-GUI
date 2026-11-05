@@ -2019,6 +2019,8 @@ XmlElement* ProcessorGraph::createNodeXml (GenericProcessor* processor, bool isS
     xml->setAttribute ("processorType", (int) processor->getProcessorType());
 
     /** Saves individual processor parameters to XML */
+    if (auto* recordNode = dynamic_cast<RecordNode*> (processor))
+        recordNode->commitEngineOptions();
     processor->saveToXml (xml);
 
     return xml;

@@ -6,6 +6,7 @@ add_sources(${COMPONENT_NAME}_tests
 		PluginManagerTests.cpp
 		SourceNodeTests.cpp
 		RecordNodeTests.cpp
+		RecordEngineTests.cpp
 		RecordThreadTests.cpp
 		SIMDConverterTests.cpp
 		SynchronizerTests.cpp

@@ -550,12 +550,6 @@ ControlPanel::ControlPanel (ProcessorGraph* graph_, AudioComponent* audio_, bool
     recordSelector->addListener (this);
     addChildComponent (recordSelector.get());
 
-    recordOptionsButton = std::make_unique<UtilityButton> ("R");
-    recordOptionsButton->setEnabledState (true);
-    recordOptionsButton->addListener (this);
-    recordOptionsButton->setTooltip ("Configure options for selected record engine");
-    addChildComponent (recordOptionsButton.get());
-
     newDirectoryButton = std::make_unique<NewDirectoryButton>();
     newDirectoryButton->setEnabled (false);
     newDirectoryButton->addListener (this);
@@ -753,7 +747,6 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
             startTimer (250); // refresh every 250 ms
 
             recordSelector->setEnabled (false); // why is this outside the "if" statement?
-            recordOptionsButton->setEnabled (false);
         }
 
         clock->resetAcquisitionTime();
@@ -800,47 +793,63 @@ void ControlPanel::finishStopAcquisition()
         startTimer (60000); // back to refresh every minute
 
         recordSelector->setEnabled (true);
-        recordOptionsButton->setEnabled (true);
     }
 }
 
 void ControlPanel::updateRecordEngineList()
 {
-    int selectedEngine = recordSelector->getSelectedId();
+    const int selectedIndex = recordSelector->getSelectedId() - 1;
+    const String selectedEngine = isPositiveAndBelow (selectedIndex, recordEngines.size())
+                                      ? recordEngines[selectedIndex]->getID() : String();
     recordSelector->clear (dontSendNotification);
-    recordEngines.clear();
+    OwnedArray<RecordEngineManager> refreshedEngines;
     int id = 1;
+
+    auto addEngine = [&] (std::unique_ptr<RecordEngineManager> manager)
+    {
+        if (manager == nullptr)
+        {
+            LOGE ("Unable to create record engine manager");
+            return;
+        }
+
+        for (int i = 0; i < recordEngines.size(); ++i)
+        {
+            if (recordEngines[i]->getID() == manager->getID() && graph->hasRecordNode())
+            {
+                manager.reset (recordEngines.removeAndReturn (i));
+                break;
+            }
+        }
+        recordSelector->addItem (manager->getName(), id++);
+        LOGD ("Adding Record Engine: ", manager->getName());
+        refreshedEngines.add (manager.release());
+    };
 
     LOGD ("Built-in Record Engine count: ", RecordEngineManager::getNumOfBuiltInEngines());
 
     for (int i = 0; i < RecordEngineManager::getNumOfBuiltInEngines(); i++)
     {
-        RecordEngineManager* rem = RecordEngineManager::createBuiltInEngineManager (i);
-        recordSelector->addItem (rem->getName(), id++);
-        LOGD ("Adding Record Engine: ", rem->getName());
-        recordEngines.add (rem);
+        addEngine (std::unique_ptr<RecordEngineManager> (RecordEngineManager::createBuiltInEngineManager (i)));
     }
     LOGD ("Plugin Record Engine count: ", AccessClass::getPluginManager()->getNumRecordEngines());
     for (int i = 0; i < AccessClass::getPluginManager()->getNumRecordEngines(); i++)
     {
         Plugin::RecordEngineInfo info;
         info = AccessClass::getPluginManager()->getRecordEngineInfo (i);
-        recordSelector->addItem (info.name, id++);
-        LOGD ("Adding Record Engine: ", info.name);
-        recordEngines.add (info.creator());
+        addEngine (std::unique_ptr<RecordEngineManager> (info.creator()));
     }
 
-    if (selectedEngine < 1)
-    {
-        setSelectedRecordEngine (0);
-        recordSelector->setSelectedId (1, dontSendNotification);
-    }
+    while (! recordEngines.isEmpty())
+        retiredRecordEngines.add (recordEngines.removeAndReturn (0));
+    recordEngines.swapWith (refreshedEngines);
 
-    else
-    {
-        setSelectedRecordEngine (selectedEngine - 1);
-        recordSelector->setSelectedId (selectedEngine, dontSendNotification);
-    }
+    int newSelectedIndex = 0;
+    for (int i = 0; i < recordEngines.size(); ++i)
+        if (recordEngines[i]->getID() == selectedEngine)
+            newSelectedIndex = i;
+    recordSelector->setSelectedId (newSelectedIndex + 1, dontSendNotification);
+    setSelectedRecordEngine (newSelectedIndex);
 }
 
 std::vector<RecordEngineManager*> ControlPanel::getAvailableRecordEngines()
@@ -1064,7 +1073,6 @@ void ControlPanel::resized()
         forceNewDirectoryButton->setVisible (false);
         filenameText->setVisible (false);
         recordSelector->setVisible (false);
-        recordOptionsButton->setVisible (false);
     }
 
     repaint();
@@ -1381,12 +1389,6 @@ void ControlPanel::buttonClicked (Button* button)
         }
     }
 
-    if (button == recordOptionsButton.get())
-    {
-        int id = recordSelector->getSelectedId() - 1;
-        if (id < 0)
-            return;
-    }
 }
 
 void ControlPanel::comboBoxChanged (ComboBox* combo)
@@ -1404,11 +1406,6 @@ void ControlPanel::comboBoxChanged (ComboBox* combo)
 
 void ControlPanel::setSelectedRecordEngine (int index)
 {
-    ScopedPointer<RecordEngine> re;
-
-    re = recordEngines[index]->instantiateEngine();
-    re->registerManager (recordEngines[index]);
-
     newDirectoryButton->setEnabled (false);
     clock->resetRecordingTime();
 
@@ -1577,17 +1574,6 @@ void ControlPanel::loadStateFromXml (XmlElement* xml)
                 forceNewDirectoryButton->setToggleState (true, dontSendNotification);
             else
                 forceNewDirectoryButton->setToggleState (false, dontSendNotification);
-        }
-        else if (xmlNode->hasTagName ("RECORDENGINES"))
-        {
-            for (int i = 0; i < recordEngines.size(); i++)
-            {
-                for (auto* xmlEngine : xmlNode->getChildWithTagNameIterator ("ENGINE"))
-                {
-                    if (xmlEngine->getStringAttribute ("id") == recordEngines[i]->getID())
-                        recordEngines[i]->loadParametersFromXml (xmlEngine);
-                }
-            }
         }
     }
 

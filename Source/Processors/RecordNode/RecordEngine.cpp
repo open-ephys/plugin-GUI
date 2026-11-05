@@ -25,6 +25,7 @@
 #include "RecordNode.h"
 
 #include "BinaryFormat/BinaryRecording.h"
+#include <vector>
 
 RecordEngine::RecordEngine()
     : manager (nullptr), recordNode (nullptr)
@@ -152,8 +153,33 @@ void RecordEngine::configureEngine()
     if (! manager)
         return;
 
+    std::vector<EngineParameter> parameters;
+    parameters.reserve (manager->getNumParameters());
     for (int i = 0; i < manager->getNumParameters(); ++i)
-        setParameter (manager->getParameter (i));
+    {
+        EngineParameter parameter = manager->getParameter (i);
+        if (recordNode != nullptr)
+        {
+            auto* value = recordNode->getParameter (RecordNode::getEngineParameterName (manager->getID(), parameter.id));
+            if (value == nullptr)
+            {
+                LOGE ("Missing Record Node engine parameter: ", parameter.name);
+                return;
+            }
+            switch (parameter.type)
+            {
+                case EngineParameter::BOOL: parameter.boolParam.value = bool (value->getValue()); break;
+                case EngineParameter::INT: parameter.intParam.value = int (value->getValue()); break;
+                case EngineParameter::FLOAT: parameter.floatParam.value = float (value->getValue()); break;
+                case EngineParameter::STR: parameter.strParam.value = value->getValue().toString(); break;
+                case EngineParameter::MULTI: parameter.multiParam.value = int (value->getValue()); break;
+            }
+        }
+        parameters.push_back (parameter);
+    }
+
+    for (auto& parameter : parameters)
+        setParameter (parameter);
 }
 
 //Manager
@@ -253,17 +279,22 @@ RecordEngineManager* RecordEngineManager::createBuiltInEngineManager (int index)
 
 RecordEngine* RecordEngineManager::instantiateEngine()
 {
+    RecordEngine* engine = nullptr;
     if (creator)
     {
-        return creator();
+        engine = creator();
     }
-
-    if (id == "BINARY")
+    else if (id == "BINARY")
     {
-        return new BinaryRecording();
+        engine = new BinaryRecording();
     }
 
-    return nullptr;
+    if (engine != nullptr)
+        engine->registerManager (this);
+    else
+        LOGE ("Unable to instantiate record engine: ", id);
+
+    return engine;
 }
 
 int RecordEngineManager::getNumParameters() const

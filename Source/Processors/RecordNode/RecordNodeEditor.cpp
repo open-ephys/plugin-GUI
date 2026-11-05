@@ -24,7 +24,191 @@
 #include "RecordNodeEditor.h"
 #include "../../CoreServices.h"
 #include "RecordNode.h"
+#include "../Parameter/ParameterEditorOwner.h"
 #include <stdio.h>
+
+namespace
+{
+class EngineOptionsButton : public Button
+{
+public:
+    EngineOptionsButton()
+        : Button ("Engine options"),
+          icon (Drawable::parseSVGPath (
+              "M17.2994 10.4527L19.2267 10.7677C19.3846 10.7935 19.5003 10.9298 19.5 11.0896V12.883C19.5 13.0412 19.3865 13.1768 19.2303 13.2042L17.3004 13.543"
+              "C17.1885 13.9298 17.0349 14.3022 16.8415 14.6543L17.9823 16.2382C18.0759 16.3679 18.0612 16.5463 17.9483 16.6595L16.6804 17.9283"
+              "C16.5682 18.0401 16.3921 18.0561 16.2623 17.9645L14.6627 16.8424C14.3099 17.0387 13.9352 17.1952 13.5442 17.3103L13.2034 19.231"
+              "C13.176 19.3865 13.0406 19.5 12.8825 19.5H11.0888C10.9294 19.5 10.7934 19.3849 10.7676 19.228L10.4493 17.3168"
+              "C10.059 17.204 9.6823 17.0485 9.32585 16.8525L7.73767 17.9648C7.60821 18.0558 7.43178 18.0401 7.31992 17.9283L6.05198 16.6595"
+              "C5.93947 16.5463 5.9248 16.3686 6.01741 16.2391L7.13958 14.6697C6.94163 14.3116 6.78444 13.9337 6.67062 13.5414L4.76905 13.2042"
+              "C4.61349 13.1765 4.5 13.0412 4.5 12.883V11.0896C4.5 10.9304 4.61544 10.7941 4.77263 10.768L6.67421 10.4514"
+              "C6.78868 10.0582 6.94586 9.68022 7.14316 9.32315L6.0347 7.73739C5.94371 7.60793 5.95937 7.43185 6.07122 7.32L7.33883 6.0525"
+              "C7.452 5.94 7.62908 5.925 7.7592 6.01793L9.33433 7.14293C9.68817 6.94924 10.0639 6.795 10.4552 6.6825L10.767 4.77359"
+              "C10.7927 4.61576 10.929 4.5 11.0888 4.5H12.8825C13.041 4.5 13.1763 4.61413 13.2037 4.77L13.5399 6.68935"
+              "C13.929 6.8025 14.304 6.95837 14.6591 7.15467L16.2385 6.01957C16.3683 5.92598 16.5464 5.94065 16.6595 6.05348L17.9278 7.32098"
+              "C18.0397 7.43315 18.0553 7.60957 17.9643 7.73902L16.8392 9.34239C17.0323 9.69424 17.1865 10.066 17.2994 10.4527Z"
+              "M9.71725 12C9.71725 13.2607 10.7393 14.2826 12.0001 14.2826C13.2608 14.2826 14.2829 13.2607 14.2829 12"
+              "C14.2829 10.7394 13.2608 9.71742 12.0001 9.71742C10.7393 9.71742 9.71725 10.7394 9.71725 12Z"))
+    {
+    }
+
+    void paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown) override
+    {
+        const auto colour = findColour (isMouseOverButton ? ThemeColours::highlightedFill : ThemeColours::defaultText);
+        g.setColour (colour.withMultipliedAlpha (! isEnabled() ? 0.4f : isButtonDown ? 0.7f : 1.0f));
+        g.fillPath (icon, icon.getTransformToScaleToFit (getLocalBounds().toFloat().reduced (2.0f), true));
+    }
+
+private:
+    Path icon;
+};
+
+void commitEngineEditors (Component& component)
+{
+    if (auto* label = dynamic_cast<Label*> (&component))
+        label->hideEditor (false);
+    else
+        for (auto* child : component.getChildren())
+            commitEngineEditors (*child);
+}
+
+class EngineOptionsContent : public Component, public ParameterEditorOwner
+{
+public:
+    explicit EngineOptionsContent (const Array<Parameter*>& parameters)
+        : ParameterEditorOwner (this)
+    {
+        for (auto* parameter : parameters)
+        {
+            ParameterEditor* editor;
+            if (parameter->getType() == Parameter::BOOLEAN_PARAM)
+                editor = new ToggleParameterEditor (parameter);
+            else
+                editor = new TextBoxParameterEditor (parameter);
+            editor->setLayout (ParameterEditor::Layout::nameOnLeft);
+            editor->getLabel()->setFont (FontOptions ("Inter", "Regular", 14.0f));
+            editor->getLabel()->setBorderSize (BorderSize<int>());
+            editor->getLabel()->setTooltip (parameter->getDescription());
+            if (parameter->getType() == Parameter::STRING_PARAM)
+                static_cast<Label*> (editor->getEditor())->setJustificationType (Justification::centredLeft);
+            addParameterEditor (editor, 0, 0);
+        }
+        setSize (360, padding * 2 + parameters.size() * rowHeight + jmax (0, parameters.size() - 1) * rowGap);
+    }
+
+    void resized() override
+    {
+        int y = padding;
+        const int width = jmax (1, getWidth() - padding * 2);
+        const int labelWidth = jmax (1, (width - columnGap) / 2);
+        const int controlX = labelWidth + columnGap;
+        const int availableControlWidth = jmax (1, width - controlX);
+        for (auto* editor : getParameterEditors())
+        {
+            editor->setBounds (padding, y, width, rowHeight);
+            editor->getLabel()->setBounds (0, 0, labelWidth, rowHeight);
+            editor->getLabel()->setJustificationType (Justification::centredLeft);
+            const int controlWidth = dynamic_cast<ToggleParameterEditor*> (editor) != nullptr ? jmin (64, availableControlWidth) : availableControlWidth;
+            editor->getEditor()->setBounds (controlX, 0, controlWidth, rowHeight);
+            y += rowHeight + rowGap;
+        }
+    }
+
+    void paint (Graphics& g) override
+    {
+        // g.fillAll (findColour (ThemeColours::componentBackground));
+        g.setColour (findColour (ThemeColours::componentBackground));
+        const auto editors = getParameterEditors();
+        for (int i = 0; i < editors.size(); ++i)
+            g.fillRect (editors[i]->getBounds().expanded (padding / 2));
+    }
+
+private:
+    static constexpr int padding = 12;
+    static constexpr int rowHeight = 24;
+    static constexpr int rowGap = 20;
+    static constexpr int columnGap = 12;
+};
+
+class EngineOptionsViewport : public Viewport
+{
+public:
+    explicit EngineOptionsViewport (const Array<Parameter*>& parameters)
+    {
+        auto content = std::make_unique<EngineOptionsContent> (parameters);
+        setScrollBarsShown (true, false);
+        setSize (content->getWidth(), content->getHeight());
+        setViewedComponent (content.release(), true);
+    }
+
+    ~EngineOptionsViewport() override
+    {
+        commitEngineEditors (*this);
+    }
+
+    void visibleAreaChanged (const Rectangle<int>&) override
+    {
+        if (auto* content = getViewedComponent())
+            content->setSize (getMaximumVisibleWidth(), content->getHeight());
+    }
+};
+}
+
+void RecordNode::showEngineOptions (Component* anchor)
+{
+    if (CoreServices::getAcquisitionStatus() || recordThread->isThreadRunning())
+    {
+        CoreServices::sendStatusMessage ("Cannot configure recording engine options during acquisition.");
+        return;
+    }
+    if (getEngineParameters().isEmpty())
+    {
+        CoreServices::sendStatusMessage ("The selected recording engine has no options.");
+        return;
+    }
+    closeEngineOptions();
+    if (anchor == nullptr)
+        anchor = editor.get();
+    const auto area = anchor != nullptr
+                          ? anchor->getScreenBounds()
+                          : Desktop::getInstance().getDisplays().getPrimaryDisplay()->userArea.withSizeKeepingCentre (1, 1);
+    auto content = std::make_unique<EngineOptionsViewport> (getEngineParameters());
+    engineOptionsViewport = content.get();
+    auto& popup = CallOutBox::launchAsynchronously (std::move (content), area, nullptr);
+    const auto screen = Desktop::getInstance().getDisplays().getDisplayForRect (area)->userArea;
+    const int border = popup.getBorderSize() * 2;
+    engineOptionsViewport->setSize (jmin (engineOptionsViewport->getWidth(), jmax (1, screen.getWidth() - border)),
+                                   jmin (engineOptionsViewport->getHeight(), jmax (1, screen.getHeight() - border)));
+    popup.setName ("Record Node " + String (getNodeId()) + " - " + getEngineId() + " options");
+    popup.setDismissalMouseClicksAreAlwaysConsumed (true);
+    engineOptionsPopup = &popup;
+}
+
+void RecordNode::commitEngineOptions()
+{
+    if (engineOptionsViewport != nullptr)
+        commitEngineEditors (*engineOptionsViewport);
+}
+
+void RecordNode::closeEngineOptions()
+{
+    commitEngineOptions();
+    dismissEngineOptions();
+}
+
+void RecordNode::dismissEngineOptions()
+{
+    // Release parameter editors before a node is deleted or its settings are restored.
+    if (engineOptionsViewport != nullptr)
+        engineOptionsViewport->setViewedComponent (nullptr);
+    if (engineOptionsPopup != nullptr)
+    {
+        engineOptionsPopup->exitModalState (0);
+        engineOptionsPopup->setVisible (false);
+    }
+    engineOptionsViewport = nullptr;
+    engineOptionsPopup = nullptr;
+}
 
 SyncMonitor::SyncMonitor()
 {
@@ -600,6 +784,13 @@ RecordNodeEditor::RecordNodeEditor (RecordNode* parentNode)
         ed->setLayout (ParameterEditor::Layout::nameHidden);
         ed->setBounds (ed->getX(), ed->getY(), 110, ed->getHeight());
     }
+    getParameterEditor ("engine")->setSize (90, getParameterEditor ("engine")->getHeight());
+    engineOptionsButton = std::make_unique<EngineOptionsButton>();
+    engineOptionsButton->setBounds (135, 57, 20, 18);
+    engineOptionsButton->setTooltip ("Configure this Record Node's engine options");
+    engineOptionsButton->addListener (this);
+    addAndMakeVisible (engineOptionsButton.get());
+    updateEngineOptions();
 
     addCustomParameterEditor (new RecordToggleParameterEditor (parentNode->getParameter ("events")), 40, 85);
     addCustomParameterEditor (new RecordToggleParameterEditor (parentNode->getParameter ("spikes")), 40, 107);
@@ -694,9 +885,26 @@ void RecordNodeEditor::collapsedStateChanged()
 
 void RecordNodeEditor::updateSettings()
 {
+    updateEngineOptions();
     updateSyncMonitors();
     updateFifoMonitors();
     showFifoMonitors (fifoDrawerButton->getToggleState());
+}
+
+void RecordNodeEditor::updateEngineOptions()
+{
+    engineOptionsButton->setEnabled (! CoreServices::getAcquisitionStatus() && ! recordNode->getEngineParameters().isEmpty());
+}
+
+void RecordNodeEditor::startAcquisition()
+{
+    recordNode->closeEngineOptions();
+    engineOptionsButton->setEnabled (false);
+}
+
+void RecordNodeEditor::stopAcquisition()
+{
+    engineOptionsButton->setEnabled (! recordNode->getEngineParameters().isEmpty());
 }
 
 void RecordNodeEditor::buttonClicked (Button* button)
@@ -704,6 +912,10 @@ void RecordNodeEditor::buttonClicked (Button* button)
     if (button == fifoDrawerButton.get())
     {
         showFifoMonitors (button->getToggleState());
+    }
+    else if (button == engineOptionsButton.get())
+    {
+        recordNode->showEngineOptions (button);
     }
 }
 
@@ -752,6 +964,7 @@ void RecordNodeEditor::showFifoMonitors (bool show)
     }
 
     desiredWidth = 165 + dX;
+    engineOptionsButton->setTopLeftPosition (135 + dX, 57);
 
     if (getCollapsedState())
         return;

@@ -346,6 +346,9 @@ public:
 
     /** Updates settings based on Record Node state*/
     void updateSettings() override;
+    void updateEngineOptions();
+    void startAcquisition() override;
+    void stopAcquisition() override;
 
     /** Respond to button clicks*/
     void buttonClicked (Button* button);
@@ -369,6 +372,7 @@ public:
 
 private:
     RecordNode* recordNode;
+    std::unique_ptr<Button> engineOptionsButton;
 
     OwnedArray<Label> streamLabels;
     std::vector<ParameterEditor*> streamMonitors;

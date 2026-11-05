@@ -34,6 +34,7 @@
 #include "../PluginManager/PluginManager.h"
 #include "../Settings/DataStream.h"
 #include "../Settings/DeviceInfo.h"
+#include <limits>
 
 using namespace std::chrono;
 
@@ -98,6 +99,7 @@ RecordNode::RecordNode()
 
 RecordNode::~RecordNode()
 {
+    dismissEngineOptions();
     editor.reset();
 }
 
@@ -111,6 +113,7 @@ void RecordNode::registerParameters()
     for (int i = 0; i < engines.size(); i++)
         recordEngines.add (engines[i]->getName());
     addCategoricalParameter (Parameter::PROCESSOR_SCOPE, "engine", "Engine", "Recording data format", recordEngines, engineIndex, true);
+    registerEngineParameters();
 
     addBooleanParameter (Parameter::PROCESSOR_SCOPE, "events", "Record Events", "Toggle saving events coming into this node", true, true);
     addBooleanParameter (Parameter::PROCESSOR_SCOPE, "spikes", "Record Spikes", "Toggle saving spikes coming into this node", true, true);
@@ -478,6 +481,8 @@ String RecordNode::getEngineLibraryVersion() const
 
 void RecordNode::setEngine (String id)
 {
+    closeEngineOptions();
+
     availableEngines = getAvailableRecordEngines();
 
     int foundIndex = 0;
@@ -505,6 +510,96 @@ void RecordNode::setEngine (String id)
         }
         foundIndex += 1;
     }
+
+    if (hasParameter ("engine"))
+        registerEngineParameters();
+    if (editor != nullptr)
+        static_cast<RecordNodeEditor*> (editor.get())->updateEngineOptions();
+}
+
+String RecordNode::getEngineParameterName (const String& engineId, int parameterId)
+{
+    String name = "engine_";
+    for (const unsigned char character : engineId.toStdString())
+    {
+        if ((character >= 'A' && character <= 'Z') || (character >= 'a' && character <= 'z')
+            || (character >= '0' && character <= '9'))
+            name += String::charToString (character);
+        else
+            name += "_" + String::toHexString (int (character)) + "_";
+    }
+    return name + "_" + String (parameterId);
+}
+
+void RecordNode::registerEngineParameters()
+{
+    for (auto* manager : availableEngines)
+    {
+        for (int i = 0; i < manager->getNumParameters(); ++i)
+        {
+            const auto& definition = manager->getParameter (i);
+            const String name = getEngineParameterName (manager->getID(), definition.id);
+            if (hasParameter (name))
+                continue;
+
+            const String description = manager->getName() + ": " + definition.name;
+            switch (definition.type)
+            {
+                case EngineParameter::BOOL:
+                    addBooleanParameter (Parameter::PROCESSOR_SCOPE, name, definition.name, description, definition.boolParam.value, true);
+                    break;
+                case EngineParameter::INT:
+                    addIntParameter (Parameter::PROCESSOR_SCOPE, name, definition.name, description,
+                                     definition.intParam.value, definition.intParam.min, definition.intParam.max, true);
+                    break;
+                case EngineParameter::FLOAT:
+                    addFloatParameter (Parameter::PROCESSOR_SCOPE, name, definition.name, description, {},
+                                       definition.floatParam.value, definition.floatParam.min, definition.floatParam.max, 0.0f, true);
+                    break;
+                case EngineParameter::STR:
+                    addStringParameter (Parameter::PROCESSOR_SCOPE, name, definition.name, description, definition.strParam.value, true);
+                    break;
+                case EngineParameter::MULTI:
+                    // The Plugin API provides an index but no choice labels or range.
+                    addIntParameter (Parameter::PROCESSOR_SCOPE, name, definition.name, description,
+                                     definition.multiParam.value, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), true);
+                    break;
+            }
+        }
+    }
+}
+
+Array<Parameter*> RecordNode::getEngineParameters()
+{
+    Array<Parameter*> result;
+    for (auto* manager : availableEngines)
+        if (manager->getID().equalsIgnoreCase (getEngineId()))
+            for (int i = 0; i < manager->getNumParameters(); ++i)
+                if (auto* parameter = getParameter (getEngineParameterName (manager->getID(), manager->getParameter (i).id)))
+                    result.add (parameter);
+    return result;
+}
+
+bool RecordNode::validateEngineParameters()
+{
+    for (auto* manager : availableEngines)
+    {
+        if (! manager->getID().equalsIgnoreCase (getEngineId()))
+            continue;
+
+        for (int i = 0; i < manager->getNumParameters(); ++i)
+        {
+            const auto& parameter = manager->getParameter (i);
+            if (! hasParameter (getEngineParameterName (manager->getID(), parameter.id)))
+            {
+                LOGE ("Missing Record Node engine parameter: ", parameter.name);
+                return false;
+            }
+        }
+        return true;
+    }
+    LOGE ("No manager found for Record Node engine: ", getEngineId());
+    return false;
 }
 
 std::vector<RecordEngineManager*> RecordNode::getAvailableRecordEngines()
@@ -731,6 +826,7 @@ bool RecordNode::isSynchronized()
 // called by GenericProcessor::enableProcessor
 bool RecordNode::startAcquisition()
 {
+    closeEngineOptions();
     recordEvents = ((BooleanParameter*) getParameter ("events"))->getBoolValue();
     recordSpikes = ((BooleanParameter*) getParameter ("spikes"))->getBoolValue();
 
@@ -775,7 +871,6 @@ bool RecordNode::stopAcquisition()
     }
 
     recordingNumber = 0;
-    recordEngine->configureEngine();
     synchronizer.reset();
     eventMonitor->reset();
 
@@ -796,6 +891,8 @@ void RecordNode::startRecording()
         LOGE ("Cannot start a recording while the previous recording is still being finalized.");
         return;
     }
+
+    closeEngineOptions();
 
     Array<int> chanProcessorMap;
     Array<int> chanOrderinProc;
@@ -861,6 +958,9 @@ void RecordNode::startRecording()
 
     recordEngine->registerRecordNode (this);
     recordEngine->setChannelMap (channelMap, localChannelMap);
+    if (! validateEngineParameters())
+        return;
+    recordEngine->configureEngine();
 
     recordThread->setChannelMap (channelMap);
     recordThread->setTimestampChannelMap (timestampChannelMap);
@@ -1350,6 +1450,8 @@ void RecordNode::saveCustomParametersToXml (XmlElement* xml)
 
 void RecordNode::loadCustomParametersFromXml (XmlElement* xml)
 {
+    dismissEngineOptions();
+
     if (xml->hasAttribute ("fifoMonitorsVisible"))
     {
         if (! headlessMode)

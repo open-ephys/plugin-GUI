@@ -547,7 +547,8 @@ private:
     std::unique_ptr<ComboBox> recordSelector;
     Array<std::shared_ptr<FilenameFieldComponent>> filenameFields;
     OwnedArray<RecordEngineManager> recordEngines;
-    std::unique_ptr<UtilityButton> recordOptionsButton;
+    // Removed managers must outlive any engines that still reference them.
+    OwnedArray<RecordEngineManager> retiredRecordEngines;
     std::unique_ptr<ThreadWithProgressWindow> drainProgressWindow;
 
     /** Pointers to non-owned components */

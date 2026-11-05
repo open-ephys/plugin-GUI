@@ -145,7 +145,7 @@ public:
     /** Sets the pointer to the RecordEngineManager (called by ControlPanel) */
     void registerManager (RecordEngineManager* engineManager);
 
-    /** Sets RecordEngine parameters (if available) at the start of acquisition*/
+    /** Applies per-node settings before recording, or manager defaults when no node is registered. */
     void configureEngine();
 
     /** Called prior to opening files, to set the map between recorded channels and actual channel numbers */

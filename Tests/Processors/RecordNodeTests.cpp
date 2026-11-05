@@ -585,6 +585,36 @@ TEST_F(RecordNodeTests, Test_PersistsStructureOeBin) {
     ASSERT_EQ(jsonContinuousChannel["channel_name"].toString(), juce::String("CH0"));
 }
 
+TEST_F (RecordNodeTests, Test_AppliesSavedEngineOptionsToExistingRecordNode)
+{
+    auto settings = XmlDocument::parse (String (R"(<PROCESSOR>
+        <PROCESSOR_PARAMETERS engine_BINARY_0="0"/>
+        <CUSTOM_PARAMETERS/>
+    </PROCESSOR>)"));
+    ASSERT_NE (settings, nullptr);
+    processor->parametersAsXml = settings.get();
+    processor->loadFromXml();
+    processor->parametersAsXml = nullptr;
+    processor->setRecordEvents (true);
+    processor->updateSettings();
+
+    tester->startAcquisition (true);
+    const auto streamId = processor->getDataStreams()[0]->getStreamId();
+    const auto channels = tester->getSourceNodeDataStream (streamId)->getEventChannels();
+    ASSERT_GE (channels.size(), 1);
+    auto event = TTLEvent::createTTLEvent (channels[0], 1, 2, true);
+    auto buffer = createBuffer (1000.0f, 20.0f, numChannels, 5);
+    writeBlock (buffer, event.get());
+    tester->stopAcquisition();
+
+    std::filesystem::path sampleNumbersPath;
+    ASSERT_TRUE (eventsPathFor ("sample_numbers.npy", &sampleNumbersPath));
+    EXPECT_FALSE (std::filesystem::exists (sampleNumbersPath.parent_path() / "full_words.npy"));
+    const auto sampleNumbers = parseNpyPayload<int64> (loadNpyFileBinaryFullpath (sampleNumbersPath.string()));
+    ASSERT_EQ (sampleNumbers.size(), 1);
+    EXPECT_EQ (sampleNumbers[0], 1);
+}
+
 TEST_F(RecordNodeTests, Test_PersistsEvents) {
     processor->setRecordEvents(true);
     processor->updateSettings();

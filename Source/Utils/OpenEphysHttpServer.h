@@ -145,7 +145,7 @@ using json = nlohmann::json;
  *          quits the application
  */
 
-class OpenEphysHttpServer : juce::Thread
+class TESTABLE OpenEphysHttpServer : juce::Thread
 {
 public:
     explicit OpenEphysHttpServer (ProcessorGraph* graph) : graph_ (graph),

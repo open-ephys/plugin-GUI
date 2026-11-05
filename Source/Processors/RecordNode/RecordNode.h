@@ -167,6 +167,12 @@ public:
     /** Sets the engine ID for this record node */
     void setEngine (String engineId);
 
+    static String getEngineParameterName (const String& engineId, int parameterId);
+    Array<Parameter*> getEngineParameters();
+    void showEngineOptions (Component* anchor = nullptr);
+    void closeEngineOptions();
+    void commitEngineOptions();
+
     /** Turns event recording on or off*/
     void setRecordEvents (bool);
 
@@ -259,6 +265,12 @@ public:
     static bool overrideTimestampWarningShown;
 
 private:
+    void registerEngineParameters();
+    bool validateEngineParameters();
+    void dismissEngineOptions();
+    Component::SafePointer<CallOutBox> engineOptionsPopup;
+    Component::SafePointer<Viewport> engineOptionsViewport;
+
     double resolveRecordedTimestamp (const String& streamKey, uint16 streamId, int64 sampleNumber);
 
     /** Handles other types of events (text, sync texts, etc.) */
