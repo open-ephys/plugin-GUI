@@ -569,6 +569,8 @@ private:
     bool open = false;
     bool hasRecorded = false;
     bool forceRecording = false;
+    bool cpuWarningShown = false;
+    Array<bool> cpuUsageHistory;
     std::atomic<bool> acquisitionActive { false };
     std::atomic<bool> recordingActive { false };
     std::atomic<bool> finalizingRecording { false };

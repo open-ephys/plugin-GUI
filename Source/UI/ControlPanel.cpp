@@ -279,8 +279,12 @@ void CPUMeter::paint (Graphics& g)
 {
     g.fillAll (findColour (ThemeColours::defaultFill));
 
-    g.setColour (Colours::yellow);
-    g.fillRect (0.0f, 0.0f, getWidth() * cpu, float (getHeight()));
+    const float usage = jlimit (0.0f, 1.0f, cpu);
+    const Colour meterColour = usage < 0.5f
+                                   ? Colours::yellow.interpolatedWith (Colours::orange, usage * 2.0f)
+                                   : Colours::orange.interpolatedWith (Colours::red, (usage - 0.5f) * 2.0f);
+    g.setColour (meterColour);
+    g.fillRect (0.0f, 0.0f, getWidth() * usage, float (getHeight()));
 
     g.setColour (findColour (ThemeColours::outline));
     g.drawRect (0, 0, getWidth(), getHeight(), 1);
@@ -777,6 +781,11 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
     if (graph->isReady()) // check that all processors are enabled
     {
         graph->updateConnections();
+        if (! getAcquisitionState())
+        {
+            cpuWarningShown = false;
+            cpuUsageHistory.clear();
+        }
         acquisitionActive = true;
         playButton->setToggleState (true, dontSendNotification);
 
@@ -1252,6 +1261,7 @@ void ControlPanel::beginRecordingFinalization (bool stopAcquisitionWhenFinished)
         LOGC ("Record Buffer Warning: ", warning);
         if (! isConsoleApp)
         {
+            getLookAndFeel().playAlertSound();
             // A callback prevents JUCE from falling back to a synchronous modal loop.
             AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "Record Buffer Warning", warning, "OK",
                                              this->getTopLevelComponent(), ModalCallbackFunction::create ([] (int) {}));
@@ -1576,7 +1586,33 @@ void ControlPanel::refreshMeters()
 {
     if (playButton->getToggleState())
     {
-        cpuMeter->updateCPU (audio->deviceManager.getCpuUsage());
+        const float usage = audio->deviceManager.getCpuUsage();
+        cpuMeter->updateCPU (usage);
+
+        if (! isConsoleApp && getAcquisitionState() && ! cpuWarningShown)
+        {
+            constexpr int windowSize = 20;
+            constexpr int requiredHighReadings = 4;
+            cpuUsageHistory.add (usage > 0.9f);
+            if (cpuUsageHistory.size() > windowSize)
+                cpuUsageHistory.remove (0);
+
+            int highReadings = 0;
+            for (const bool highUsage : cpuUsageHistory)
+                if (highUsage)
+                    ++highReadings;
+
+            if (cpuUsageHistory.size() == windowSize && highReadings >= requiredHighReadings)
+            {
+                cpuWarningShown = true;
+                getLookAndFeel().playAlertSound();
+                AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+                                                  "High processing load",
+                                                  "The signal chain is frequently reaching over 90% of the time available for each processing cycle. "
+                                                  "This leaves limited processing headroom and increases the risk of data loss."
+                                                  "\nReduce the signal chain workload first, then consider increasing the buffer size if latency is not a concern.");
+            }
+        }
     }
     else
     {
