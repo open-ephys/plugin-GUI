@@ -422,7 +422,7 @@ String RecordNode::handleConfigMessage (const String& msg)
 
 void RecordNode::handleBroadcastMessage (const String& msg, const int64 messageSystemTime)
 {
-    if (recordEvents && isRecording)
+    if (recordEvents && isRecording && ! bufferOverflowed)
     {
         String streamKey = synchronizer.mainStreamKey;
 
@@ -892,6 +892,8 @@ void RecordNode::startRecording()
         return;
     }
 
+    bufferOverflowed = false;
+
     closeEngineOptions();
 
     Array<int> chanProcessorMap;
@@ -1103,7 +1105,7 @@ void RecordNode::handleTTLEvent (TTLEventPtr event)
 
     synchronizer.addEvent (streamKey, event->getLine(), sampleNumber, event->getState());
 
-    if (recordEvents && isRecording)
+    if (recordEvents && isRecording && ! bufferOverflowed)
     {
         size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
         uint16 streamId = event->getStreamId();
@@ -1122,7 +1124,7 @@ void RecordNode::handleTTLEvent (TTLEventPtr event)
 
 void RecordNode::handleEvent (const EventChannel* eventInfo, const EventPacket& packet)
 {
-    if (recordEvents && isRecording)
+    if (recordEvents && isRecording && ! bufferOverflowed)
     {
         int64 sampleNumber = Event::getSampleNumber (packet);
 
@@ -1141,7 +1143,7 @@ void RecordNode::handleSpike (SpikePtr spike)
 {
     eventMonitor->receivedSpikes++;
 
-    if (recordSpikes && isRecording)
+    if (recordSpikes && isRecording && ! bufferOverflowed)
     {
         String streamKey = getDataStream (spike->getStreamId())->getKey();
         uint16 streamId = spike->getStreamId();
@@ -1171,7 +1173,7 @@ void RecordNode::process (AudioBuffer<float>& buffer)
 
     checkForEvents (recordSpikes);
 
-    if (isRecording)
+    if (isRecording && ! bufferOverflowed)
     {
         if (! setFirstBlock)
         {
@@ -1301,24 +1303,8 @@ void RecordNode::process (AudioBuffer<float>& buffer)
 
         if (fifoAlmostFull)
         {
-            CoreServices::setRecordingStatus (false);
-
-            if (headlessMode)
-            {
-                LOGC ("Record Buffer Warning: The recording buffer has reached capacity. Stopping recording to prevent data corruption.\n\n \
-                        To address the issue, you can try reducing the number of simultaneously recorded channels or \
-                        using multiple Record Nodes to distribute data writing across more than one drive.");
-            }
-            else
-            {
-                MessageManager::callAsync ([this]
-                                           { AlertWindow::showMessageBoxAsync (AlertWindow::AlertIconType::WarningIcon,
-                                                                               "Record Buffer Warning",
-                                                                               "The recording buffer has reached capacity. Stopping recording to prevent data corruption. \n\n"
-                                                                               "To address the issue, you can try reducing the number of simultaneously recorded channels or "
-                                                                               "using multiple Record Nodes to distribute data writing across more than one drive.",
-                                                                               "OK"); });
-            }
+            bufferOverflowed = true;
+            AccessClass::getControlPanel()->requestRecordBufferOverflowStop();
         }
 
         if (! setFirstBlock)

@@ -22,11 +22,10 @@ public:
     void openFiles (File, int, int) override {}
     void closeFiles() override
     {
+        ++closeCalls;
         closing = true;
         while (! allowClose.load())
             Thread::sleep (1);
-        if (closeDelayMs > 0)
-            Thread::sleep (closeDelayMs);
         closed = true;
     }
     void writeEvent (int, const EventPacket&) override { ++eventsWritten; }
@@ -35,6 +34,8 @@ public:
 
     void writeContinuousData (int channel, int, const float* data, const double* times, int count) override
     {
+        while (! allowWrite.load())
+            Thread::sleep (1);
         EXPECT_LE (count, BLOCK_DEFAULT_MAX_WRITE_SAMPLES);
         samples[channel].insert (samples[channel].end(), data, data + count);
         timestamps[channel].insert (timestamps[channel].end(), times, times + count);
@@ -59,10 +60,11 @@ public:
     int batchWrites = 0;
     int eventsWritten = 0;
     int spikesWritten = 0;
-    int closeDelayMs = 0;
     std::atomic<bool> closed { false };
     std::atomic<bool> closing { false };
     std::atomic<bool> allowClose { true };
+    std::atomic<bool> allowWrite { true };
+    std::atomic<int> closeCalls { 0 };
 };
 
 class RecordThreadTests : public testing::Test
@@ -160,6 +162,21 @@ protected:
         tester->stopAcquisition();
         node->recordThread->setEngine (node->recordEngine.get());
     }
+
+    int overflowBuffer (RecordNode* recordNode)
+    {
+        AudioBuffer<float> data (6, 1024);
+        data.clear();
+        for (int block = 0; block < DATA_BUFFER_NBLOCKS * 10; ++block)
+        {
+            tester->processBlock (recordNode, data);
+            if (std::any_of (recordNode->fifoUsage.begin(), recordNode->fifoUsage.end(),
+                             [] (const auto& stream) { return stream.second > 0.9f; }))
+                return (block + 1) * data.getNumSamples();
+        }
+        ADD_FAILURE() << "The stalled recording writer did not reach the overflow threshold";
+        return 0;
+    }
 };
 
 class RecordThreadShutdownTests : public RecordThreadTests,
@@ -253,21 +270,6 @@ TEST_F (RecordThreadTests, DrainsEventsAndSpikesWithoutContinuousData)
     EXPECT_EQ (spikes.getRemainingEvents(), 0);
     EXPECT_EQ (engine.eventsWritten, BLOCK_MAX_WRITE_EVENTS + 1);
     EXPECT_EQ (engine.spikesWritten, BLOCK_MAX_WRITE_SPIKES + 1);
-}
-
-TEST_F (RecordThreadTests, StopAcquisitionWaitsForSlowRecordEngine)
-{
-    CapturingRecordEngine engine (false, 6);
-    engine.closeDelayMs = 1200;
-    node->recordThread->setEngine (&engine);
-    tester->startAcquisition (true, true);
-    EXPECT_TRUE (node->getRecordingStatus());
-
-    tester->stopAcquisition();
-    EXPECT_TRUE (engine.closed);
-
-    node->recordThread->waitForThreadToExit (-1);
-    node->recordThread->setEngine (node->recordEngine.get());
 }
 
 TEST_F (RecordThreadTests, HeadlessStopKeepsStatusActiveAndMessageThreadResponsive)
@@ -374,47 +376,107 @@ TEST_F (RecordThreadTests, KeepsModeActiveUntilEveryRecordNodeFinishes)
     EXPECT_FALSE (CoreServices::getAcquisitionStatus());
 }
 
-class RecordThreadProgressWindowTests : public RecordThreadTests
+TEST_F (RecordThreadTests, OverflowStopsBufferingBeforeMessageDispatchAndAllowsRestart)
 {
+    CapturingRecordEngine engine (false, 6);
+    engine.allowWrite = false;
+    engine.allowClose = false;
+    startWithEngine (engine);
+    tester->audioComponent->endCallbacks();
+    const int recordingNumber = node->getRecordingNumber();
+    int queuedSamples = 0;
+    std::thread producer ([&] { queuedSamples = overflowBuffer (node); });
+    producer.join();
+
+    const auto usageAtOverflow = node->fifoUsage;
+    AudioBuffer<float> data (6, 1024);
+    data.clear();
+    for (int block = 0; block < 20; ++block)
+        tester->processBlock (node, data);
+    EXPECT_EQ (node->fifoUsage, usageAtOverflow);
+    EXPECT_TRUE (node->getRecordingStatus());
+    EXPECT_FALSE (tester->controlPanel->isFinalizingRecording());
+
+    EXPECT_TRUE (waitUntil ([this] { return tester->controlPanel->isFinalizingRecording(); }));
+    EXPECT_EQ (node->getRecordingNumber(), recordingNumber + 1);
+    EXPECT_EQ (tester->controlPanel->findChildWithID ("recordingFinalizationOverlay"), nullptr);
+    expectModeChangesBlocked();
+    engine.allowWrite = true;
+    EXPECT_TRUE (waitUntil ([&engine] { return engine.closing.load(); }));
+    EXPECT_EQ (Component::getNumCurrentlyModalComponents(), 0);
+    engine.allowClose = true;
+    EXPECT_TRUE (waitUntil ([this] { return ! tester->controlPanel->isFinalizingRecording(); }));
+    EXPECT_EQ (engine.closeCalls.load(), 1);
+    for (const auto& samples : engine.samples)
+        EXPECT_EQ (samples.size(), queuedSamples);
+    EXPECT_TRUE (CoreServices::getAcquisitionStatus());
+    EXPECT_FALSE (CoreServices::getRecordingStatus());
+
+    const auto samplesBeforeRestart = engine.samples[0].size();
+    CoreServices::setRecordingStatus (true);
+    EXPECT_TRUE (waitUntil ([this] { return node->getRecordingStatus(); }));
+    tester->processBlock (node, data);
+    EXPECT_FALSE (tester->controlPanel->isFinalizingRecording());
+    tester->stopAcquisition();
+    EXPECT_GT (engine.samples[0].size(), samplesBeforeRestart);
+    node->recordThread->setEngine (node->recordEngine.get());
+}
+
+class RecordThreadFinalizationOverlayTests : public RecordThreadTests
+{
+protected:
+    void SetUp() override
+    {
+        RecordThreadTests::SetUp();
+        tester->customLookAndFeel->setUsingNativeAlertWindows (false);
+        tester->controlPanel->setSize (900, 32);
+        tester->controlPanel->setVisible (true);
+    }
+
     bool showControlPanel() const override { return true; }
 };
 
-TEST_F (RecordThreadProgressWindowTests, ShowsNonCancellableProgressOnlyAfterOneSecond)
+TEST_F (RecordThreadFinalizationOverlayTests, ShowsProgressImmediatelyWithoutModalWindow)
 {
+    auto* overlay = tester->controlPanel->findChildWithID ("recordingFinalizationOverlay");
+    ASSERT_NE (overlay, nullptr);
+    auto* status = dynamic_cast<Label*> (overlay->findChildWithID ("recordingFinalizationStatus"));
+    auto* progressBar = dynamic_cast<ProgressBar*> (overlay->findChildWithID ("recordingFinalizationProgress"));
+    ASSERT_NE (status, nullptr);
+    ASSERT_NE (progressBar, nullptr);
+    auto accessibility = progressBar->createAccessibilityHandler();
+    auto* value = accessibility->getValueInterface();
+    ASSERT_NE (value, nullptr);
     CapturingRecordEngine engine (false, 6);
     engine.allowClose = false;
     startWithEngine (engine);
-    const auto stopRequestedAt = Time::getMillisecondCounterHiRes();
     tester->controlPanel->stopAcquisition();
+    EXPECT_TRUE (overlay->isVisible());
+    EXPECT_TRUE (status->getText().containsIgnoreCase ("finalizing"));
+    EXPECT_FALSE (status->getText().containsIgnoreCase ("buffer full"));
     EXPECT_EQ (Component::getNumCurrentlyModalComponents(), 0);
     expectModeChangesBlocked();
+
+    EXPECT_EQ (tester->controlPanel->getComponentAt (tester->controlPanel->getLocalBounds().getCentre()), overlay);
     EXPECT_TRUE (waitUntil ([&engine] { return engine.closing.load(); }));
-    EXPECT_TRUE (waitUntil ([&] {
-        const bool windowVisible = Component::getNumCurrentlyModalComponents() > 0;
-        if (Time::getMillisecondCounterHiRes() - stopRequestedAt <= 1000.0)
-            EXPECT_FALSE (windowVisible);
-        return windowVisible;
-    }));
-    EXPECT_GT (Time::getMillisecondCounterHiRes() - stopRequestedAt, 1000.0);
-    EXPECT_EQ (Component::getNumCurrentlyModalComponents(), 1);
-    auto* progressWindow = dynamic_cast<AlertWindow*> (Component::getCurrentlyModalComponent());
-    EXPECT_NE (progressWindow, nullptr);
-    if (progressWindow != nullptr)
-    {
-        EXPECT_EQ (progressWindow->getName(), "Finishing recording");
-        EXPECT_EQ (progressWindow->getNumButtons(), 0);
-    }
-    expectModeChangesBlocked();
+    EXPECT_TRUE (waitUntil ([value] { return value->getCurrentValue() == 0.95; }));
+    EXPECT_EQ (Component::getNumCurrentlyModalComponents(), 0);
 
     finishAndRestoreEngine (engine);
+    EXPECT_FALSE (overlay->isVisible());
+    EXPECT_DOUBLE_EQ (value->getCurrentValue(), 1.0);
     EXPECT_EQ (Component::getNumCurrentlyModalComponents(), 0);
 }
 
-TEST_F (RecordThreadProgressWindowTests, FastFinalizationNeverShowsProgressWindow)
+TEST_F (RecordThreadFinalizationOverlayTests, FastFinalizationRemovesOverlayWithoutModalWindow)
 {
+    auto* overlay = tester->controlPanel->findChildWithID ("recordingFinalizationOverlay");
+    ASSERT_NE (overlay, nullptr);
+    EXPECT_FALSE (overlay->isVisible());
     CapturingRecordEngine engine (false, 6);
     startWithEngine (engine);
     tester->controlPanel->stopAcquisition();
+    EXPECT_TRUE (overlay->isVisible());
     EXPECT_TRUE (waitUntil ([this] {
         EXPECT_EQ (Component::getNumCurrentlyModalComponents(), 0);
         return ! tester->controlPanel->isFinalizingRecording();
@@ -422,13 +484,15 @@ TEST_F (RecordThreadProgressWindowTests, FastFinalizationNeverShowsProgressWindo
     EXPECT_TRUE (engine.closed);
     EXPECT_FALSE (CoreServices::getAcquisitionStatus());
     EXPECT_FALSE (CoreServices::getRecordingStatus());
-    MessageManager::getInstance()->runDispatchLoopUntil (1100);
+    EXPECT_FALSE (overlay->isVisible());
     EXPECT_EQ (Component::getNumCurrentlyModalComponents(), 0);
     node->recordThread->setEngine (node->recordEngine.get());
 }
 
-TEST_F (RecordThreadProgressWindowTests, HttpStopDoesNotShowProgressWindow)
+TEST_F (RecordThreadFinalizationOverlayTests, HttpStopCanSuppressOverlay)
 {
+    auto* overlay = tester->controlPanel->findChildWithID ("recordingFinalizationOverlay");
+    ASSERT_NE (overlay, nullptr);
     CapturingRecordEngine engine (false, 6);
     engine.allowClose = false;
     startWithEngine (engine);
@@ -436,10 +500,167 @@ TEST_F (RecordThreadProgressWindowTests, HttpStopDoesNotShowProgressWindow)
     OpenEphysHttpServer::handleStatusModeChange ("ACQUIRE", response);
     EXPECT_EQ (response.status, 200);
     EXPECT_TRUE (waitUntil ([&engine] { return engine.closing.load(); }));
-    MessageManager::getInstance()->runDispatchLoopUntil (1100);
     EXPECT_TRUE (tester->controlPanel->isFinalizingRecording());
+    EXPECT_FALSE (overlay->isVisible());
     EXPECT_EQ (Component::getNumCurrentlyModalComponents(), 0);
     finishAndRestoreEngine (engine);
+}
+
+TEST_F (RecordThreadFinalizationOverlayTests, RecordOnlyStopKeepsAcquisitionActive)
+{
+    auto* overlay = tester->controlPanel->findChildWithID ("recordingFinalizationOverlay");
+    ASSERT_NE (overlay, nullptr);
+    CapturingRecordEngine engine (false, 6);
+    engine.allowClose = false;
+    startWithEngine (engine);
+    tester->controlPanel->setRecordingState (false);
+    EXPECT_TRUE (overlay->isVisible());
+    expectModeChangesBlocked();
+    engine.allowClose = true;
+    EXPECT_TRUE (waitUntil ([this] { return ! tester->controlPanel->isFinalizingRecording(); }));
+    EXPECT_FALSE (overlay->isVisible());
+    EXPECT_TRUE (CoreServices::getAcquisitionStatus());
+    EXPECT_FALSE (CoreServices::getRecordingStatus());
+    finishAndRestoreEngine (engine);
+    EXPECT_EQ (Component::getNumCurrentlyModalComponents(), 0);
+}
+
+TEST_F (RecordThreadFinalizationOverlayTests, MultipleOverflowsWarnImmediatelyWhileAllWritersDrain)
+{
+    auto* overlay = tester->controlPanel->findChildWithID ("recordingFinalizationOverlay");
+    ASSERT_NE (overlay, nullptr);
+    auto* status = dynamic_cast<Label*> (overlay->findChildWithID ("recordingFinalizationStatus"));
+    auto* progressBar = dynamic_cast<ProgressBar*> (overlay->findChildWithID ("recordingFinalizationProgress"));
+    ASSERT_NE (status, nullptr);
+    ASSERT_NE (progressBar, nullptr);
+    auto accessibility = progressBar->createAccessibilityHandler();
+    auto* value = accessibility->getValueInterface();
+    ASSERT_NE (value, nullptr);
+    auto* secondNode = tester->createProcessor<RecordNode> (Plugin::Processor::RECORD_NODE);
+    CapturingRecordEngine firstEngine (false, 6), secondEngine (false, 6);
+    firstEngine.allowWrite = false;
+    secondEngine.allowWrite = false;
+    secondEngine.allowClose = false;
+    secondNode->recordThread->setEngine (&secondEngine);
+    startWithEngine (firstEngine);
+    tester->audioComponent->endCallbacks();
+    const int firstQueuedSamples = overflowBuffer (node);
+    const int secondQueuedSamples = overflowBuffer (secondNode);
+    EXPECT_EQ (Component::getNumCurrentlyModalComponents(), 0);
+
+    // Race an explicit acquisition stop against the pending overflow notification.
+    tester->controlPanel->stopAcquisition();
+    EXPECT_TRUE (tester->controlPanel->isFinalizingRecording());
+    EXPECT_EQ (Component::getNumCurrentlyModalComponents(), 0);
+    EXPECT_TRUE (overlay->isVisible());
+    EXPECT_TRUE (status->getText().containsIgnoreCase ("buffer full"));
+    EXPECT_TRUE (waitUntil ([] { return Component::getNumCurrentlyModalComponents() > 0; }));
+    auto* warningWindow = dynamic_cast<AlertWindow*> (Component::getCurrentlyModalComponent());
+    EXPECT_NE (warningWindow, nullptr);
+    if (warningWindow != nullptr)
+        EXPECT_EQ (warningWindow->getName(), "Record Buffer Warning");
+    EXPECT_FALSE (firstEngine.closed);
+    EXPECT_FALSE (secondEngine.closed);
+    firstEngine.allowWrite = true;
+    secondEngine.allowWrite = true;
+    EXPECT_TRUE (waitUntil ([&] { return firstEngine.closed.load() && secondEngine.closing.load(); }));
+    EXPECT_TRUE (waitUntil ([value] { return value->getCurrentValue() == 0.975; }));
+    EXPECT_TRUE (overlay->isVisible());
+    EXPECT_EQ (Component::getNumCurrentlyModalComponents(), 1);
+    expectModeChangesBlocked();
+
+    secondEngine.allowClose = true;
+    EXPECT_TRUE (waitUntil ([this] { return ! tester->controlPanel->isFinalizingRecording(); }));
+    EXPECT_TRUE (waitUntil ([] { return Component::getNumCurrentlyModalComponents() > 0; }));
+    EXPECT_TRUE (secondEngine.closed);
+    EXPECT_FALSE (overlay->isVisible());
+    EXPECT_EQ (firstEngine.closeCalls.load(), 1);
+    EXPECT_EQ (secondEngine.closeCalls.load(), 1);
+    for (const auto& samples : firstEngine.samples)
+        EXPECT_EQ (samples.size(), firstQueuedSamples);
+    for (const auto& samples : secondEngine.samples)
+        EXPECT_EQ (samples.size(), secondQueuedSamples);
+    EXPECT_FALSE (CoreServices::getAcquisitionStatus());
+    EXPECT_FALSE (CoreServices::getRecordingStatus());
+    EXPECT_EQ (Component::getNumCurrentlyModalComponents(), 1);
+    if (warningWindow != nullptr)
+    {
+        EXPECT_EQ (warningWindow->getName(), "Record Buffer Warning");
+        warningWindow->exitModalState (0);
+    }
+    EXPECT_TRUE (waitUntil ([] { return Component::getNumCurrentlyModalComponents() == 0; }));
+    MessageManager::getInstance()->runDispatchLoopUntil (100);
+    EXPECT_EQ (Component::getNumCurrentlyModalComponents(), 0);
+    node->recordThread->setEngine (node->recordEngine.get());
+    secondNode->recordThread->setEngine (secondNode->recordEngine.get());
+}
+
+TEST_F (RecordThreadFinalizationOverlayTests, DismissingOverflowWarningDoesNotCancelFinalization)
+{
+    auto* overlay = tester->controlPanel->findChildWithID ("recordingFinalizationOverlay");
+    ASSERT_NE (overlay, nullptr);
+    CapturingRecordEngine engine (false, 6);
+    engine.allowWrite = false;
+    engine.allowClose = false;
+    startWithEngine (engine);
+    tester->audioComponent->endCallbacks();
+    overflowBuffer (node);
+    EXPECT_TRUE (waitUntil ([] { return Component::getNumCurrentlyModalComponents() > 0; }));
+    EXPECT_TRUE (overlay->isVisible());
+    EXPECT_TRUE (tester->controlPanel->isFinalizingRecording());
+    auto* warningWindow = dynamic_cast<AlertWindow*> (Component::getCurrentlyModalComponent());
+    EXPECT_NE (warningWindow, nullptr);
+    if (warningWindow != nullptr)
+        warningWindow->exitModalState (0);
+    EXPECT_TRUE (waitUntil ([] { return Component::getNumCurrentlyModalComponents() == 0; }));
+    tester->controlPanel->requestRecordBufferOverflowStop();
+    MessageManager::getInstance()->runDispatchLoopUntil (100);
+    EXPECT_EQ (Component::getNumCurrentlyModalComponents(), 0);
+    EXPECT_TRUE (overlay->isVisible());
+    expectModeChangesBlocked();
+    engine.allowWrite = true;
+    EXPECT_TRUE (waitUntil ([&engine] { return engine.closing.load(); }));
+    finishAndRestoreEngine (engine);
+    EXPECT_FALSE (overlay->isVisible());
+    EXPECT_EQ (Component::getNumCurrentlyModalComponents(), 0);
+    EXPECT_EQ (engine.closeCalls.load(), 1);
+}
+
+TEST_F (RecordThreadFinalizationOverlayTests, FastOverflowWarningDoesNotStopNextRecording)
+{
+    auto* overlay = tester->controlPanel->findChildWithID ("recordingFinalizationOverlay");
+    ASSERT_NE (overlay, nullptr);
+    CapturingRecordEngine engine (false, 6);
+    engine.allowWrite = false;
+    startWithEngine (engine);
+    tester->audioComponent->endCallbacks();
+    overflowBuffer (node);
+    engine.allowWrite = true;
+
+    EXPECT_TRUE (waitUntil ([] { return ! CoreServices::getRecordingStatus(); }));
+    EXPECT_TRUE (engine.closed);
+    EXPECT_TRUE (CoreServices::getAcquisitionStatus());
+    EXPECT_TRUE (waitUntil ([] { return Component::getNumCurrentlyModalComponents() > 0; }));
+    auto* warningWindow = dynamic_cast<AlertWindow*> (Component::getCurrentlyModalComponent());
+    EXPECT_NE (warningWindow, nullptr);
+    if (warningWindow != nullptr)
+        EXPECT_EQ (warningWindow->getName(), "Record Buffer Warning");
+
+    CoreServices::setRecordingStatus (true);
+    EXPECT_TRUE (waitUntil ([this] { return node->getRecordingStatus(); }));
+    MessageManager::getInstance()->runDispatchLoopUntil (100);
+    EXPECT_TRUE (CoreServices::getRecordingStatus());
+    EXPECT_FALSE (tester->controlPanel->isFinalizingRecording());
+    EXPECT_FALSE (overlay->isVisible());
+    EXPECT_EQ (Component::getNumCurrentlyModalComponents(), 1);
+    if (warningWindow != nullptr)
+        warningWindow->exitModalState (0);
+    EXPECT_TRUE (waitUntil ([] { return Component::getNumCurrentlyModalComponents() == 0; }));
+    EXPECT_TRUE (CoreServices::getRecordingStatus());
+    EXPECT_FALSE (tester->controlPanel->isFinalizingRecording());
+    tester->stopAcquisition();
+    EXPECT_EQ (engine.closeCalls.load(), 2);
+    node->recordThread->setEngine (node->recordEngine.get());
 }
 
 INSTANTIATE_TEST_SUITE_P (

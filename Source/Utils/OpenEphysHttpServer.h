@@ -151,7 +151,7 @@ public:
     explicit OpenEphysHttpServer (ProcessorGraph* graph) : graph_ (graph),
                                                            juce::Thread ("HttpServer") {}
 
-    /** Applies a status request on the message thread without opening a progress window. */
+    /** Applies a status request on the message thread without showing a progress overlay. */
     static void handleStatusModeChange (const std::string& desiredMode, httplib::Response& response)
     {
         JUCE_ASSERT_MESSAGE_THREAD

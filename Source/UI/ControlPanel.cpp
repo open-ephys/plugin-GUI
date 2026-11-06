@@ -34,42 +34,72 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 const int SIZE_AUDIO_EDITOR_MAX_WIDTH = 500;
 
-namespace
-{
-class RecordingDrainProgressWindow : public ThreadWithProgressWindow
+class ControlPanel::RecordingFinalizationOverlay : public Component
 {
 public:
-    RecordingDrainProgressWindow (const Array<RecordNode*>& nodes, Component* parent)
-        : ThreadWithProgressWindow ("Finishing recording", true, false, 1000, {}, parent)
+    RecordingFinalizationOverlay() : progressBar (progress)
     {
-        for (auto* node : nodes)
-            threads.push_back (node->recordThread.get());
-        setStatusMessage ("Writing queued data and closing recording files...");
+        setComponentID ("recordingFinalizationOverlay");
+        setWantsKeyboardFocus (true);
+        status.setComponentID ("recordingFinalizationStatus");
+        status.setFont (FontOptions ("Inter", "Medium", 16.0f));
+        status.setBorderSize (BorderSize<int> (0));
+        status.setJustificationType (Justification::centred);
+        status.setMinimumHorizontalScale (1.0f);
+        progressBar.setComponentID ("recordingFinalizationProgress");
+        progressBar.setInterceptsMouseClicks (false, false);
+        addAndMakeVisible (status);
+        addAndMakeVisible (progressBar);
+        lookAndFeelChanged();
     }
 
-    void run() override
+    void beginFinalization (bool bufferOverflowed)
     {
-        while (! threadShouldExit())
-        {
-            double progress = 0.0;
-            bool running = false;
-            for (auto* thread : threads)
-            {
-                const bool active = thread->isThreadRunning();
-                running = running || active;
-                progress += active ? thread->getDrainProgress() : 1.0;
-            }
-            setProgress (threads.empty() ? 1.0 : progress / double (threads.size()));
-            if (! running)
-                return;
-            wait (50);
-        }
+        status.setText (bufferOverflowed ? "Buffer full - finalizing recording..." : "Finalizing recording...",
+                        dontSendNotification);
+        const String description = bufferOverflowed
+                                       ? "The recording buffer is full. Saving queued data and closing recording files..."
+                                       : "Saving queued data and closing recording files...";
+        status.setTooltip (description);
+        statusTextWidth = GlyphArrangement::getStringWidthInt (status.getFont(), status.getText()) + 8;
+        resized();
+    }
+
+    void updateProgress (double value)
+    {
+        progress = jlimit (0.0, 1.0, value);
+    }
+
+    void paint (Graphics& g) override
+    {
+        g.fillAll (findColour (ThemeColours::controlPanelBackground).withAlpha (0.85f));
+    }
+
+    void resized() override
+    {
+        const int contentHeight = jmax (0, jmin (22, getHeight() - 2));
+        const int availableWidth = jmax (0, getWidth() - 16);
+        const int gap = jmin (12, availableWidth);
+        const int labelWidth = jmin (statusTextWidth, jmax (0, availableWidth - gap - 64));
+        const int barWidth = jmin (300, jmax (0, availableWidth - labelWidth - gap));
+        juce::Rectangle<int> content (0, 0, labelWidth + gap + barWidth, contentHeight);
+        content.setCentre (getLocalBounds().getCentre());
+        status.setBounds (content.removeFromLeft (labelWidth));
+        content.removeFromLeft (gap);
+        progressBar.setBounds (content);
+    }
+
+    void lookAndFeelChanged() override
+    {
+        status.setColour (Label::textColourId, findColour (ThemeColours::controlPanelText));
     }
 
 private:
-    std::vector<RecordThread*> threads;
+    double progress = 0.0;
+    int statusTextWidth = 0;
+    Label status;
+    ProgressBar progressBar;
 };
-}
 
 NewDirectoryButton::NewDirectoryButton() : Button ("NewDirectory")
 {
@@ -572,6 +602,8 @@ ControlPanel::ControlPanel (ProcessorGraph* graph_, AudioComponent* audio_, bool
     showHideRecordingOptionsButton->setTooltip ("Show/hide recording options");
     filenameConfigWindow = std::make_unique<FilenameConfigWindow> (filenameFields);
 
+    finalizationOverlay = std::make_unique<RecordingFinalizationOverlay>();
+
     if (! isConsoleApp)
     {
         audioEditor = (AudioEditor*) graph->getAudioNode()->createEditor();
@@ -584,6 +616,7 @@ ControlPanel::ControlPanel (ProcessorGraph* graph_, AudioComponent* audio_, bool
         addAndMakeVisible (diskMeter.get());
         addAndMakeVisible (showHideRecordingOptionsButton.get());
         addAndMakeVisible (filenameText.get());
+        addChildComponent (finalizationOverlay.get());
 
         refreshMeters();
 
@@ -595,9 +628,31 @@ ControlPanel::ControlPanel (ProcessorGraph* graph_, AudioComponent* audio_, bool
 
 ControlPanel::~ControlPanel()
 {
+    cancelPendingUpdate();
 }
 
-void ControlPanel::setRecordingState (bool t, bool force, bool showProgressWindow)
+void ControlPanel::requestRecordBufferOverflowStop()
+{
+    recordBufferOverflowed = true;
+    triggerAsyncUpdate();
+}
+
+void ControlPanel::handleAsyncUpdate()
+{
+    if (recordBufferOverflowed && getRecordingState() && ! isFinalizingRecording())
+        beginRecordingFinalization (false);
+}
+
+void ControlPanel::updateRecordingFinalizationProgress()
+{
+    double progress = 0.0;
+    const auto nodes = graph->getRecordNodes();
+    for (auto* node : nodes)
+        progress += node->recordThread->isThreadRunning() ? node->recordThread->getDrainProgress() : 1.0;
+    finalizationOverlay->updateProgress (nodes.isEmpty() ? 1.0 : progress / double (nodes.size()));
+}
+
+void ControlPanel::setRecordingState (bool t, bool force, bool showProgressOverlay)
 {
     if (isFinalizingRecording())
     {
@@ -605,7 +660,7 @@ void ControlPanel::setRecordingState (bool t, bool force, bool showProgressWindo
         return;
     }
 
-    const ScopedValueSetter<bool> progressWindow (showDrainProgress, showProgressWindow);
+    const ScopedValueSetter<bool> progressOverlay (showDrainProgress, showProgressOverlay);
     forceRecording = force;
 
     recordButton->setToggleState (t, sendNotificationSync);
@@ -649,7 +704,7 @@ bool ControlPanel::getAcquisitionState()
     return acquisitionActive.load();
 }
 
-void ControlPanel::setAcquisitionState (bool state, bool showProgressWindow)
+void ControlPanel::setAcquisitionState (bool state, bool showProgressOverlay)
 {
     if (isFinalizingRecording())
     {
@@ -657,7 +712,7 @@ void ControlPanel::setAcquisitionState (bool state, bool showProgressWindow)
         return;
     }
 
-    const ScopedValueSetter<bool> progressWindow (showDrainProgress, showProgressWindow);
+    const ScopedValueSetter<bool> progressOverlay (showDrainProgress, showProgressOverlay);
     playButton->setToggleState (state, sendNotificationSync);
 }
 
@@ -894,8 +949,8 @@ void ControlPanel::createPaths()
     if (w > 22)
         w = 22;
 
-    int h1 = getHeight() - 32;
     int h2 = getHeight();
+    int h1 = h2 - 32;
     int indent = 5;
 
     p1.clear();
@@ -940,6 +995,7 @@ void ControlPanel::resized()
 {
     const int w = getWidth();
     const int h = 32;
+    const int controlsHeight = getHeight();
 
     // We have 3 possible layout schemes:
     // when there are 1, 2 or 3 rows within which our elements are placed.
@@ -1036,15 +1092,15 @@ void ControlPanel::resized()
     }
 
     if (open)
-        showHideRecordingOptionsButton->setBounds (w - 28, getHeight() - 5 - h * 2 + 10, h - 10, h - 10);
+        showHideRecordingOptionsButton->setBounds (w - 28, controlsHeight - 5 - h * 2 + 10, h - 10, h - 10);
     else
-        showHideRecordingOptionsButton->setBounds (w - 28, getHeight() - 5 - h + 10, h - 10, h - 10);
+        showHideRecordingOptionsButton->setBounds (w - 28, controlsHeight - 5 - h + 10, h - 10, h - 10);
 
     createPaths();
 
     if (open)
     {
-        int topBound = getHeight() - h + 10 - 5;
+        int topBound = controlsHeight - h + 10 - 5;
 
         /* Record engine selector */
         recordSelector->setBounds ((w - 435) > 40 ? 35 : w - 450, topBound, 125, h - 10);
@@ -1075,6 +1131,8 @@ void ControlPanel::resized()
         recordSelector->setVisible (false);
     }
 
+    finalizationOverlay->setBounds (getLocalBounds());
+    finalizationOverlay->toFront (false);
     repaint();
 }
 
@@ -1085,7 +1143,12 @@ void ControlPanel::openState (bool os)
     showHideRecordingOptionsButton->setToggleState (os, dontSendNotification);
 
     if (! isConsoleApp)
-        AccessClass::getUIComponent()->childComponentChanged();
+    {
+        if (auto* ui = AccessClass::getUIComponent())
+            ui->childComponentChanged();
+        else
+            resized();
+    }
 }
 
 void ControlPanel::labelTextChanged (Label* label)
@@ -1161,7 +1224,6 @@ void ControlPanel::beginRecordingFinalization (bool stopAcquisitionWhenFinished)
 
     finalizingRecording = true;
     stopAcquisitionAfterDrain = stopAcquisitionWhenFinished;
-    drainProgressWindowShowTime = ! isConsoleApp && showDrainProgress ? Time::getMillisecondCounterHiRes() + 500.0 : 0.0;
     playButton->setToggleState (true, dontSendNotification);
     recordButton->setToggleState (true, dontSendNotification);
     playButton->setEnabled (false);
@@ -1173,15 +1235,35 @@ void ControlPanel::beginRecordingFinalization (bool stopAcquisitionWhenFinished)
         graph->setRecordState (false);
     }
 
+    finalizationOverlay->beginFinalization (recordBufferOverflowed.load());
+    updateRecordingFinalizationProgress();
+    finalizationOverlay->setVisible (! isConsoleApp && (showDrainProgress || recordBufferOverflowed.load()));
+    finalizationOverlay->toFront (false);
+    if (finalizationOverlay->isShowing() && finalizationOverlay->getPeer() != nullptr)
+        finalizationOverlay->grabKeyboardFocus();
     initialize = false;
     startTimer (50);
+
+    if (recordBufferOverflowed)
+    {
+        const String warning = "The recording buffer has reached capacity. Recording is stopping to prevent data corruption.\n\n"
+                               "To address the issue, you can try reducing the number of simultaneously recorded channels or "
+                               "using multiple Record Nodes to distribute data writing across more than one drive.";
+        LOGC ("Record Buffer Warning: ", warning);
+        if (! isConsoleApp)
+        {
+            // A callback prevents JUCE from falling back to a synchronous modal loop.
+            AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "Record Buffer Warning", warning, "OK",
+                                             this->getTopLevelComponent(), ModalCallbackFunction::create ([] (int) {}));
+        }
+    }
 }
 
 void ControlPanel::finishRecordingFinalization()
 {
     jassert (recordingThreadsHaveStopped());
-    drainProgressWindow.reset();
-    drainProgressWindowShowTime = 0.0;
+    finalizationOverlay->updateProgress (1.0);
+    finalizationOverlay->setVisible (false);
 
     hasRecorded = true;
 
@@ -1214,6 +1296,7 @@ void ControlPanel::finishRecordingFinalization()
         finishStopAcquisition();
 
     stopAcquisitionAfterDrain = false;
+    recordBufferOverflowed = false;
     finalizingRecording = false;
     playButton->setEnabled (true);
     recordButton->setEnabled (true);
@@ -1223,6 +1306,7 @@ void ControlPanel::finishRecordingFinalization()
         startTimer (getAcquisitionState() ? 250 : 60000);
 
     repaint();
+
 }
 
 void ControlPanel::componentBeingDeleted (Component& component)
@@ -1480,12 +1564,8 @@ void ControlPanel::timerCallback()
     {
         if (recordingThreadsHaveStopped())
             finishRecordingFinalization();
-        else if (drainProgressWindow == nullptr && drainProgressWindowShowTime > 0.0
-                 && Time::getMillisecondCounterHiRes() > drainProgressWindowShowTime)
-        {
-            drainProgressWindow = std::make_unique<RecordingDrainProgressWindow> (graph->getRecordNodes(), this->getTopLevelComponent());
-            drainProgressWindow->launchThread();
-        }
+        else
+            updateRecordingFinalizationProgress();
         return;
     }
 

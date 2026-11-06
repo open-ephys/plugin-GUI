@@ -344,7 +344,8 @@ class TESTABLE ControlPanel : public Component,
                               public Label::Listener,
                               public ComboBox::Listener,
                               public ComponentListener,
-                              public FilenameComponentListener
+                              public FilenameComponentListener,
+                              private AsyncUpdater
 
 {
 public:
@@ -367,8 +368,8 @@ public:
     /** Return current acquisition state.*/
     bool getAcquisitionState();
 
-    /** Changes acquisition mode; optionally suppresses the recording-finalization window. */
-    void setAcquisitionState (bool state, bool showProgressWindow = true);
+    /** Changes acquisition mode; optionally suppresses the recording-finalization overlay. */
+    void setAcquisitionState (bool state, bool showProgressOverlay = true);
 
     /** Called to start acquisition*/
     void startAcquisition (bool startRecording = false);
@@ -386,11 +387,14 @@ public:
     /** Notifies the control panel when the filename is updated */
     void labelTextChanged (Label*);
 
-    /** Changes recording mode; optionally suppresses the recording-finalization window. */
-    void setRecordingState (bool isRecording, bool force = false, bool showProgressWindow = true);
+    /** Changes recording mode; optionally suppresses the recording-finalization overlay. */
+    void setRecordingState (bool isRecording, bool force = false, bool showProgressOverlay = true);
 
     /** Mode changes are blocked until every recording thread has drained and closed its files. */
     bool isFinalizingRecording() const { return finalizingRecording.load(); }
+
+    /** Requests a stop from the audio thread; shows the overflow warning while files are finalized. */
+    void requestRecordBufferOverflowStop();
 
     /** Returns true if recording is active, false otherwise. */
     bool getRecordingState();
@@ -504,6 +508,8 @@ private:
     void finishRecordingFinalization();
     void finishStopAcquisition();
     bool recordingThreadsHaveStopped() const;
+    void handleAsyncUpdate() override;
+    void updateRecordingFinalizationProgress();
 
     /** Generates the next recording directory based on field settings **/
     String generateFilenameFromFields (bool usePlaceholderText);
@@ -549,7 +555,8 @@ private:
     OwnedArray<RecordEngineManager> recordEngines;
     // Removed managers must outlive any engines that still reference them.
     OwnedArray<RecordEngineManager> retiredRecordEngines;
-    std::unique_ptr<ThreadWithProgressWindow> drainProgressWindow;
+    class RecordingFinalizationOverlay;
+    std::unique_ptr<RecordingFinalizationOverlay> finalizationOverlay;
 
     /** Pointers to non-owned components */
     ProcessorGraph* graph;
@@ -565,9 +572,9 @@ private:
     std::atomic<bool> acquisitionActive { false };
     std::atomic<bool> recordingActive { false };
     std::atomic<bool> finalizingRecording { false };
+    std::atomic<bool> recordBufferOverflowed { false };
     bool stopAcquisitionAfterDrain = false;
     bool showDrainProgress = true;
-    double drainProgressWindowShowTime = 0.0;
     int lastEngineIndex = -1;
 
     Path p1, p2;

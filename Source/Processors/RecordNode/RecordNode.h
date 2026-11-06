@@ -290,6 +290,7 @@ private:
 
     bool isProcessing;
     std::atomic<bool> isRecording;
+    std::atomic<bool> bufferOverflowed { false };
     bool hasRecorded;
     bool settingsNeeded;
     bool shouldRecord;

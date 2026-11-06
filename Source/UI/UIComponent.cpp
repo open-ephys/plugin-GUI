@@ -274,10 +274,8 @@ void UIComponent::resized()
                 addHeight = 64;
         }
 
-        if (controlPanel->isOpen())
-            controlPanel->setBounds (leftBound, 6, controlPanelWidth, 64 + addHeight);
-        else
-            controlPanel->setBounds (leftBound, 6, controlPanelWidth, 32 + addHeight);
+        const int baseHeight = controlPanel->isOpen() ? 64 : 32;
+        controlPanel->setBounds (leftBound, 6, controlPanelWidth, baseHeight + addHeight);
     }
 
     if (processorList != nullptr)
