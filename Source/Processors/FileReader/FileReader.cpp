@@ -131,7 +131,12 @@ void FileReader::parameterValueChanged (Parameter* p)
             return;
 
         TimeParameter* tp = static_cast<TimeParameter*> (p);
-        stopSample = millisecondsToSamples (tp->getTimeValue()->getTimeInMilliseconds());
+        const auto endMilliseconds = tp->getTimeValue()->getTimeInMilliseconds();
+        const int64 fileSamples = input->getActiveNumSamples();
+        // The displayed file duration omits partial milliseconds; preserve the exact sample endpoint.
+        stopSample = endMilliseconds >= samplesToMilliseconds (fileSamples)
+                 ? fileSamples
+                 : millisecondsToSamples (endMilliseconds);
         
         if (input != nullptr && stopSample == startSample)
         {
@@ -464,6 +469,7 @@ bool FileReader::startAcquisition()
 
     {
         const ScopedLock sl(bufferLock);
+        playbackSampleNumber = 0;
         readAndFillBufferCache (bufferA, bufferAInfo);
         readBuffer = &bufferA;
         readBufferInfo = &bufferAInfo;
@@ -812,21 +818,28 @@ void FileReader::process (AudioBuffer<float>& buffer)
         }
     }
 
-    // Update timestamps and sample positions atomically
-    int64 start = playbackSamplePos.get();
-    playbackSamplePos.set(start + samplesNeededPerBuffer);
-    int64 stop = playbackSamplePos.get();
+    // Keep acquisition sample numbers continuous even when the file cursor loops or seeks.
+    setTimestampAndSamples (playbackSampleNumber, -1.0, samplesNeededPerBuffer, dataStreams[0]->getStreamId());
 
-    setTimestampAndSamples(start, -1.0, samplesNeededPerBuffer, dataStreams[0]->getStreamId());
-
-    // Handle looping
-    if (playbackSamplePos.get() >= stopSample)
+    int64 fileSample = playbackSamplePos.get();
+    int blockOffset = 0;
+    // Query only contiguous file ranges; a short selection can wrap several times in one block.
+    while (blockOffset < samplesNeededPerBuffer && stopSample > startSample)
     {
-        playbackSamplePos.set(startSample + (playbackSamplePos.get() - stopSample));
+        if (fileSample < startSample || fileSample >= stopSample)
+            fileSample = startSample;
+
+        const int samplesInRange = int (jmin (int64 (samplesNeededPerBuffer - blockOffset), stopSample - fileSample));
+        addEventsInRange (fileSample, fileSample + samplesInRange, blockOffset);
+        blockOffset += samplesInRange;
+        fileSample += samplesInRange;
+
+        if (fileSample == stopSample)
+            fileSample = startSample;
     }
 
-    // Process events for this buffer
-    addEventsInRange(start, stop);
+    playbackSamplePos.set (fileSample);
+    playbackSampleNumber += samplesNeededPerBuffer;
 
     // Update buffer window counter
     int newWindow = (bufferCacheWindow.get() + 1) % BUFFER_WINDOW_CACHE_SIZE;
@@ -836,7 +849,7 @@ void FileReader::process (AudioBuffer<float>& buffer)
         firstProcess = true;
 }
 
-void FileReader::addEventsInRange (int64 start, int64 stop)
+void FileReader::addEventsInRange (int64 start, int64 stop, int blockOffset)
 {
     EventInfo events;
     input->processEventData (events, start, stop);
@@ -854,20 +867,22 @@ void FileReader::addEventsInRange (int64 start, int64 stop)
         {
             uint8 ttlBit = events.channels[i];
             bool state = events.channelStates[i] > 0;
-            TTLEventPtr event = TTLEvent::createTTLEvent (eventChannels[0], events.sampleNumbers[i], ttlBit, state);
-            addEvent (event, int (absoluteCurrentSampleNumber - start));
+            const int sampleOffset = blockOffset + int (absoluteCurrentSampleNumber - start);
+            // Translate the file-relative event position onto the acquisition timeline.
+            TTLEventPtr event = TTLEvent::createTTLEvent (eventChannels[0], playbackSampleNumber + sampleOffset, ttlBit, state);
+            addEvent (event, sampleOffset);
         }
     }
 }
 
 unsigned int FileReader::samplesToMilliseconds (int64 samples) const
 {
-    return (unsigned int) (1000.f * float (samples) / currentSampleRate);
+    return (unsigned int) (1000.0 * double (samples) / double (currentSampleRate));
 }
 
 int64 FileReader::millisecondsToSamples (unsigned int ms) const
 {
-    return (int64) (currentSampleRate * float (ms) / 1000.f);
+    return (int64) (double (currentSampleRate) * double (ms) / 1000.0);
 }
 
 void FileReader::switchBuffer()

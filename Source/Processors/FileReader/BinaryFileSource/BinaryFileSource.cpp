@@ -306,9 +306,7 @@ void BinaryFileSource::fillRecordInfo()
 
 void BinaryFileSource::processEventData (EventInfo& eventInfo, int64 start, int64 stop)
 {
-    int64 local_start = start % getActiveNumSamples();
-    int64 local_stop = stop % getActiveNumSamples();
-
+    // FileReader handles wrapping. Do not modulo stop: the exclusive file-end boundary is valid.
     std::vector<String> includeStreams = { currentStream, "MessageCenter" };
 
     for (int s = 0; s < includeStreams.size(); s++)
@@ -319,7 +317,7 @@ void BinaryFileSource::processEventData (EventInfo& eventInfo, int64 start, int6
 
         while (i < info.sampleNumbers.size())
         {
-            if (info.sampleNumbers[i] >= local_start && info.sampleNumbers[i] < local_stop)
+            if (info.sampleNumbers[i] >= start && info.sampleNumbers[i] < stop)
             {
                 eventInfo.channels.push_back (info.channels[i] - 1);
                 eventInfo.channelStates.push_back ((info.channelStates[i]));

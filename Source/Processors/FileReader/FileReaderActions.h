@@ -56,6 +56,8 @@ private:
 
     int originalStartTimeInMs;
     int originalEndTimeInMs;
+    int64 originalStartSample;
+    int64 originalStopSample;
 
     int newStartTimeInMs;
     int newEndTimeInMs;

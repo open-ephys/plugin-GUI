@@ -63,7 +63,7 @@ static const Array<Colour> eventChannelColours = {
 
   @see GenericProcessor
 */
-class FileReader : public GenericProcessor,
+class TESTABLE FileReader : public GenericProcessor,
                    private Thread
 {
 public:
@@ -188,6 +188,8 @@ public:
     void loadCustomParametersFromXml (XmlElement*) override;
 
 private:
+    friend class FileReaderTests;
+
     struct BufferWindowInfo
     {
         std::array<int, BUFFER_WINDOW_CACHE_SIZE> sampleCounts {};
@@ -205,7 +207,7 @@ private:
     void updateBufferWindowInfo (BufferWindowInfo& info);
 
     /** Generates any events found within the current continuous buffer interval */
-    void addEventsInRange (int64 start, int64 stop);
+    void addEventsInRange (int64 start, int64 stop, int blockOffset);
 
     /** Flag if a new file has been loaded */
     bool gotNewFile;
@@ -213,7 +215,8 @@ private:
     /** Flag if the invalid sample rate warning is shown */
     bool sampleRateWarningShown;
 
-    /** Total number of samples played back since most recent start of acquisition */
+    /** Acquisition sample counter, reset on acquisition start but not on file loops or seeks. */
+    int64 playbackSampleNumber = 0;
 
     float currentSampleRate;
     int currentNumChannels;

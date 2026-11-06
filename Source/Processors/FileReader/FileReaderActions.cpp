@@ -34,7 +34,9 @@ SelectFile::SelectFile (FileReader* processor, PathParameter* pathParam, var new
     newPath (newValue),
     originalActiveStream (activeStream->getSelectedIndex()),
     originalStartTimeInMs (startTime->getTimeValue()->getTimeInMilliseconds()), 
-    originalEndTimeInMs (endTime->getTimeValue()->getTimeInMilliseconds()) {}
+    originalEndTimeInMs (endTime->getTimeValue()->getTimeInMilliseconds()),
+    originalStartSample (processor->getPlaybackStart()),
+    originalStopSample (processor->getPlaybackStop()) {}
 
 bool SelectFile::perform()
 {
@@ -102,15 +104,15 @@ bool SelectFile::undo()
     // Set the active stream to the original active stream
     processor->setActiveStream (originalActiveStream, false);
 
-    // Set the start time to the original start time
+    // Restore display times and exact sample bounds separately to avoid millisecond truncation.
     startTime->getTimeValue()->setTimeFromMilliseconds (originalStartTimeInMs);
     startTime->setNextValue (startTime->getTimeValue()->toString(), false);
-    processor->setPlaybackStart (originalStartTimeInMs * processor->getCurrentSampleRate() / 1000);
+    processor->setPlaybackStart (originalStartSample);
 
     // Set the end time to the original end time
     endTime->getTimeValue()->setTimeFromMilliseconds (originalEndTimeInMs);
     endTime->setNextValue (endTime->getTimeValue()->toString(), false);
-    processor->setPlaybackStop (originalEndTimeInMs * processor->getCurrentSampleRate() / 1000);
+    processor->setPlaybackStop (originalStopSample);
 
     return true;
 }

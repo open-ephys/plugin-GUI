@@ -12,6 +12,7 @@ add_sources(${COMPONENT_NAME}_tests
 		SynchronizerTests.cpp
 		ProcessorGraphTests.cpp
 		EventTests.cpp
+		FileReaderTests.cpp
 		DataThreadTests.cpp
 		GenericProcessorTests.cpp
 		MessageCenterTests.cpp
@@ -21,6 +22,7 @@ add_sources(${COMPONENT_NAME}_tests
 		MetadataEventObjectTests.cpp
 		MetadataEventTests.cpp
 		ParameterOwnerTests.cpp
+		../../Source/Processors/FileReader/BinaryFileSource/BinaryFileSource.cpp
 		../../Source/Processors/PluginManager/PluginManager.cpp
 		../../Source/Processors/RecordNode/DataQueue.cpp
 		../../Source/Processors/RecordNode/RecordThread.cpp

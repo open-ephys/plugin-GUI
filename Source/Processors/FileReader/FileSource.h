@@ -85,7 +85,8 @@ public:
     */
     virtual int readData (float* buffer, int nSamples) = 0;
 
-    /** Add info about events occurring within a sample range */
+    /** Add events in [fromSampleNumber, toSampleNumber) within the active file.
+        The exclusive stop may equal getActiveNumSamples(). FileReader handles looping. */
     virtual void processEventData (EventInfo& info, int64 fromSampleNumber, int64 toSampleNumber) = 0;
 
     // ------------------------------------------------------------
