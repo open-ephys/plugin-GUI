@@ -64,6 +64,11 @@ Desktop& JUCE_CALLTYPE Desktop::getInstance()
     return *instance;
 }
 
+Desktop* JUCE_CALLTYPE Desktop::getInstanceWithoutCreating()
+{
+    return instance;
+}
+
 Desktop* Desktop::instance = nullptr;
 
 //==============================================================================

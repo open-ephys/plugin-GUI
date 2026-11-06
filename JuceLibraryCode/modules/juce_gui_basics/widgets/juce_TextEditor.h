@@ -787,7 +787,12 @@ private:
     {
     public:
         explicit GlobalMouseListener (Component& e) : editor (e) { Desktop::getInstance().addGlobalMouseListener    (this); }
-        ~GlobalMouseListener() override                          { Desktop::getInstance().removeGlobalMouseListener (this); }
+
+        ~GlobalMouseListener() override
+        {
+            if (auto* desktop = Desktop::getInstanceWithoutCreating())
+                desktop->removeGlobalMouseListener (this);
+        }
 
         bool lastMouseDownInEditor() const { return mouseDownInEditor; }
 

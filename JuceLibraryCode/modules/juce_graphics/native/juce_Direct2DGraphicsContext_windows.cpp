@@ -432,24 +432,22 @@ void Direct2DGraphicsContext::excludeClipRectangle (const Rectangle<int>& userSp
     if (transform.isOnlyTranslated)
     {
         // Just a translation; pre-translate the exclusion area
-        auto translatedR = transform.translated (userSpaceExcludedRectangle.toFloat()).getLargestIntegerWithin().toFloat();
+        const auto translatedR = transform.translated (userSpaceExcludedRectangle.toFloat())
+                                          .getLargestIntegerWithin()
+                                          .toFloat();
 
-        if (! translatedR.contains (frameSize))
-        {
-            deviceSpaceClipList.subtract (translatedR);
-            pendingClipList.subtract (translatedR);
-        }
+        deviceSpaceClipList.subtract (translatedR);
+        pendingClipList.subtract (translatedR);
     }
     else if (currentState->isCurrentTransformAxisAligned())
     {
         // Just a scale + translation; pre-transform the exclusion area
-        auto transformedR = transform.boundsAfterTransform (userSpaceExcludedRectangle.toFloat()).getLargestIntegerWithin().toFloat();
+        const auto transformedR = transform.boundsAfterTransform (userSpaceExcludedRectangle.toFloat())
+                                           .getLargestIntegerWithin()
+                                           .toFloat();
 
-        if (! transformedR.contains (frameSize))
-        {
-            deviceSpaceClipList.subtract (transformedR);
-            pendingClipList.subtract (transformedR);
-        }
+        deviceSpaceClipList.subtract (transformedR);
+        pendingClipList.subtract (transformedR);
     }
     else
     {
@@ -641,9 +639,13 @@ void Direct2DGraphicsContext::restoreState()
 
     currentState = getPimpl()->popSavedState();
 
-    currentState->updateColourBrush();
-    jassert (currentState);
+    if (currentState == nullptr)
+    {
+        jassertfalse;
+        return;
+    }
 
+    currentState->updateColourBrush();
     resetPendingClipList();
 }
 
@@ -924,7 +926,7 @@ void Direct2DGraphicsContext::drawImage (const Image& imageIn, const AffineTrans
                     continue;
 
                 const auto src = intersection - pageBounds.getPosition().toFloat();
-                const auto dst = getRect (intersection - pagesAndArea.area.getPosition().toFloat()).toNearestInt().toFloat();
+                const auto dst = getRect (intersection - pagesAndArea.area.getPosition().toFloat());
                 const auto [srcConverted, dstConverted] = std::tuple (D2DUtilities::toRECT_F (src),
                                                                       D2DUtilities::toRECT_F (dst));
 
@@ -945,17 +947,29 @@ void Direct2DGraphicsContext::drawImage (const Image& imageIn, const AffineTrans
                 }
                 else
                 {
+                    const auto lastMode = deviceContext->GetAntialiasMode();
+
+                    if (pagesAndArea.pages.size() > 1)
+                        deviceContext->SetAntialiasMode (D2D1_ANTIALIAS_MODE_ALIASED);
+
                     deviceContext->DrawBitmap (page.bitmap,
                                                dstConverted,
                                                currentState->fillType.getOpacity(),
                                                currentState->interpolationMode,
                                                srcConverted,
                                                {});
+
+                    deviceContext->SetAntialiasMode (lastMode);
                 }
             }
         };
 
-        if (imageTransform.isOnlyTranslation() || D2DHelpers::isTransformAxisAligned (imageTransform))
+        const auto canDrawWithoutTransform = imageTransform.isOnlyTranslation()
+                                             || (D2DHelpers::isTransformAxisAligned (imageTransform)
+                                                 && 0.0f < imageTransform.mat00
+                                                 && 0.0f < imageTransform.mat11);
+
+        if (canDrawWithoutTransform)
         {
             drawTiles ([&] (auto intersection)
             {
@@ -1123,6 +1137,13 @@ void Direct2DGraphicsContext::drawGlyphs (Span<const uint16_t> glyphNumbers,
     if (brush == nullptr)
         return;
 
+    const auto getBrushTransform = [] (auto brushIn) -> AffineTransform
+    {
+        D2D1::Matrix3x2F matrix{};
+        brushIn->GetTransform (&matrix);
+        return D2DUtilities::matrixToTransform (matrix);
+    };
+
     applyPendingClipList();
 
     D2D1_POINT_2F baselineOrigin { 0.0f, 0.0f };
@@ -1133,12 +1154,17 @@ void Direct2DGraphicsContext::drawGlyphs (Span<const uint16_t> glyphNumbers,
     }
     else
     {
-        D2D1::Matrix3x2F matrix{};
-        brush->GetTransform (&matrix);
-        const auto brushTransform = D2DUtilities::matrixToTransform (matrix);
-        brush->SetTransform (D2DUtilities::transformToMatrix (brushTransform.followedBy (textTransform.inverted())));
+        if (brush != currentState->colourBrush)
+        {
+            const auto brushTransform = getBrushTransform (brush);
+            brush->SetTransform (D2DUtilities::transformToMatrix (brushTransform.followedBy (textTransform.inverted())));
+        }
+
         getPimpl()->setDeviceContextTransform (textAndWorldTransform);
     }
+
+    // There's no need to transform a plain colour brush
+    jassert (brush != currentState->colourBrush || getBrushTransform (brush).isIdentity());
 
     auto& run = getPimpl()->glyphRun;
     run.replace (positions, fontScale);

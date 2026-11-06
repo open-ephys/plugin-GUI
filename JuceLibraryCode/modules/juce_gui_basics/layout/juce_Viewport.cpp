@@ -52,7 +52,9 @@ struct Viewport::DragToScrollListener final : private MouseListener,
     ~DragToScrollListener() override
     {
         viewport.contentHolder.removeMouseListener (this);
-        Desktop::getInstance().removeGlobalMouseListener (this);
+
+        if (auto* desktop = Desktop::getInstanceWithoutCreating())
+            desktop->removeGlobalMouseListener (this);
     }
 
     void stopOngoingAnimation()

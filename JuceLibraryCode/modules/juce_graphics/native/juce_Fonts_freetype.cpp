@@ -260,7 +260,7 @@ public:
         {
             for (const auto& iter : RangedDirectoryIterator (File::getCurrentWorkingDirectory().getChildFile (path), true))
             {
-                if (iter.getFile().hasFileExtension ("ttf;pfb;pcf;otf"))
+                if (iter.getFile().hasFileExtension ("ttf;otf"))
                     scanFont (iter.getFile());
             }
         }
@@ -438,37 +438,59 @@ public:
         if (cache == nullptr)
             return {};
 
-        FcPatternPtr pattern { FcPatternCreate() };
-
+        const auto makeBasicPattern = [&]
         {
+            FcPatternPtr pattern { FcPatternCreate() };
+
+            {
+                FcValue value{};
+                value.type = FcTypeString;
+                value.u.s = unalignedPointerCast<const FcChar8*> (ftFace->face->style_name);
+                FcPatternAdd (pattern.get(), FC_STYLE, value, FcFalse);
+            }
+
+            {
+                const FcCharSetPtr charset { FcCharSetCreate() };
+                for (const auto& character : text)
+                    FcCharSetAddChar (charset.get(), (FcChar32) character);
+                FcPatternAddCharSet (pattern.get(), FC_CHARSET, charset.get());
+            }
+
+            if (language.isNotEmpty())
+            {
+                const FcLangSetPtr langset { FcLangSetCreate() };
+                FcLangSetAdd (langset.get(), unalignedPointerCast<const FcChar8*> (language.toRawUTF8()));
+                FcPatternAddLangSet (pattern.get(), FC_LANG, langset.get());
+            }
+
+            return pattern;
+        };
+
+        const auto fallbackWithFamily = std::invoke ([&]
+        {
+            auto pattern = makeBasicPattern();
+
             FcValue value{};
             value.type = FcTypeString;
             value.u.s = unalignedPointerCast<const FcChar8*> (ftFace->face->family_name);
             FcPatternAddWeak (pattern.get(), FC_FAMILY, value, FcFalse);
-        }
 
+            return fromPattern (pattern.get());
+        });
+
+        if (fallbackWithFamily == nullptr)
         {
-            FcValue value{};
-            value.type = FcTypeString;
-            value.u.s = unalignedPointerCast<const FcChar8*> (ftFace->face->style_name);
-            FcPatternAddWeak (pattern.get(), FC_STYLE, value, FcFalse);
+            jassertfalse;
+            return {};
         }
 
-        {
-            const FcCharSetPtr charset { FcCharSetCreate() };
-            for (const auto& character : text)
-                FcCharSetAddChar (charset.get(), (FcChar32) character);
-            FcPatternAddCharSet (pattern.get(), FC_CHARSET, charset.get());
-        }
+        if (text.isEmpty() || fallbackWithFamily->getNominalGlyphForCodepoint (*text.getCharPointer()).has_value())
+            return fallbackWithFamily;
 
-        if (language.isNotEmpty())
-        {
-            const FcLangSetPtr langset { FcLangSetCreate() };
-            FcLangSetAdd (langset.get(), unalignedPointerCast<const FcChar8*> (language.toRawUTF8()));
-            FcPatternAddLangSet (pattern.get(), FC_LANG, langset.get());
-        }
-
-        return fromPattern (pattern.get());
+        const auto fallbackWithoutFamily = fromPattern (makeBasicPattern().get());
+        jassert (fallbackWithoutFamily != nullptr
+                 && fallbackWithoutFamily->getNominalGlyphForCodepoint (*text.getCharPointer()).has_value());
+        return fallbackWithoutFamily;
        #else
         // Font substitution will not work unless fontconfig is enabled.
         jassertfalse;

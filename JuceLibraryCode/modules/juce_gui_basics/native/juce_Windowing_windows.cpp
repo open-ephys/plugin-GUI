@@ -2555,10 +2555,16 @@ private:
 
     bool windowUsesNativeShadow() const
     {
-        return hasTitleBar()
-            || (   (0 != (styleFlags & windowHasDropShadow))
-                && (0 == (styleFlags & windowIsSemiTransparent))
-                && (0 == (styleFlags & windowIsTemporary)));
+        if (hasTitleBar())
+            return true;
+
+        // On Windows 11, the native drop shadow also gives us a 1px transparent border and rounded
+        // corners, which doesn't look great in kiosk mode. Disable the native shadow for
+        // fullscreen windows.
+        return Desktop::getInstance().getKioskModeComponent() != &component
+               && (0 != (styleFlags & windowHasDropShadow))
+               && (0 == (styleFlags & windowIsSemiTransparent))
+               && (0 == (styleFlags & windowIsTemporary));
     }
 
     void updateShadower()
@@ -2807,6 +2813,11 @@ private:
 
             doMouseEvent (getPointFromLocalLParam (lParam), MouseInputSource::defaultPressure);
         }
+
+        // If this is the first event after receiving both a MOUSEACTIVATE and a SETFOCUS, then
+        // process the postponed focus update.
+        if (std::exchange (mouseActivateFlags, (uint8_t) 0) == (gotMouseActivate | gotSetFocus))
+            handleSetFocus();
     }
 
     void doMouseUp (Point<float> position, const WPARAM wParam, bool adjustCapture = true)
@@ -3504,7 +3515,14 @@ private:
             const ScopedValueSetter<bool> scope (inHandlePositionChanged, true);
 
             if (! areOtherTouchSourcesActive())
-                doMouseEvent (pos, MouseInputSource::defaultPressure);
+            {
+                auto modsToSend = ModifierKeys::getCurrentModifiers();
+
+                if (! Desktop::getInstance().getMainMouseSource().isDragging())
+                    modsToSend = modsToSend.withoutMouseButtons();
+
+                doMouseEvent (pos, MouseInputSource::defaultPressure, 0.0f, modsToSend);
+            }
 
             if (! isValidPeer (this))
                 return true;
@@ -3781,6 +3799,27 @@ private:
         return {};
     }
 
+    void handleSetFocus()
+    {
+        /*  When the HWND receives Focus from the system it sends a
+            UIA_AutomationFocusChangedEventId notification redirecting the focus to the HWND
+            itself. This is a built-in behaviour of the HWND.
+
+            This means that whichever JUCE managed provider was active before the entire
+            window lost and then regained the focus, loses its focused state, and the
+            window's root element will become focused under which all JUCE managed providers
+            can be found.
+
+            This needs to be reflected on currentlyFocusedHandler so that the JUCE
+            accessibility mechanisms can detect that the root window got the focus, and send
+            another FocusChanged event to the system to redirect focus to a JUCE managed
+            provider if necessary.
+        */
+        AccessibilityHandler::clearCurrentlyFocusedHandler();
+        updateKeyModifiers();
+        handleFocusGain();
+    }
+
     LRESULT peerWindowProc (HWND h, UINT message, WPARAM wParam, LPARAM lParam)
     {
         switch (message)
@@ -3838,7 +3877,8 @@ private:
                     // and if Microsoft's own VS Code doesn't have perfect mouse handling I don't
                     // think we can be expected to either!
 
-                    if ((styleFlags & windowIsResizable) != 0)
+                    if ((styleFlags & windowIsResizable) != 0
+                        && Desktop::getInstance().getKioskModeComponent() != &component)
                     {
                         const ScopedThreadDPIAwarenessSetter scope { hwnd };
 
@@ -3921,7 +3961,7 @@ private:
                 // so that the client area exactly fills the available space.
                 if (isFullScreen())
                 {
-                    const auto monitor = MonitorFromWindow (hwnd, MONITOR_DEFAULTTONULL);
+                    const auto monitor = MonitorFromRect (param, MONITOR_DEFAULTTONULL);
 
                     if (monitor == nullptr)
                         return 0;
@@ -4080,23 +4120,14 @@ private:
 
             //==============================================================================
             case WM_SETFOCUS:
-                /*  When the HWND receives Focus from the system it sends a
-                    UIA_AutomationFocusChangedEventId notification redirecting the focus to the HWND
-                    itself. This is a built-in behaviour of the HWND.
+                mouseActivateFlags |= gotSetFocus;
 
-                    This means that whichever JUCE managed provider was active before the entire
-                    window lost and then regained the focus, loses its focused state, and the
-                    window's root element will become focused under which all JUCE managed providers
-                    can be found.
+                // If we've received a MOUSEACTIVATE, wait until we've seen the relevant mouse event
+                // before updating the focus.
+                if ((mouseActivateFlags & gotMouseActivate) != 0)
+                    break;
 
-                    This needs to be reflected on currentlyFocusedHandler so that the JUCE
-                    accessibility mechanisms can detect that the root window got the focus, and send
-                    another FocusChanged event to the system to redirect focus to a JUCE managed
-                    provider if necessary.
-                */
-                AccessibilityHandler::clearCurrentlyFocusedHandler();
-                updateKeyModifiers();
-                handleFocusGain();
+                handleSetFocus();
                 break;
 
             case WM_KILLFOCUS:
@@ -4146,10 +4177,15 @@ private:
 
             case WM_POINTERACTIVATE:
             case WM_MOUSEACTIVATE:
+            {
+                mouseActivateFlags = 0;
+
                 if (! component.getMouseClickGrabsKeyboardFocus())
                     return MA_NOACTIVATE;
 
+                mouseActivateFlags |= gotMouseActivate;
                 break;
+            }
 
             case WM_SHOWWINDOW:
                 if (wParam != 0)
@@ -4690,6 +4726,26 @@ private:
     SharedResourcePointer<TopLevelModalDismissBroadcaster> modalDismissBroadcaster;
     IMEHandler imeHandler;
     bool shouldIgnoreModalDismiss = false;
+
+    /*  When the user clicks on a window, the window gets sent WM_MOUSEACTIVATE, WM_ACTIVATE,
+        and WM_SETFOCUS, before sending a WM_LBUTTONDOWN or other pointer event.
+        However, if the WM_SETFOCUS message immediately calls SetFocus to move the focus to a
+        different window (e.g. a foreground modal window), then no mouse event will be sent to the
+        initially-activated window. This differs from the behaviour on other platforms, where the
+        mouse event always reaches the activated window. Failing to emit a mouse event breaks user
+        interaction: in the Toolbars pane of the WidgetsDemo, we create a foreground modal
+        customisation dialog. The window containing the toolbar is not modal, but still expects to
+        receive mouse events so that the toolbar buttons can be dragged around.
+
+        To avoid the system eating the mouse event sent to the initially-activated window, we
+        postpone processing the WM_SETFOCUS until *after* the activation mouse event.
+    */
+    enum MouseActivateFlags : uint8_t
+    {
+        gotMouseActivate = 1 << 0,
+        gotSetFocus      = 1 << 1,
+    };
+    uint8_t mouseActivateFlags = 0;
 
     ScopedSuspendResumeNotificationRegistration suspendResumeRegistration;
     std::optional<TimedCallback> monitorUpdateTimer;
@@ -5546,6 +5602,7 @@ void HWNDComponentPeer::setCurrentRenderingEngine (int e)
         // can only be created once per window.
         renderContext.reset();
         renderContext = contextDescriptors[e].construct (*this);
+        InvalidateRect (hwnd, nullptr, TRUE);
     }
 }
 

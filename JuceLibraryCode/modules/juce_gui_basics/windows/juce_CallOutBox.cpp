@@ -198,7 +198,7 @@ bool CallOutBox::keyPressed (const KeyPress& key)
 
 void CallOutBox::updatePosition (const Rectangle<int>& newAreaToPointTo, const Rectangle<int>& newAreaToFitIn)
 {
-    targetArea = newAreaToPointTo;
+    const auto targetAreaChanged = std::exchange (targetArea, newAreaToPointTo) != newAreaToPointTo;
     availableArea = newAreaToFitIn;
 
     auto borderSpace = getBorderSize();
@@ -246,6 +246,10 @@ void CallOutBox::updatePosition (const Rectangle<int>& newAreaToPointTo, const R
                                    (int) (centre.y - (float) hh));
         }
     }
+
+    // The path is refreshed already for bounds changes
+    if (targetAreaChanged && getBounds() == newBounds)
+        refreshPath();
 
     setBounds (newBounds);
 }

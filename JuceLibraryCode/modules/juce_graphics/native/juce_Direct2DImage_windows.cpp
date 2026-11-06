@@ -580,6 +580,8 @@ void Direct2DPixelData::moveValidatedImageSection (Point<int> destTopLeft, Recta
         return;
     }
 
+    sendDataChangeMessage();
+
     Ptr staging = new Direct2DPixelData { pixelFormat,
                                           sourceRect.getWidth(),
                                           sourceRect.getHeight(),
@@ -678,11 +680,16 @@ void Direct2DPixelData::copyPages (ComSmartPtr<ID2D1Device1> deviceToUse,
                                    Point<int> dstPoint,
                                    Rectangle<int> srcRect)
 {
+    auto& srcPages = srcData.getPagesStructForDevice (deviceToUse);
+    srcPages.getPages();
+
     copyAcrossMultiplePages (dstData.getPagesStructForDevice (deviceToUse),
                              dstPoint,
-                             srcData.getPagesStructForDevice (deviceToUse),
+                             srcPages,
                              srcRect,
                              copyDstFromSrc);
+
+    dstData.state = State::outdated;
 }
 
 std::unique_ptr<LowLevelGraphicsContext> Direct2DPixelData::createLowLevelContext()
@@ -762,8 +769,11 @@ void Direct2DPixelData::initialiseBitmapData (Image::BitmapData& bitmap,
 
     // If we're about to read from the image, and the main-memory copy of the image is outdated,
     // then we must force a backup so that we can return up-to-date data
-    if (mode != Image::BitmapData::writeOnly && state == State::outdated)
+    if (mode != Image::BitmapData::writeOnly
+        || Rectangle { x, y, bitmap.width, bitmap.height } != Rectangle { width, height })
+    {
         createPersistentBackup (nullptr);
+    }
 
     backingData->initialiseBitmapData (bitmap, x, y, mode);
 
@@ -771,6 +781,8 @@ void Direct2DPixelData::initialiseBitmapData (Image::BitmapData& bitmap,
     // mark them as outdated.
     if (mode == Image::BitmapData::readOnly)
         return;
+
+    sendDataChangeMessage();
 
     struct Releaser : public Image::BitmapData::BitmapDataReleaser
     {
@@ -901,6 +913,14 @@ void Direct2DPixelData::applySingleChannelBoxBlurEffectInArea (Rectangle<int> b,
                     end = effect;
                 }
             }
+        }
+
+        if (begin == nullptr || end == nullptr)
+        {
+            // This can happen if the radius is 0. Even a non-zero radius passed to DropShadow can
+            // become 0 when a < 1.0 scale factor is applied to the Component with the shadow.
+            jassertfalse;
+            return nullptr;
         }
 
         begin->SetInput (0, input);
