@@ -1,0 +1,228 @@
+; Installation INF for the Opal Kelly USB Driver for Windows 2000/XP/Vista/7
+; Devices covered by this INF:
+;    XEM3001v1        VID:151F  PID:0020
+;    XEM3001v2        VID:151F  PID:0021
+;    XEM3010          VID:151F  PID:0022
+;    XEM3005          VID:151F  PID:0023
+;    XEM3001CL        VID:151F  PID:0024
+;    XEM3020          VID:151F  PID:0025
+;    XEM3050          VID:151F  PID:0028
+;    XEM9002          VID:151F  PID:0029
+;    XEM3001RB        VID:151F  PID:002A
+;    XEM5010          VID:151F  PID:002B
+;    XEM6001          VID:151F  PID:002C
+;    XEM6010-LX45     VID:151F  PID:002D
+;    XEM6010-LX150    VID:151F  PID:002E
+;    XEM6006-LX9      VID:151F  PID:002F
+;    XEM6006-LX16     VID:151F  PID:0030
+;    XEM6006-LX25     VID:151F  PID:0031
+;    XEM5010-LX110    VID:151F  PID:0032
+;    XEM6002-LX9      VID:151F  PID:0033
+;    XEM7001-A15      VID:151F  PID:0034
+;    XEM7001-A35      VID:151F  PID:0035
+;    ZEM4310          VID:151F  PID:0120
+;    XEM6310-LX45     VID:151F  PID:0121
+;    XEM6310-LX150    VID:151F  PID:0122
+;    XEM6310MT-LX45T  VID:151F  PID:0123
+;    XEM6320-LX130T   VID:151F  PID:0124
+;    XEM7350-K70T     VID:151F  PID:0125
+;    XEM7350-K160T    VID:151F  PID:0126
+;    XEM7350-K410T    VID:151F  PID:0127
+;    XEM6310MT-LX150T VID:151F  PID:0128
+;    ZEM5305-A2       VID:151F  PID:0129
+;    ZEM5305-A7       VID:151F  PID:012A
+;    XEM7360-K160T    VID:151F  PID:012B
+;    XEM7360-K410T    VID:151F  PID:012C
+;
+
+; ================ Version section =================
+[Version]
+Signature = "$Windows NT$"
+Class = okFrontPanelClass
+ClassGuid = {C4CAF39F-201C-46d2-813B-9F6542CC7686}
+Provider = %OPALKELLY%
+CatalogFile = okusb.cat
+DriverVer = 05/05/2012, 2.3.0.0
+ 
+; ========== Manufacturer/Models sections =========== 
+[Manufacturer] 
+%ProviderName% = OpalKellyDevice,NTx86,NTamd64 
+
+[OpalKellyDevice.NTx86]
+%VID_151F&PID_0020.DeviceDesc%=USB_Install, USB\VID_151F&PID_0020
+%VID_151F&PID_0021.DeviceDesc%=USB_Install, USB\VID_151F&PID_0021
+%VID_151F&PID_0022.DeviceDesc%=USB_Install, USB\VID_151F&PID_0022
+%VID_151F&PID_0023.DeviceDesc%=USB_Install, USB\VID_151F&PID_0023
+%VID_151F&PID_0024.DeviceDesc%=USB_Install, USB\VID_151F&PID_0024
+%VID_151F&PID_0025.DeviceDesc%=USB_Install, USB\VID_151F&PID_0025
+%VID_151F&PID_0028.DeviceDesc%=USB_Install, USB\VID_151F&PID_0028
+%VID_151F&PID_0029.DeviceDesc%=USB_Install, USB\VID_151F&PID_0029
+%VID_151F&PID_002A.DeviceDesc%=USB_Install, USB\VID_151F&PID_002A
+%VID_151F&PID_002B.DeviceDesc%=USB_Install, USB\VID_151F&PID_002B
+%VID_151F&PID_002C.DeviceDesc%=USB_Install, USB\VID_151F&PID_002C
+%VID_151F&PID_002D.DeviceDesc%=USB_Install, USB\VID_151F&PID_002D
+%VID_151F&PID_002E.DeviceDesc%=USB_Install, USB\VID_151F&PID_002E
+%VID_151F&PID_002F.DeviceDesc%=USB_Install, USB\VID_151F&PID_002F
+%VID_151F&PID_0030.DeviceDesc%=USB_Install, USB\VID_151F&PID_0030
+%VID_151F&PID_0031.DeviceDesc%=USB_Install, USB\VID_151F&PID_0031
+%VID_151F&PID_0032.DeviceDesc%=USB_Install, USB\VID_151F&PID_0032
+%VID_151F&PID_0033.DeviceDesc%=USB_Install, USB\VID_151F&PID_0033
+%VID_151F&PID_0034.DeviceDesc%=USB_Install, USB\VID_151F&PID_0034
+%VID_151F&PID_0035.DeviceDesc%=USB_Install, USB\VID_151F&PID_0035
+%VID_151F&PID_0120.DeviceDesc%=USB_Install, USB\VID_151F&PID_0120
+%VID_151F&PID_0121.DeviceDesc%=USB_Install, USB\VID_151F&PID_0121
+%VID_151F&PID_0122.DeviceDesc%=USB_Install, USB\VID_151F&PID_0122
+%VID_151F&PID_0123.DeviceDesc%=USB_Install, USB\VID_151F&PID_0123
+%VID_151F&PID_0124.DeviceDesc%=USB_Install, USB\VID_151F&PID_0124
+%VID_151F&PID_0125.DeviceDesc%=USB_Install, USB\VID_151F&PID_0125
+%VID_151F&PID_0126.DeviceDesc%=USB_Install, USB\VID_151F&PID_0126
+%VID_151F&PID_0127.DeviceDesc%=USB_Install, USB\VID_151F&PID_0127
+%VID_151F&PID_0128.DeviceDesc%=USB_Install, USB\VID_151F&PID_0128
+%VID_151F&PID_0129.DeviceDesc%=USB_Install, USB\VID_151F&PID_0129
+%VID_151F&PID_012A.DeviceDesc%=USB_Install, USB\VID_151F&PID_012A
+%VID_151F&PID_012B.DeviceDesc%=USB_Install, USB\VID_151F&PID_012B
+%VID_151F&PID_012C.DeviceDesc%=USB_Install, USB\VID_151F&PID_012C
+
+[OpalKellyDevice.NTamd64]
+%VID_151F&PID_0020.DeviceDesc%=USB_Install, USB\VID_151F&PID_0020
+%VID_151F&PID_0021.DeviceDesc%=USB_Install, USB\VID_151F&PID_0021
+%VID_151F&PID_0022.DeviceDesc%=USB_Install, USB\VID_151F&PID_0022
+%VID_151F&PID_0023.DeviceDesc%=USB_Install, USB\VID_151F&PID_0023
+%VID_151F&PID_0024.DeviceDesc%=USB_Install, USB\VID_151F&PID_0024
+%VID_151F&PID_0025.DeviceDesc%=USB_Install, USB\VID_151F&PID_0025
+%VID_151F&PID_0028.DeviceDesc%=USB_Install, USB\VID_151F&PID_0028
+%VID_151F&PID_0029.DeviceDesc%=USB_Install, USB\VID_151F&PID_0029
+%VID_151F&PID_002A.DeviceDesc%=USB_Install, USB\VID_151F&PID_002A
+%VID_151F&PID_002B.DeviceDesc%=USB_Install, USB\VID_151F&PID_002B
+%VID_151F&PID_002C.DeviceDesc%=USB_Install, USB\VID_151F&PID_002C
+%VID_151F&PID_002D.DeviceDesc%=USB_Install, USB\VID_151F&PID_002D
+%VID_151F&PID_002E.DeviceDesc%=USB_Install, USB\VID_151F&PID_002E
+%VID_151F&PID_002F.DeviceDesc%=USB_Install, USB\VID_151F&PID_002F
+%VID_151F&PID_0030.DeviceDesc%=USB_Install, USB\VID_151F&PID_0030
+%VID_151F&PID_0031.DeviceDesc%=USB_Install, USB\VID_151F&PID_0031
+%VID_151F&PID_0032.DeviceDesc%=USB_Install, USB\VID_151F&PID_0032
+%VID_151F&PID_0033.DeviceDesc%=USB_Install, USB\VID_151F&PID_0033
+%VID_151F&PID_0034.DeviceDesc%=USB_Install, USB\VID_151F&PID_0034
+%VID_151F&PID_0035.DeviceDesc%=USB_Install, USB\VID_151F&PID_0035
+%VID_151F&PID_0120.DeviceDesc%=USB_Install, USB\VID_151F&PID_0120
+%VID_151F&PID_0121.DeviceDesc%=USB_Install, USB\VID_151F&PID_0121
+%VID_151F&PID_0122.DeviceDesc%=USB_Install, USB\VID_151F&PID_0122
+%VID_151F&PID_0123.DeviceDesc%=USB_Install, USB\VID_151F&PID_0123
+%VID_151F&PID_0124.DeviceDesc%=USB_Install, USB\VID_151F&PID_0124
+%VID_151F&PID_0125.DeviceDesc%=USB_Install, USB\VID_151F&PID_0125
+%VID_151F&PID_0126.DeviceDesc%=USB_Install, USB\VID_151F&PID_0126
+%VID_151F&PID_0127.DeviceDesc%=USB_Install, USB\VID_151F&PID_0127
+%VID_151F&PID_0128.DeviceDesc%=USB_Install, USB\VID_151F&PID_0128
+%VID_151F&PID_0129.DeviceDesc%=USB_Install, USB\VID_151F&PID_0129
+%VID_151F&PID_012A.DeviceDesc%=USB_Install, USB\VID_151F&PID_012A
+%VID_151F&PID_012B.DeviceDesc%=USB_Install, USB\VID_151F&PID_012B
+%VID_151F&PID_012C.DeviceDesc%=USB_Install, USB\VID_151F&PID_012C
+
+
+ 
+; ================== Installation ==================
+[ClassInstall]
+AddReg=ClassAddReg
+
+[ClassInstall32]
+AddReg=ClassAddReg
+
+[ClassAddReg]
+HKR,,,,"%ClassName%"
+HKR,,Icon,,-28
+ 
+[USB_Install]
+Include = WinUSB.inf 
+Needs = WinUSB.NT 
+ 
+[USB_Install.Services]
+Include = WinUSB.inf
+AddService = WinUSB, 0x00000002, WinUSB_ServiceInstall
+ 
+[WinUSB_ServiceInstall]
+DisplayName   = %WinUSB_SvcDesc%
+ServiceType   = 1
+StartType     = 3
+ErrorControl  = 1
+ServiceBinary = %12%\WinUSB.sys
+ 
+[USB_Install.Wdf]
+KmdfService = WinUSB, WinUSB_Install
+ 
+[WinUSB_Install]
+KmdfLibraryVersion = 1.9
+ 
+[USB_Install.HW]
+AddReg = Dev_AddReg
+ 
+[Dev_AddReg]
+HKR,,DeviceInterfaceGUIDs,0x00010000,"{7A1A3EB2-9C2C-47be-BE55-FF3332A722FD}"
+  
+[USB_Install.CoInstallers]
+AddReg = CoInstallers_AddReg
+CopyFiles = CoInstallers_CopyFiles
+ 
+[CoInstallers_AddReg]
+HKR, , CoInstallers32, 0x00010000, "WinUSBCoInstaller2.dll","WdfCoInstaller01009.dll, WdfCoInstaller"
+ 
+[CoInstallers_CopyFiles]
+WinUSBCoInstaller2.dll
+WdfCoInstaller01009.dll
+
+[DestinationDirs]
+CoInstallers_CopyFiles = 11
+
+[SourceDisksNames.x86]
+1 = %MediaDescription%,,,
+[SourceDisksNames.amd64]
+1 = %MediaDescription%,,,
+ 
+[SourceDisksFiles.x86]
+WinUSBCoInstaller2.dll = 1
+WdfCoInstaller01009.dll = 1
+ 
+[SourceDisksFiles.amd64]
+WinUSBCoInstaller2.dll = 1
+WdfCoInstaller01009.dll = 1
+ 
+ 
+; ==================== Strings =====================
+[Strings]
+OPALKELLY="Opal Kelly"
+ClassName="FrontPanel devices"
+ProviderName="Opal Kelly"
+MediaDescription="Opal Kelly Installation Disc"
+WinUSB_SvcDesc="Opal Kelly USB FrontPanel Driver"
+VID_151F&PID_0020.DeviceDesc="Opal Kelly XEM3001v1"
+VID_151F&PID_0021.DeviceDesc="Opal Kelly XEM3001v2"
+VID_151F&PID_0022.DeviceDesc="Opal Kelly XEM3010"
+VID_151F&PID_0023.DeviceDesc="Opal Kelly XEM3005"
+VID_151F&PID_0024.DeviceDesc="Opal Kelly XEM3001CL"
+VID_151F&PID_0025.DeviceDesc="Opal Kelly XEM3020"
+VID_151F&PID_0028.DeviceDesc="Opal Kelly XEM3050"
+VID_151F&PID_0029.DeviceDesc="Opal Kelly XEM9002"
+VID_151F&PID_002A.DeviceDesc="Opal Kelly XEM3001RB"
+VID_151F&PID_002B.DeviceDesc="Opal Kelly XEM5010"
+VID_151F&PID_002C.DeviceDesc="Opal Kelly XEM6001"
+VID_151F&PID_002D.DeviceDesc="Opal Kelly XEM6010-LX45"
+VID_151F&PID_002E.DeviceDesc="Opal Kelly XEM6010-LX150"
+VID_151F&PID_002F.DeviceDesc="Opal Kelly XEM6006-LX9"
+VID_151F&PID_0030.DeviceDesc="Opal Kelly XEM6006-LX16"
+VID_151F&PID_0031.DeviceDesc="Opal Kelly XEM6006-LX25"
+VID_151F&PID_0032.DeviceDesc="Opal Kelly XEM5010-LX110"
+VID_151F&PID_0033.DeviceDesc="Opal Kelly XEM6002-LX9"
+VID_151F&PID_0034.DeviceDesc="Opal Kelly XEM7001-A15"
+VID_151F&PID_0035.DeviceDesc="Opal Kelly XEM7001-A35"
+VID_151F&PID_0120.DeviceDesc="Opal Kelly ZEM4310"
+VID_151F&PID_0121.DeviceDesc="Opal Kelly XEM6310-LX45"
+VID_151F&PID_0122.DeviceDesc="Opal Kelly XEM6310-LX150"
+VID_151F&PID_0123.DeviceDesc="Opal Kelly XEM6310MT-LX45T"
+VID_151F&PID_0124.DeviceDesc="Opal Kelly XEM6320-LX130T"
+VID_151F&PID_0125.DeviceDesc="Opal Kelly XEM7350-K70T"
+VID_151F&PID_0126.DeviceDesc="Opal Kelly XEM7350-K160T"
+VID_151F&PID_0127.DeviceDesc="Opal Kelly XEM7350-K410T"
+VID_151F&PID_0128.DeviceDesc="Opal Kelly XEM6310MT-LX150T"
+VID_151F&PID_0129.DeviceDesc="Opal Kelly ZEM5305-A2"
+VID_151F&PID_012A.DeviceDesc="Opal Kelly ZEM5305-A7"
+VID_151F&PID_012B.DeviceDesc="Opal Kelly XEM7360-K160T"
+VID_151F&PID_012C.DeviceDesc="Opal Kelly XEM7360-K410T"

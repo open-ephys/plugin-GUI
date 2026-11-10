@@ -21,9 +21,13 @@ on:
     - 'Source/**'
     - 'CMakeLists.txt'
     - 'HelperFunctions.cmake'
+  release:
+    types: [published]
+  workflow_dispatch:
 
 jobs:
   build-windows:
+    if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
 
     runs-on: ${{ matrix.os }}
     strategy:
@@ -56,8 +60,6 @@ jobs:
         elif [ ${{github.ref_name}} == 'testing' ]; then
           version_suffix=-beta
           artifactory_repo=Test
-        elif [ ${{github.ref_name}} == 'main' ]; then
-          artifactory_repo=Release
         else
           echo "This branch is not configured for deployment."
           exit 0
@@ -74,8 +76,6 @@ jobs:
         user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
         curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/${artifactory_repo}/windows/$zipfile"
 
-        cp ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
-        cp ../Resources/DLLs/FTD3XXDriver_WHQLCertified_1.3.0.10_Installer.exe open-ephys
         cd open-ephys
         rm -f msvcp140.dll vcruntime140.dll vcruntime140_1.dll
         cd ../../Resources/Installers/Windows
@@ -83,4 +83,109 @@ jobs:
         installer=Install-Open-Ephys-GUI-${gui_ver}${version_suffix}.exe
         mv Open-Ephys_Installer.exe $installer
         curl -H $user_info -T $installer "https://openephys.jfrog.io/artifactory/GUI-binaries/${artifactory_repo}-Installer/windows/$installer"
+      shell: bash
+
+  # Signed release build. Runs only when a GitHub release is published or when triggered manually,
+  # and uses the code-signing environment, which holds the Azure Key Vault configuration
+  release-windows:
+    if: (github.event_name == 'release' && !github.event.release.prerelease) || github.event_name == 'workflow_dispatch'
+
+    runs-on: windows-2022
+    environment: code-signing
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: check release ref
+      env:
+        RELEASE_BRANCH: ${{ vars.RELEASE_BRANCH || 'main' }}
+        REF_NAME: ${{ github.ref_name }}
+        REF_TYPE: ${{ github.ref_type }}
+      run: |
+        # Release builds must come from a commit that is already on the release branch
+        git fetch --no-tags origin "$RELEASE_BRANCH"
+        if ! git merge-base --is-ancestor HEAD FETCH_HEAD; then
+          echo "::error::$REF_NAME is not part of $RELEASE_BRANCH. Release builds must come from $RELEASE_BRANCH"
+          exit 1
+        fi
+
+        # Release tags must match the version in CMakeLists.txt
+        gui_ver=v$(grep -w CMakeLists.txt -e 'GUI_VERSION' | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+(-([0-9A-Za-z\.-]+))?")
+        if [ "$REF_TYPE" == 'tag' ] && [ "$REF_NAME" != "$gui_ver" ]; then
+          echo "::error::Tag $REF_NAME does not match GUI_VERSION in CMakeLists.txt ($gui_ver)"
+          exit 1
+        fi
+      shell: bash
+    - name: configure
+      run: |
+        cd Build 
+        cmake -G "Visual Studio 17 2022" -A x64 ..
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v3
+    - name: build
+      run: |
+        msbuild Build/ALL_BUILD.vcxproj -p:Configuration=Release -p:Platform=x64 -m
+    - name: Azure login
+      uses: azure/login@v3
+      with:
+        client-id: ${{ vars.AZURE_CLIENT_ID }}
+        tenant-id: ${{ vars.AZURE_TENANT_ID }}
+        subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+    - name: Install AzureSignTool
+      run: |
+        dotnet tool install --global AzureSignTool --version 7.0.1
+        "$env:USERPROFILE\.dotnet\tools" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+      shell: pwsh
+    - name: sign binaries
+      env:
+        AZURE_KEY_VAULT_URL: ${{ vars.AZURE_KEY_VAULT_URL }}
+        AZURE_KEY_VAULT_CERTIFICATE: ${{ vars.AZURE_KEY_VAULT_CERTIFICATE }}
+      run: |
+        # Sign every executable and library in the build output. Files already signed by their vendor are skipped
+        Get-ChildItem -Path Build/Release -Recurse -Include *.exe,*.dll | ForEach-Object { $_.FullName } | Set-Content files_to_sign.txt
+        Get-Content files_to_sign.txt
+        AzureSignTool sign -kvu $env:AZURE_KEY_VAULT_URL -kvc $env:AZURE_KEY_VAULT_CERTIFICATE -kvm `
+          -fd sha256 -tr http://timestamp.digicert.com -td sha256 `
+          -d "Open Ephys GUI" -du https://open-ephys.org -s -v -ifl files_to_sign.txt
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        Remove-Item files_to_sign.txt
+        $invalid = Get-ChildItem -Path Build/Release -Recurse -Include *.exe,*.dll | Get-AuthenticodeSignature | Where-Object { $_.Status -ne 'Valid' }
+        if ($invalid) { $invalid | Format-Table -AutoSize; Write-Error "Some binaries are not properly signed"; exit 1 }
+      shell: pwsh
+    - name: deploy
+      env:
+        ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+        AZURE_KEY_VAULT_URL: ${{ vars.AZURE_KEY_VAULT_URL }}
+        AZURE_KEY_VAULT_CERTIFICATE: ${{ vars.AZURE_KEY_VAULT_CERTIFICATE }}
+      run: |
+        gui_ver=v$(grep -w CMakeLists.txt -e 'GUI_VERSION' | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+(-([0-9A-Za-z\.-]+))?")
+        artifactory_repo=Release
+
+        cd Build
+        cp -r Release open-ephys
+        cp ../LICENSE open-ephys
+        cp C:/Windows/System32/msvcp140.dll open-ephys
+        cp C:/Windows/System32/vcruntime140.dll open-ephys
+        cp C:/Windows/System32/vcruntime140_1.dll open-ephys
+        zipfile=open-ephys-${gui_ver}-windows.zip
+        powershell Compress-Archive -Path "open-ephys" -DestinationPath "$zipfile"
+        user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
+        curl -H "$user_info" -T "$zipfile" "https://openephys.jfrog.io/artifactory/GUI-binaries/${artifactory_repo}/windows/$zipfile"
+
+        cd open-ephys
+        rm -f msvcp140.dll vcruntime140.dll vcruntime140_1.dll
+        cd ../../Resources/Installers/Windows
+        # Inno Setup signs both the installer and the embedded uninstaller through the azsign tool
+        # $q and $f are Inno Setup placeholders (quote and file to sign), not shell variables
+        # shellcheck disable=SC2016
+        sign_cmd='AzureSignTool sign -kvu '"$AZURE_KEY_VAULT_URL"' -kvc '"$AZURE_KEY_VAULT_CERTIFICATE"' -kvm -fd sha256 -tr http://timestamp.digicert.com -td sha256 -d $qOpen Ephys GUI$q -du https://open-ephys.org $f'
+        MSYS_NO_PATHCONV=1 iscc /DSIGN "/Sazsign=$sign_cmd" "windows_installer_script.iss"
+        installer=Install-Open-Ephys-GUI-${gui_ver}.exe
+        mv Open-Ephys_Installer.exe "$installer"
+        powershell -Command "if ((Get-AuthenticodeSignature '$installer').Status -ne 'Valid') { Write-Error 'Installer signature is not valid'; exit 1 }"
+        curl -H "$user_info" -T "$installer" "https://openephys.jfrog.io/artifactory/GUI-binaries/${artifactory_repo}-Installer/windows/$installer"
       shell: bash

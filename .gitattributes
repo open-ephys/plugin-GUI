@@ -1,1 +1,3 @@
 * text=auto
+# Signed driver packages: catalog hashes require byte-exact INF files
+Resources/DLLs/*_Driver/** -text

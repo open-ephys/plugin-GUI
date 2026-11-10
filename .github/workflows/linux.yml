@@ -21,9 +21,13 @@ on:
     - 'Source/**'
     - 'CMakeLists.txt'
     - 'HelperFunctions.cmake'
+  release:
+    types: [published]
+  workflow_dispatch:
 
 jobs:
   build-ubuntu:
+    if: github.event_name != 'release' || !github.event.release.prerelease
 
     runs-on: ubuntu-22.04
     
@@ -31,6 +35,27 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
+    - name: check release ref
+      if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+      env:
+        RELEASE_BRANCH: ${{ vars.RELEASE_BRANCH || 'main' }}
+        REF_NAME: ${{ github.ref_name }}
+        REF_TYPE: ${{ github.ref_type }}
+      run: |
+        # Release builds must come from a commit that is already on the release branch
+        git fetch --no-tags origin "$RELEASE_BRANCH"
+        if ! git merge-base --is-ancestor HEAD FETCH_HEAD; then
+          echo "::error::$REF_NAME is not part of $RELEASE_BRANCH. Release builds must come from $RELEASE_BRANCH"
+          exit 1
+        fi
+
+        # Release tags must match the version in CMakeLists.txt
+        gui_ver=v$(grep -w CMakeLists.txt -e 'GUI_VERSION' | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+(-([0-9A-Za-z\.-]+))?")
+        if [ "$REF_TYPE" == 'tag' ] && [ "$REF_NAME" != "$gui_ver" ]; then
+          echo "::error::Tag $REF_NAME does not match GUI_VERSION in CMakeLists.txt ($gui_ver)"
+          exit 1
+        fi
+      shell: bash
     - name: build
       env:
         CC: gcc-10
@@ -47,15 +72,15 @@ jobs:
       run: |
         gui_ver=v$(grep -w CMakeLists.txt -e 'GUI_VERSION' | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+(-([0-9A-Za-z\.-]+))?")
 
-        if [ ${{github.ref_name}} == 'development' ]; then
+        if [ ${{github.event_name}} == 'release' ] || [ ${{github.event_name}} == 'workflow_dispatch' ]; then
+          artifactory_repo=Release
+        elif [ ${{github.ref_name}} == 'development' ]; then
           version_suffix=-dev
           artifactory_repo=Dev
           gui_ver=latest
         elif [ ${{github.ref_name}} == 'testing' ]; then
           version_suffix=-beta
           artifactory_repo=Test
-        elif [ ${{github.ref_name}} == 'main' ]; then
-          artifactory_repo=Release
         else
           echo "This branch is not configured for deployment."
           exit 0
