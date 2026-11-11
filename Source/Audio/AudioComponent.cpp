@@ -24,6 +24,8 @@
 #include "AudioComponent.h"
 #include "../AccessClass.h"
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
+#include <cmath>
+#include <limits>
 #include <stdio.h>
 
 #include "../CoreServices.h"
@@ -88,7 +90,6 @@ AudioComponent::AudioComponent() : isPlaying (false)
     AudioDeviceManager::AudioDeviceSetup setup;
     setup = deviceManager.getAudioDeviceSetup();
 
-    setup.bufferSize = 1024; /// larger buffer = fewer empty blocks, but longer latencies
     setup.useDefaultInputChannels = false;
     setup.inputChannels = 0;
     setup.useDefaultOutputChannels = true;
@@ -99,9 +100,14 @@ AudioComponent::AudioComponent() : isPlaying (false)
 
     if (msg.isNotEmpty())
         LOGE (msg);
+    msg = applyClosestBufferSize (defaultBufferDurationMs, false);
+
+    if (msg.isNotEmpty())
+        LOGE (msg);
 
     String devType = deviceManager.getCurrentAudioDeviceType();
     LOGC ("Audio device type: ", devType);
+    setup = deviceManager.getAudioDeviceSetup();
 
     float sr = setup.sampleRate;
     int buffSize = setup.bufferSize;
@@ -114,10 +120,13 @@ AudioComponent::AudioComponent() : isPlaying (false)
     std::cout << std::endl;
 
     graphPlayer = std::make_unique<AudioProcessorPlayer>();
+    updateTrackedDevice();
+    deviceManager.addChangeListener (this);
 }
 
 AudioComponent::~AudioComponent()
 {
+    deviceManager.removeChangeListener (this);
     if (callbacksAreActive())
         endCallbacks();
 }
@@ -128,6 +137,107 @@ int AudioComponent::getBufferSize()
     deviceManager.getAudioDeviceSetup (setup);
 
     return setup.bufferSize;
+}
+
+int AudioComponent::findClosestBufferSizeForDuration (const Array<int>& availableBufferSizes,
+                                                      double sampleRate,
+                                                      double targetDurationMs)
+{
+    if (sampleRate <= 0.0 || targetDurationMs <= 0.0)
+        return 0;
+
+    const double targetSamples = sampleRate * targetDurationMs / 1000.0;
+    double closestDistance = std::numeric_limits<double>::max();
+    int closestBufferSize = 0;
+
+    for (int bufferSize : availableBufferSizes)
+    {
+        if (bufferSize <= 0)
+            continue;
+
+        const double distance = std::abs (double (bufferSize) - targetSamples);
+        if (distance < closestDistance
+            || (distance == closestDistance && bufferSize > closestBufferSize))
+        {
+            closestDistance = distance;
+            closestBufferSize = bufferSize;
+        }
+    }
+
+    return closestBufferSize;
+}
+
+String AudioComponent::applyClosestBufferSize (double targetDurationMs, bool treatAsChosenDevice)
+{
+    auto* device = deviceManager.getCurrentAudioDevice();
+    if (device == nullptr)
+        return "Cannot select an audio buffer size without an active device.";
+
+    AudioDeviceManager::AudioDeviceSetup setup = deviceManager.getAudioDeviceSetup();
+    const int closestBufferSize = findClosestBufferSizeForDuration (
+        device->getAvailableBufferSizes(),
+        setup.sampleRate,
+        targetDurationMs);
+
+    if (closestBufferSize <= 0)
+        return "The current audio device did not report any valid buffer sizes.";
+
+    if (setup.bufferSize != closestBufferSize)
+    {
+        setup.bufferSize = closestBufferSize;
+        String error = deviceManager.setAudioDeviceSetup (setup, treatAsChosenDevice);
+        if (error.isNotEmpty())
+            return error;
+    }
+
+    const auto actualSetup = deviceManager.getAudioDeviceSetup();
+    const double actualDurationMs = actualSetup.sampleRate > 0.0
+                                        ? 1000.0 * double (actualSetup.bufferSize) / actualSetup.sampleRate
+                                        : 0.0;
+    LOGC ("Selected audio buffer size: ",
+          actualSetup.bufferSize,
+          " samples (",
+          String (actualDurationMs, 2),
+          " ms; target ",
+          String (targetDurationMs, 2),
+          " ms)");
+
+    return {};
+}
+
+void AudioComponent::updateTrackedDevice()
+{
+    const auto setup = deviceManager.getAudioDeviceSetup();
+    trackedDeviceType = deviceManager.getCurrentAudioDeviceType();
+    trackedInputDeviceName = setup.inputDeviceName;
+    trackedOutputDeviceName = setup.outputDeviceName;
+}
+
+void AudioComponent::changeListenerCallback (ChangeBroadcaster* source)
+{
+    if (source != &deviceManager)
+        return;
+
+    const auto setup = deviceManager.getAudioDeviceSetup();
+    const String deviceType = deviceManager.getCurrentAudioDeviceType();
+    const bool deviceChanged = deviceType != trackedDeviceType
+                               || setup.inputDeviceName != trackedInputDeviceName
+                               || setup.outputDeviceName != trackedOutputDeviceName;
+
+    updateTrackedDevice();
+
+    if (deviceChanged && deviceManager.getCurrentAudioDevice() != nullptr)
+    {
+        LOGC ("Audio device changed; selecting the available buffer size closest to ",
+              String (defaultBufferDurationMs, 2),
+              " ms.");
+
+        const String error = applyClosestBufferSize (defaultBufferDurationMs, true);
+        if (error.isNotEmpty())
+            LOGE ("Unable to select a default audio buffer size: " + error);
+
+        updateTrackedDevice();
+    }
 }
 
 void AudioComponent::setBufferSize (int bufferSize)
@@ -341,24 +451,38 @@ void AudioComponent::saveStateToXml (XmlElement* parent)
 
 void AudioComponent::loadStateFromXml (XmlElement* parent)
 {
-    for (auto* child : parent->getChildIterator())
-    {
-        if (! child->isTextElement())
-        {
-            deviceManager.closeAudioDevice(); // necessary to ensure correct device type gets created
+    const XmlElement* savedDeviceState = parent->getChildByName ("DEVICESETUP");
+    bool restoredSavedDevice = false;
 
-            String error = deviceManager.initialise (
+    if (savedDeviceState != nullptr)
+    {
+        deviceManager.closeAudioDevice();
+
+        String error = deviceManager.initialise (
+            0, // numInputChannelsNeeded
+            2, // numOutputChannelsNeeded
+            savedDeviceState, // savedState
+            false, // detect failure instead of silently selecting the default device
+            String(), // preferred device
+            nullptr); // preferred device setup options
+
+        restoredSavedDevice = error.isEmpty();
+
+        if (! restoredSavedDevice)
+        {
+            LOGC ("Saved audio device could not be opened: ",
+                  error,
+                  " Selecting the default device instead.");
+
+            error = deviceManager.initialise (
                 0, // numInputChannelsNeeded
                 2, // numOutputChannelsNeeded
-                child, // savedState
+                nullptr, // savedState
                 true, // selectDefaultDeviceOnFailure
                 String(), // preferred device
                 nullptr); // preferred device setup options
-
-            if (error.isEmpty())
-            {
-                break;
-            }
+            if (error.isNotEmpty())
+                LOGE ("Error initializing the default audio device: " + error);
         }
     }
 
@@ -372,20 +496,13 @@ void AudioComponent::loadStateFromXml (XmlElement* parent)
     AudioDeviceManager::AudioDeviceSetup setup;
     setup = deviceManager.getAudioDeviceSetup();
 
-    double sampleRate = parent->getDoubleAttribute ("sampleRate");
+    const double savedStateSampleRate = savedDeviceState != nullptr
+                                            ? savedDeviceState->getDoubleAttribute ("audioDeviceRate")
+                                            : 0.0;
+    const double sampleRate = parent->getDoubleAttribute ("sampleRate", savedStateSampleRate);
     if (sampleRate > 0)
     {
         setup.sampleRate = sampleRate;
-    }
-
-    int bufferSize = parent->getIntAttribute ("bufferSize");
-    if (bufferSize > 16 && bufferSize < 6000)
-    {
-        setup.bufferSize = bufferSize;
-    }
-    else
-    {
-        LOGE ("Buffer size out of range.");
     }
 
     String error = deviceManager.setAudioDeviceSetup (setup, true);
@@ -394,4 +511,31 @@ void AudioComponent::loadStateFromXml (XmlElement* parent)
     {
         LOGE ("Error loading audio device setup: " + error);
     }
+
+    const int savedStateBufferSize = savedDeviceState != nullptr
+                                         ? savedDeviceState->getIntAttribute ("audioDeviceBufferSize")
+                                         : 0;
+    const int bufferSize = parent->getIntAttribute ("bufferSize", savedStateBufferSize);
+    double targetDurationMs = defaultBufferDurationMs;
+
+    if (restoredSavedDevice && bufferSize > 16 && bufferSize < 6000)
+    {
+        const double durationSampleRate = sampleRate > 0.0
+                                              ? sampleRate
+                                              : deviceManager.getAudioDeviceSetup().sampleRate;
+        if (durationSampleRate > 0.0)
+            targetDurationMs = 1000.0 * double (bufferSize) / durationSampleRate;
+    }
+    else if (restoredSavedDevice && bufferSize != 0)
+    {
+        LOGE ("Saved buffer size out of range; selecting the available size closest to ",
+              String (defaultBufferDurationMs, 2),
+              " ms.");
+    }
+
+    error = applyClosestBufferSize (targetDurationMs, true);
+    if (error.isNotEmpty())
+        LOGE ("Error loading audio buffer size: " + error);
+
+    updateTrackedDevice();
 }

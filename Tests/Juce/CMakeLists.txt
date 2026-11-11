@@ -2,6 +2,7 @@ include(../ComponentRules.cmake)
 
 add_sources(${COMPONENT_NAME}_tests
 	AudioBufferTests.cpp
+	AudioComponentTests.cpp
 	AudioProcessorGraphTests.cpp
 	ChangeBroadcasterTests.cpp
 	ChangeListenerTests.cpp

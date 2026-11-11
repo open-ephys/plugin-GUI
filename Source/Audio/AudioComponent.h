@@ -42,7 +42,7 @@
 
 */
 
-class TESTABLE AudioComponent
+class TESTABLE AudioComponent : private ChangeListener
 {
 public:
     /** Constructor. Finds the audio component (if there is one), and sets the
@@ -82,6 +82,11 @@ public:
 
     /** Returns the buffer size (in samples) currently being used.*/
     int getBufferSize();
+    /** Returns the available buffer size closest to a target duration.
+        Ties prefer the larger buffer. Returns 0 when no valid choice exists. */
+    static int findClosestBufferSizeForDuration (const Array<int>& availableBufferSizes,
+                                                 double sampleRate,
+                                                 double targetDurationMs);
 
     /** Sets the buffer size (in samples) to be used.*/
     void setBufferSize (int bufferSize);
@@ -122,9 +127,17 @@ public:
     AudioDeviceManager deviceManager;
 
 private:
+    static constexpr double defaultBufferDurationMs = 23.0;
     bool isPlaying;
 
     std::unique_ptr<AudioProcessorPlayer> graphPlayer;
+    String applyClosestBufferSize (double targetDurationMs, bool treatAsChosenDevice);
+    void updateTrackedDevice();
+    void changeListenerCallback (ChangeBroadcaster* source) override;
+
+    String trackedDeviceType;
+    String trackedInputDeviceName;
+    String trackedOutputDeviceName;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioComponent);
 };
