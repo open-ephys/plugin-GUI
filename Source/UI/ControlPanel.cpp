@@ -271,6 +271,25 @@ CPUMeter::CPUMeter() : Component ("CPU Meter"),
 void CPUMeter::updateCPU (float usage)
 {
     cpu = usage;
+    // Four readings at the ControlPanel's 250 ms refresh interval span about one second.
+    constexpr int colourWindowSize = 4;
+    colourUsageHistory.add (jlimit (0.0f, 1.0f, usage));
+    if (colourUsageHistory.size() > colourWindowSize)
+        colourUsageHistory.remove (0);
+
+    colourUsage = 0.0f;
+    for (const float reading : colourUsageHistory)
+        colourUsage += reading;
+    colourUsage /= float (colourUsageHistory.size());
+
+    repaint();
+}
+
+void CPUMeter::reset()
+{
+    cpu = 0.0f;
+    colourUsage = 0.0f;
+    colourUsageHistory.clear();
 
     repaint();
 }
@@ -280,9 +299,9 @@ void CPUMeter::paint (Graphics& g)
     g.fillAll (findColour (ThemeColours::defaultFill));
 
     const float usage = jlimit (0.0f, 1.0f, cpu);
-    const Colour meterColour = usage < 0.5f
-                                   ? Colours::yellow.interpolatedWith (Colours::orange, usage * 2.0f)
-                                   : Colours::orange.interpolatedWith (Colours::red, (usage - 0.5f) * 2.0f);
+    const Colour meterColour = colourUsage < 0.8f
+                                   ? Colours::yellow
+                                   : Colours::yellow.interpolatedWith (Colours::red, (colourUsage - 0.8f) * 5.0f);
     g.setColour (meterColour);
     g.fillRect (0.0f, 0.0f, getWidth() * usage, float (getHeight()));
 
@@ -785,6 +804,7 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
         {
             cpuWarningShown = false;
             cpuUsageHistory.clear();
+            cpuMeter->reset();
         }
         acquisitionActive = true;
         playButton->setToggleState (true, dontSendNotification);
@@ -1616,7 +1636,7 @@ void ControlPanel::refreshMeters()
     }
     else
     {
-        cpuMeter->updateCPU (0.0f);
+        cpuMeter->reset();
     }
 
     clock->repaint();

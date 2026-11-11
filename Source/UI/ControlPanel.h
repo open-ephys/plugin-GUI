@@ -166,8 +166,8 @@ public:
 
 */
 
-class CPUMeter : public Component,
-                 public SettableTooltipClient
+class TESTABLE CPUMeter : public Component,
+                          public SettableTooltipClient
 {
 public:
     /** Constructor*/
@@ -179,6 +179,8 @@ public:
     /** Updates the load level displayed by the CPUMeter. Called by
          the ControlPanel. */
     void updateCPU (float usage);
+    /** Clears the displayed load and colour smoothing history. */
+    void reset();
 
     /** Draws the CPUMeter. */
     void paint (Graphics& g);
@@ -186,6 +188,8 @@ public:
 private:
     FontOptions font;
     float cpu;
+    float colourUsage = 0.0f;
+    Array<float> colourUsageHistory;
 
     void mouseUp (const MouseEvent& e) override;
 };
